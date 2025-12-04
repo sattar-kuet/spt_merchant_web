@@ -5,7 +5,7 @@ import { BsBox2 } from "react-icons/bs";
 import { CiSettings } from "react-icons/ci";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
-import Avatar from "./ui/Avatar";
+import Avatar from "@/components/ui/Avatar";
 
 
 const menuItems = [

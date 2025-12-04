@@ -1,5 +1,6 @@
-import Dashboard from "./page/Dashboard"
+import Dashboard from "../Dashboard"
 import RightSideHeader from "./RightSideHeader"
+
 
 const Rightside = () => {
   return (

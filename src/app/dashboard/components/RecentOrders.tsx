@@ -1,6 +1,6 @@
 import React from 'react'
-import RecentOrderSkeleton from './ui/RecentOrderSkeleton'
 import Link from 'next/link'
+import RecentOrderSkeleton from '@/components/ui/RecentOrderSkeleton';
 
 
 interface RecentOrderItems {

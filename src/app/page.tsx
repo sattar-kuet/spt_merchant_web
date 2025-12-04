@@ -1,5 +1,6 @@
-import LeftBar from "@/components/LeftBar";
-import Rightside from "@/components/RightSide";
+import LeftBar from "./dashboard/components/LeftBar";
+import Rightside from "./dashboard/components/RightSide";
+
 
 export default function Home() {
   return (

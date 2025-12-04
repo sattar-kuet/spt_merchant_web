@@ -1,8 +1,8 @@
 import { FaBars } from "react-icons/fa6";
-import Button from "./ui/Button";
-import Balance from "./ui/Balance";
 import { FaRegBell } from "react-icons/fa";
-import Avatar from "./ui/Avatar";
+import Button from "@/components/ui/Button";
+import Balance from "@/components/ui/Balance";
+import Avatar from "@/components/ui/Avatar";
 
 
 const imgLink = "https://avatars.githubusercontent.com/u/173485995?v=4&size=64"
