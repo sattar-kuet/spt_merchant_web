@@ -1,0 +1,40 @@
+"use client";
+
+import React from "react";
+
+const OrderSummary: React.FC<{
+  codAmount: number;
+}> = ({ codAmount }) => {
+  const deliveryCharge = 5.0;
+  const codFee = 1.5;
+  const total = +(deliveryCharge + codFee + codAmount).toFixed(2);
+
+  return (
+    <div className="sticky top-6 space-y-4">
+      <div className="bg-white rounded-lg border border-slate-200 p-4">
+        <h4 className="font-medium">Order Summary</h4>
+        <div className="mt-3 text-sm text-slate-600">
+          <div className="flex justify-between py-1">
+            <span>Delivery Charge</span>
+            <span>${deliveryCharge.toFixed(2)}</span>
+          </div>
+          <div className="flex justify-between py-1">
+            <span>COD Fee</span>
+            <span>${codFee.toFixed(2)}</span>
+          </div>
+          <div className="flex justify-between pt-3 border-t mt-2 font-semibold">
+            <span>Total Amount to Collect</span>
+            <span className="text-blue-600">${total.toFixed(2)}</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex justify-end gap-3">
+        <button className="rounded-md border px-4 py-2 text-sm">Cancel</button>
+        <button className="rounded-md bg-blue-600 px-4 py-2 text-sm text-white">Create Parcel</button>
+      </div>
+    </div>
+  );
+};
+
+export default OrderSummary;
