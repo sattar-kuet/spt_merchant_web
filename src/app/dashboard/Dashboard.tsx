@@ -1,7 +1,7 @@
 import React from "react";
 import InfoSkeleton from "../../components/ui/InfoSkeleton";
-import GrowthChart from "./components/GrowthChart";
 import RecentOrders from "./components/RecentOrders";
+import GrowthChart from "./components/GrowthChart";
 
 interface DashboardItem {
   title: string;
@@ -37,6 +37,13 @@ const dashboardInfo: DashboardItem[] = [
   },
 ];
 
+const colors = [
+  "bg-orange-200",
+  "bg-orange-300",
+  "bg-orange-400",
+  "bg-orange-400",
+];
+
 const Dashboard = () => {
   return (
     <div className="my-8 flex flex-col gap-3 w-full">
@@ -47,17 +54,17 @@ const Dashboard = () => {
         </p>
       </div>
 
-      <div className="flex gap-3">
-        {dashboardInfo.map((item) => (
-          <InfoSkeleton key={item.title} item={item} />
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        {dashboardInfo.map((item, index) => (
+          <InfoSkeleton key={item.title} item={item} bg={colors[index]} />
         ))}
       </div>
 
-      <div className="flex w-full gap-3">
-        <div className="w-4/6">
+      <div className="flex flex-col lg:flex-row w-full gap-3">
+        <div className="lg:w-4/6">
           <GrowthChart />
         </div>
-        <div className="w-2/6">
+        <div className="lg:w-2/6">
           <RecentOrders />
         </div>
       </div>

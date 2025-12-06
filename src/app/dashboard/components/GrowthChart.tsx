@@ -1,5 +1,13 @@
-"use client"
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+"use client";
+import {
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+} from "recharts";
 
 const data = [
   { x: 1, y: 200 },
@@ -10,20 +18,20 @@ const data = [
 
 const GrowthChart = () => {
   return (
-    <div className='px-4 py-3 md:px-5 md:py-4 xl:px-6 xl:py-5 bg-white rounded-md'>
-      <div style={{ outline: 'none' }}>
+    <div className="px-4 py-3 md:px-5 md:py-4 xl:px-6 xl:py-5 bg-white rounded-md">
+      <div style={{ outline: "none" }}>
         <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={data}>
+          <BarChart width={600} height={300} data={data}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="x" />
             <YAxis />
             <Tooltip />
-            <Line type="monotone" dataKey="y" stroke="#0ea5e9" strokeWidth={2} />
-          </LineChart>
+            <Bar dataKey="y" fill="#0ea5e9" />
+          </BarChart>
         </ResponsiveContainer>
       </div>
     </div>
   );
-}
+};
 
 export default GrowthChart;

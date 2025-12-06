@@ -6,7 +6,7 @@ interface DashboardItem {
   status: "growing" | "equal" | "warning";
 }
 
-const InfoSkeleton = ({ item }: { item: DashboardItem }) => {
+const InfoSkeleton = ({ item,bg }: { item: DashboardItem, bg: string } ) => {
   // Determine color based on status
   const progressColor =
     item.status === "growing"
@@ -16,7 +16,7 @@ const InfoSkeleton = ({ item }: { item: DashboardItem }) => {
       : "text-red-500";
 
   return (
-    <div className="px-4 py-3 md:px-5 md:py-4 xl:px-6 xl:py-5 bg-white rounded-md w-full">
+    <div className={`p-4 rounded-lg shadow-sm flex flex-col gap-2 ${bg}`}>
       <p className="text-sm text-gray-500">{item.title}</p>
       <p className="text-3xl font-semibold">{item.amount}</p>
       <p className={`text-sm font-medium ${progressColor}`}>{item.progress}</p>
