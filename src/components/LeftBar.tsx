@@ -11,7 +11,6 @@ import Avatar from "@/components/ui/Avatar";
 const menuItems = [
     { name: "Dashboard", path: "/", icon: <MdDashboard size={20} /> },
     { name: "All Parcels", path: "/parcels", icon: <BsBox2 size={20} /> },
-    {name: "All orders", path: "/orders", icon: <BsBox2 size={20} /> },
     { name: "Reports", path: "/reports", icon: <MdBarChart size={20} /> },
     { name: "Settings", path: "/settings", icon: <CiSettings size={20} /> },
 ];

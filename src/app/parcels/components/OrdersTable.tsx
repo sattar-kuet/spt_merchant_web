@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { useRouter } from "next/navigation";
 
 type Order = {
   id: string;
@@ -26,6 +27,13 @@ const Badge: React.FC<{ children: React.ReactNode; color?: string }> = ({ childr
 );
 
 const OrdersTable: React.FC = () => {
+  const router = useRouter();
+
+  const goToOrder = (rawId: string) => {
+    const id = rawId.replace(/[^a-zA-Z0-9-_]/g, "");
+    router.push(`/parcels/${encodeURIComponent(id)}`);
+  };
+
   return (
     <div className="bg-white border border-slate-200 rounded-lg overflow-hidden">
       <table className="w-full text-sm">
@@ -44,8 +52,17 @@ const OrdersTable: React.FC = () => {
         </thead>
         <tbody>
           {sampleOrders.map((o) => (
-            <tr key={o.id} className="border-t">
-              <td className="p-4"><input type="checkbox"/></td>
+            <tr
+              key={o.id}
+              className="border-t hover:bg-slate-50 cursor-pointer"
+              role="button"
+              tabIndex={0}
+              onClick={() => goToOrder(o.id)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") goToOrder(o.id);
+              }}
+            >
+              <td className="p-4"><input type="checkbox" onClick={(e) => e.stopPropagation()} /></td>
               <td className="p-4 font-medium">{o.id}</td>
               <td className="p-4 text-slate-500">{o.tracking}</td>
               <td className="p-4">
