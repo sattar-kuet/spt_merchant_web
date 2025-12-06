@@ -5,7 +5,7 @@ import Balance from "@/components/ui/Balance";
 import Avatar from "@/components/ui/Avatar";
 
 
-const imgLink = "https://avatars.githubusercontent.com/u/173485995?v=4&size=64"
+const imgLink = "https://avatars.githubusercontent.com/u/173485995?v=4&size=64";
 
 const RightSideHeader = () => {
     return (
@@ -14,16 +14,15 @@ const RightSideHeader = () => {
                 <FaBars size={15} />
             </div>
             <div className="flex gap-2 justify-center items-center">
-                <Button text="Add Bulk Parcel" url="/" focused={false} />
-                <Button text="Add Single Parcel" url="/" focused />
+                <Button text="Add Bulk Parcel" url="/parcels/add-parcel/bulk-parcel" focused />
+                <Button text="Add Single Parcel" url="/parcels/add-parcel/single-parcel" focused={false} />
                 <Balance text="Available Balance" balance="3000" />
                 <FaRegBell size={20} />
-
 
                 <Avatar imgLink={imgLink} />
             </div>
         </div>
-    )
+    );
 }
 
-export default RightSideHeader
+export default RightSideHeader;

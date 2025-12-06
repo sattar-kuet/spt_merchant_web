@@ -1,5 +1,5 @@
 import Dashboard from "../Dashboard"
-import RightSideHeader from "./RightSideHeader"
+import RightSideHeader from "../../../components/RightSideHeader"
 
 
 const Rightside = () => {
