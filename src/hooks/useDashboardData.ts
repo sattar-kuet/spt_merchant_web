@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import axios from 'axios';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/context/AuthContext';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3001';
@@ -53,17 +54,49 @@ interface FormattedEarningData {
 }
 
 export const useDashboardData = () => {
-  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
-  const [chartData, setChartData] = useState<ChartData | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-  const [chartLoading, setChartLoading] = useState<boolean>(false);
-  const [chartError, setChartError] = useState<string | null>(null);
   const { user } = useAuth();
+  const queryClient = useQueryClient();
+
+  const fetchDashboard = async (apiKey: string): Promise<DashboardData> => {
+    const response = await axios.get(`${API_BASE_URL}/dashboard`, {
+      headers: { Authorization: `Bearer ${apiKey}` },
+    });
+    if (!response.data.success) throw new Error('Failed to fetch dashboard data');
+    return response.data.data;
+  };
+
+  const fetchChart = async (apiKey: string, endpoint: 'daily' | 'monthly' = 'daily'): Promise<ChartData> => {
+    const response = await axios.get(`${API_BASE_URL}/dashboard/${endpoint}`, {
+      headers: { Authorization: `Bearer ${apiKey}` },
+    });
+    if (!response.data.success) throw new Error('Failed to fetch chart data');
+    return response.data.data;
+  };
+
+  const dashboardQuery = useQuery({
+    queryKey: ['dashboard', user?.api_key],
+    queryFn: () => {
+      if (!user) throw new Error('No user');
+      return fetchDashboard(user.api_key);
+    },
+    enabled: !!user,
+    staleTime: 1000 * 60,
+  });
+
+  const dailyChartQuery = useQuery({
+    queryKey: ['dashboard', 'daily', user?.api_key],
+    queryFn: () => {
+      if (!user) throw new Error('No user');
+      return fetchChart(user.api_key, 'daily');
+    },
+    enabled: !!user,
+    staleTime: 1000 * 60,
+  });
 
   const formatDashboardItems = (): FormattedDashboardItem[] => {
+    const dashboardData = dashboardQuery.data;
     if (!dashboardData) return [];
-    
+
     return [
       {
         title: "Total Orders",
@@ -93,8 +126,9 @@ export const useDashboardData = () => {
   };
 
   const formatRecentOrders = (): FormattedRecentOrder[] => {
+    const dashboardData = dashboardQuery.data;
     if (!dashboardData) return [];
-    
+
     return dashboardData.recent_orders.slice(0, 3).map(order => {
       let status: "Delivered" | "In-Progress" | "Failed" = "In-Progress";
       
@@ -116,87 +150,35 @@ export const useDashboardData = () => {
     });
   };
 
-  const formatEarningData = (): FormattedEarningData[] => {
+  const formatEarningData = (endpoint: 'daily' | 'monthly' = 'daily'): FormattedEarningData[] => {
+    const chartData = endpoint === 'daily' ? dailyChartQuery.data : queryClient.getQueryData(['dashboard', endpoint, user?.api_key]) as ChartData | undefined;
     if (!chartData) return [];
-    
-    return chartData.earning.map((item, index) => ({
-      x: item.label,
-      y: item.value
-    }));
+
+    return chartData.earning.map((item) => ({ x: item.label, y: item.value }));
   };
 
-  const fetchDashboardData = async () => {
-    if (!user) {
-      setLoading(false);
-      return;
-    }
-
-    try {
-      setLoading(true);
-      setError(null);
-      
-      // Make API call to fetch dashboard data
-      const response = await axios.get(`${API_BASE_URL}/dashboard`, {
-        headers: {
-          'Authorization': `Bearer ${user.api_key}`
-        }
-      });
-      
-      if (response.data.success) {
-        setDashboardData(response.data.data);
-      } else {
-        setError('Failed to fetch dashboard data');
-      }
-    } catch (err: any) {
-      console.error('Dashboard data fetch error:', err);
-      setError(err.response?.data?.message || err.message || 'Failed to fetch dashboard data');
-    } finally {
-      setLoading(false);
-    }
-  };
+  // expose a manual refresh
+  const refreshData = () => dashboardQuery.refetch();
 
   const fetchChartData = async (endpoint: 'daily' | 'monthly' = 'daily') => {
-    if (!user) return;
-
-    try {
-      setChartLoading(true);
-      setChartError(null);
-      
-      // Make API call to fetch chart data
-      const response = await axios.get(`${API_BASE_URL}/dashboard/${endpoint}`, {
-        headers: {
-          'Authorization': `Bearer ${user.api_key}`
-        }
-      });
-      
-      if (response.data.success) {
-        setChartData(response.data.data);
-      } else {
-        setChartError('Failed to fetch chart data');
-      }
-    } catch (err: any) {
-      console.error('Chart data fetch error:', err);
-      setChartError(err.response?.data?.message || err.message || 'Failed to fetch chart data');
-    } finally {
-      setChartLoading(false);
-    }
+    if (!user) return null;
+    const key = ['dashboard', endpoint, user.api_key];
+    return queryClient.fetchQuery({ queryKey: key, queryFn: () => fetchChart(user.api_key, endpoint) });
   };
-
   useEffect(() => {
-    fetchDashboardData();
-    fetchChartData('daily'); // Load daily data by default
+    // queries auto-manage fetch when `user` becomes available
   }, [user]);
 
   return {
-    dashboardData,
-    loading,
-    error,
-    chartLoading,
-    chartError,
+    dashboardData: dashboardQuery.data ?? null,
+    loading: dashboardQuery.isLoading,
+    error: dashboardQuery.error ? (dashboardQuery.error as Error).message : null,
+    chartLoading: dailyChartQuery.isLoading,
+    chartError: dailyChartQuery.error ? (dailyChartQuery.error as Error).message : null,
     formattedDashboardItems: formatDashboardItems(),
     formattedRecentOrders: formatRecentOrders(),
     formattedEarningData: formatEarningData(),
-    refreshData: fetchDashboardData,
-    fetchChartData
+    refreshData,
+    fetchChartData,
   };
 };
