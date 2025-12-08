@@ -46,7 +46,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     try {
       setLoading(true);
       // Using your provided endpoint structure
-      const response = await axios.post(`${API_BASE_URL}/api/v1/register`, {
+      const response = await axios.post(`${API_BASE_URL}/register`, {
         name,
         email,
         password
@@ -85,7 +85,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     try {
       setLoading(true);
       // Updated to use your provided endpoint
-      const response = await axios.post(`${API_BASE_URL}/api/v1/login`, {
+      const response = await axios.post(`${API_BASE_URL}/login`, {
         email,
         password
       });

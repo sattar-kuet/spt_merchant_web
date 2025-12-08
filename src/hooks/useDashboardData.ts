@@ -136,7 +136,7 @@ export const useDashboardData = () => {
       setError(null);
       
       // Make API call to fetch dashboard data
-      const response = await axios.get(`${API_BASE_URL}/api/v1/dashboard`, {
+      const response = await axios.get(`${API_BASE_URL}/dashboard`, {
         headers: {
           'Authorization': `Bearer ${user.api_key}`
         }
@@ -163,7 +163,7 @@ export const useDashboardData = () => {
       setChartError(null);
       
       // Make API call to fetch chart data
-      const response = await axios.get(`${API_BASE_URL}/api/v1/dashboard/${endpoint}`, {
+      const response = await axios.get(`${API_BASE_URL}/dashboard/${endpoint}`, {
         headers: {
           'Authorization': `Bearer ${user.api_key}`
         }

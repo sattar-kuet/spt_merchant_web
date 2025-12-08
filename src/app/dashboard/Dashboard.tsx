@@ -81,7 +81,7 @@ const Dashboard = () => {
           </div>
           
           {dashboardData && (
-            <div className="flex-shrink-0">
+            <div className="shrink-0">
               <Balance 
                 text="Available Balance" 
                 balance={dashboardData.balance.toFixed(2)} 
