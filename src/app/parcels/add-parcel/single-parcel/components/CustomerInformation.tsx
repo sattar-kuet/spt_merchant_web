@@ -13,11 +13,14 @@ const CustomerInformation: React.FC<{
   setAddress: (v: string) => void;
   districts?: { id: number; name: string }[];
   cities?: { id: number; name: string }[];
+  pickupPoints?: { id: number; name: string }[];
+  selectedPickupPoint?: string;
+  setSelectedPickupPoint?: (v: string) => void;
   selectedDistrict?: string;
   setSelectedDistrict?: (v: string) => void;
   selectedCity?: string;
   setSelectedCity?: (v: string) => void;
-}> = ({ fullName, setFullName, phone, setPhone, address, setAddress, districts, cities, selectedDistrict, setSelectedDistrict, selectedCity, setSelectedCity }) => {
+}> = ({ fullName, setFullName, phone, setPhone, address, setAddress, districts, cities, pickupPoints, selectedPickupPoint, setSelectedPickupPoint, selectedDistrict, setSelectedDistrict, selectedCity, setSelectedCity }) => {
   return (
     <div className="space-y-4 bg-white rounded-lg border border-slate-200 p-6">
       <h3 className="text-lg font-medium">Customer Information</h3>
@@ -37,9 +40,21 @@ const CustomerInformation: React.FC<{
           value={address}
           onChange={(e) => setAddress(e.target.value)}
           placeholder="Enter full address"
-          className="md:col-span-2"
         />
-
+        <Select value={selectedPickupPoint} onValueChange={setSelectedPickupPoint}>
+          <SelectTrigger>
+            <SelectValue placeholder="Select a pickup point" />
+          </SelectTrigger>
+          <SelectContent>
+            {pickupPoints && pickupPoints.length > 0 ? (
+              pickupPoints.map((p) => (
+                <SelectItem key={p.id} value={String(p.id)}>{p.name}</SelectItem>
+              ))
+            ) : (
+              <SelectItem value="-1" disabled>No pickup points</SelectItem>
+            )}
+          </SelectContent>
+        </Select>
         <Select value={selectedDistrict} onValueChange={setSelectedDistrict}> 
           <SelectTrigger>
             <SelectValue placeholder="Select a district" />
@@ -68,6 +83,7 @@ const CustomerInformation: React.FC<{
             )}
           </SelectContent>
         </Select>
+        
       </div>
     </div>
   );

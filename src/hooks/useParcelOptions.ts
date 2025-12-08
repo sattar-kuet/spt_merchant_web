@@ -50,6 +50,20 @@ export default function useParcelOptions(selectedDistrict?: string) {
     enabled: !!selectedDistrict && selectedDistrict !== "-1",
   });
 
+  const pickupPointsQuery = useQuery({
+    queryKey: ["pickup-points"],
+    queryFn: async () => {
+      const resp = await axiosSecure.get(`/pickup-points`);
+      const payload = resp.data;
+      if (payload == null) return [];
+      if (Array.isArray(payload)) return payload;
+      if (Array.isArray(payload.data)) return payload.data;
+      if (Array.isArray(payload.pickup_points)) return payload.pickup_points;
+      if (Array.isArray(payload.pickupPoints)) return payload.pickupPoints as any;
+      return [];
+    },
+  });
+
   return {
     parcelTypes: parcelTypesQuery.data,
     parcelTypesQuery,
@@ -57,5 +71,7 @@ export default function useParcelOptions(selectedDistrict?: string) {
     districtsQuery,
     cities: citiesQuery.data,
     citiesQuery,
+    pickupPoints: pickupPointsQuery.data,
+    pickupPointsQuery,
   };
 }

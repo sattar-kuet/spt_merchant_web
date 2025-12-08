@@ -20,6 +20,7 @@ const AddParcelForm: React.FC = () => {
 
   const [selectedDistrict, setSelectedDistrict] = useState("");
   const [selectedCity, setSelectedCity] = useState("");
+  const [selectedPickupPoint, setSelectedPickupPoint] = useState("");
   const [calculatedFees, setCalculatedFees] = useState<any | null>(null);
 
   const codNumber = parseFloat(codAmount) || 0;
@@ -27,7 +28,7 @@ const AddParcelForm: React.FC = () => {
   const axiosSecure = useAxiosSecure();
   const queryClient = useQueryClient();
 
-  const { parcelTypes, districts, cities } = useParcelOptions(selectedDistrict);
+  const { parcelTypes, districts, cities, pickupPoints } = useParcelOptions(selectedDistrict);
 
   // normalize fee values to safe numbers to avoid null access at render
   const deliveryChargeNum = Number(calculatedFees?.delivery_charge ?? 0);
@@ -49,6 +50,9 @@ const AddParcelForm: React.FC = () => {
             setAddress={setAddress}
             districts={districts}
             cities={cities}
+            pickupPoints={pickupPoints}
+            selectedPickupPoint={selectedPickupPoint}
+            setSelectedPickupPoint={setSelectedPickupPoint}
             selectedDistrict={selectedDistrict}
             setSelectedDistrict={setSelectedDistrict}
             selectedCity={selectedCity}
@@ -107,6 +111,7 @@ const AddParcelForm: React.FC = () => {
                     customer_address: address,
                     customer_city_id: selectedCity && selectedCity !== "-1" ? Number(selectedCity) : undefined,
                     customer_district_id: selectedDistrict && selectedDistrict !== "-1" ? Number(selectedDistrict) : undefined,
+                    pickup_point_id: selectedPickupPoint && selectedPickupPoint !== "-1" ? Number(selectedPickupPoint) : undefined,
                     total_weight: weight ? Number(weight) : undefined,
                     cod_amount: codNumber,
                   } as any;
