@@ -5,7 +5,10 @@ import AddHeader from "./AddHeader";
 import CustomerInformation from "./CustomerInformation";
 import ParcelDetails from "./ParcelDetails";
 import FinancialInfo from "./FinancialInfo";
-import OrderSummary from "./OrderSummary";
+import FeeCalculator from "@/components/FeeCalculator";
+import useAxiosSecure from "@/hooks/useAxiosSecure";
+import { useQueryClient } from "@tanstack/react-query";
+import useParcelOptions from "@/hooks/useParcelOptions";
 
 const AddParcelForm: React.FC = () => {
   const [fullName, setFullName] = useState("");
@@ -15,7 +18,21 @@ const AddParcelForm: React.FC = () => {
   const [parcelType, setParcelType] = useState("");
   const [codAmount, setCodAmount] = useState("");
 
+  const [selectedDistrict, setSelectedDistrict] = useState("");
+  const [selectedCity, setSelectedCity] = useState("");
+  const [calculatedFees, setCalculatedFees] = useState<any | null>(null);
+
   const codNumber = parseFloat(codAmount) || 0;
+
+  const axiosSecure = useAxiosSecure();
+  const queryClient = useQueryClient();
+
+  const { parcelTypes, districts, cities } = useParcelOptions(selectedDistrict);
+
+  // normalize fee values to safe numbers to avoid null access at render
+  const deliveryChargeNum = Number(calculatedFees?.delivery_charge ?? 0);
+  const codChargeNum = Number(calculatedFees?.cod_charge ?? 0);
+  const totalChargeNum = Number(calculatedFees?.total_charge ?? 0);
 
   return (
     <div className="p-4 sm:p-6 w-full">
@@ -30,6 +47,12 @@ const AddParcelForm: React.FC = () => {
             setPhone={setPhone}
             address={address}
             setAddress={setAddress}
+            districts={districts}
+            cities={cities}
+            selectedDistrict={selectedDistrict}
+            setSelectedDistrict={setSelectedDistrict}
+            selectedCity={selectedCity}
+            setSelectedCity={setSelectedCity}
           />
 
           <ParcelDetails
@@ -37,13 +60,71 @@ const AddParcelForm: React.FC = () => {
             setWeight={setWeight}
             parcelType={parcelType}
             setParcelType={setParcelType}
+            parcelTypes={parcelTypes}
           />
 
           <FinancialInfo codAmount={codAmount} setCodAmount={setCodAmount} />
         </div>
 
         <div className="lg:col-span-1">
-          <OrderSummary codAmount={codNumber} />
+          <FeeCalculator
+            parcel_type_id={parcelType ? Number(parcelType) : undefined}
+            delivery_speed_id={1}
+            total_weight={Number(weight) || undefined}
+            cod_amount={Number(codAmount) || 0}
+            customer_city_id={selectedCity && selectedCity !== "-1" ? Number(selectedCity) : undefined}
+            customer_district_id={selectedDistrict && selectedDistrict !== "-1" ? Number(selectedDistrict) : undefined}
+            onChange={(resp: any) => setCalculatedFees(resp?.data ?? resp)}
+          />
+
+          <div className="bg-white rounded-lg border border-slate-200 p-4 sm:p-6 mt-4">
+            <h4 className="font-medium mb-2">Order Actions</h4>
+            <div className="text-sm text-slate-600 mb-3">
+              <div className="flex justify-between py-1">
+                <span>Delivery Charge</span>
+                <span>{deliveryChargeNum.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between py-1">
+                <span>COD Fee</span>
+                <span>{codChargeNum.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between pt-3 border-t mt-2 font-semibold">
+                <span>Total Amount to Collect</span>
+                <span className="text-blue-600">{(totalChargeNum + codNumber).toFixed(2)}</span>
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row justify-end gap-3">
+              <button className="btn btn-outline w-full sm:w-auto" type="button">Cancel</button>
+              <button
+                className="btn btn-primary w-full sm:w-auto"
+                onClick={async () => {
+                  const payload = {
+                    parcel_type_id: parcelType ? Number(parcelType) : undefined,
+                    delivery_speed_id: 1,
+                    customer_name: fullName,
+                    customer_phone: phone,
+                    customer_address: address,
+                    customer_city_id: selectedCity && selectedCity !== "-1" ? Number(selectedCity) : undefined,
+                    customer_district_id: selectedDistrict && selectedDistrict !== "-1" ? Number(selectedDistrict) : undefined,
+                    total_weight: weight ? Number(weight) : undefined,
+                    cod_amount: codNumber,
+                  } as any;
+
+                  try {
+                    await axiosSecure.post(`/orders`, payload);
+                    queryClient.invalidateQueries({ queryKey: ["orders"] });
+                    alert("Parcel created successfully");
+                  } catch (err) {
+                    console.error(err);
+                    alert("Failed to create parcel");
+                  }
+                }}
+              >
+                Create Parcel
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>

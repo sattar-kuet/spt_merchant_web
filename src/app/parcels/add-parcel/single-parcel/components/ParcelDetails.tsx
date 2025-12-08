@@ -9,7 +9,8 @@ const ParcelDetails: React.FC<{
   setWeight: (v: string) => void;
   parcelType: string;
   setParcelType: (v: string) => void;
-}> = ({ weight, setWeight, parcelType, setParcelType }) => {
+  parcelTypes?: { id: number; name: string }[];
+}> = ({ weight, setWeight, parcelType, setParcelType, parcelTypes }) => {
   return (
     <div className="mt-4 bg-white rounded-lg border border-slate-200 p-6">
       <h3 className="text-lg font-medium">Parcel Details</h3>
@@ -25,9 +26,19 @@ const ParcelDetails: React.FC<{
             <SelectValue placeholder="Select a type" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="document">Document</SelectItem>
-            <SelectItem value="parcel">Parcel</SelectItem>
-            <SelectItem value="fragile">Fragile</SelectItem>
+            {parcelTypes && parcelTypes.length > 0 ? (
+              parcelTypes.map((t) => (
+                <SelectItem key={t.id} value={String(t.id)}>
+                  {t.name}
+                </SelectItem>
+              ))
+            ) : (
+              <>
+                <SelectItem value="document">Document</SelectItem>
+                <SelectItem value="parcel">Parcel</SelectItem>
+                <SelectItem value="fragile">Fragile</SelectItem>
+              </>
+            )}
           </SelectContent>
         </Select>
       </div>

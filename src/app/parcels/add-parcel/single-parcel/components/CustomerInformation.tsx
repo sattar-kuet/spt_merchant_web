@@ -11,7 +11,13 @@ const CustomerInformation: React.FC<{
   setPhone: (v: string) => void;
   address: string;
   setAddress: (v: string) => void;
-}> = ({ fullName, setFullName, phone, setPhone, address, setAddress }) => {
+  districts?: { id: number; name: string }[];
+  cities?: { id: number; name: string }[];
+  selectedDistrict?: string;
+  setSelectedDistrict?: (v: string) => void;
+  selectedCity?: string;
+  setSelectedCity?: (v: string) => void;
+}> = ({ fullName, setFullName, phone, setPhone, address, setAddress, districts, cities, selectedDistrict, setSelectedDistrict, selectedCity, setSelectedCity }) => {
   return (
     <div className="space-y-4 bg-white rounded-lg border border-slate-200 p-6">
       <h3 className="text-lg font-medium">Customer Information</h3>
@@ -34,20 +40,32 @@ const CustomerInformation: React.FC<{
           className="md:col-span-2"
         />
 
-        <Select>
+        <Select value={selectedDistrict} onValueChange={setSelectedDistrict}> 
           <SelectTrigger>
             <SelectValue placeholder="Select a district" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="district1">District 1</SelectItem>
+            {districts && districts.length > 0 ? (
+              districts.map((d) => (
+                <SelectItem key={d.id} value={String(d.id)}>{d.name}</SelectItem>
+              ))
+            ) : (
+              <SelectItem value="-1" disabled>No districts</SelectItem>
+            )}
           </SelectContent>
         </Select>
-        <Select>
+        <Select value={selectedCity} onValueChange={setSelectedCity}>
           <SelectTrigger>
             <SelectValue placeholder="Select a city" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="city1">City 1</SelectItem>
+            {cities && cities.length > 0 ? (
+              cities.map((c) => (
+                <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>
+              ))
+            ) : (
+              <SelectItem value="-1" disabled>No cities</SelectItem>
+            )}
           </SelectContent>
         </Select>
       </div>
