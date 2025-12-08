@@ -1,5 +1,7 @@
+"use client";
+
 import { useEffect } from 'react';
-import axios from 'axios';
+import useAxiosSecure from '@/hooks/useAxiosSecure';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/context/AuthContext';
 
@@ -56,28 +58,26 @@ interface FormattedEarningData {
 export const useDashboardData = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const axiosSecure = useAxiosSecure();
 
-  const fetchDashboard = async (apiKey: string): Promise<DashboardData> => {
-    const response = await axios.get(`${API_BASE_URL}/dashboard`, {
-      headers: { Authorization: `Bearer ${apiKey}` },
-    });
+  const fetchDashboard = async (): Promise<DashboardData> => {
+    const response = await axiosSecure.get(`/dashboard`);
     if (!response.data.success) throw new Error('Failed to fetch dashboard data');
     return response.data.data;
   };
 
-  const fetchChart = async (apiKey: string, endpoint: 'daily' | 'monthly' = 'daily'): Promise<ChartData> => {
-    const response = await axios.get(`${API_BASE_URL}/dashboard/${endpoint}`, {
-      headers: { Authorization: `Bearer ${apiKey}` },
-    });
+  const fetchChart = async (endpoint: 'daily' | 'monthly' = 'daily'): Promise<ChartData> => {
+    const response = await axiosSecure.get(`/dashboard/${endpoint}`);
     if (!response.data.success) throw new Error('Failed to fetch chart data');
     return response.data.data;
   };
 
+
   const dashboardQuery = useQuery({
     queryKey: ['dashboard', user?.api_key],
-    queryFn: () => {
+    queryFn: async () => {
       if (!user) throw new Error('No user');
-      return fetchDashboard(user.api_key);
+      return fetchDashboard();
     },
     enabled: !!user,
     staleTime: 1000 * 60,
@@ -85,9 +85,9 @@ export const useDashboardData = () => {
 
   const dailyChartQuery = useQuery({
     queryKey: ['dashboard', 'daily', user?.api_key],
-    queryFn: () => {
+    queryFn: async () => {
       if (!user) throw new Error('No user');
-      return fetchChart(user.api_key, 'daily');
+      return fetchChart('daily');
     },
     enabled: !!user,
     staleTime: 1000 * 60,
@@ -163,7 +163,7 @@ export const useDashboardData = () => {
   const fetchChartData = async (endpoint: 'daily' | 'monthly' = 'daily') => {
     if (!user) return null;
     const key = ['dashboard', endpoint, user.api_key];
-    return queryClient.fetchQuery({ queryKey: key, queryFn: () => fetchChart(user.api_key, endpoint) });
+    return queryClient.fetchQuery({ queryKey: key, queryFn: () => fetchChart(endpoint) });
   };
   useEffect(() => {
     // queries auto-manage fetch when `user` becomes available
