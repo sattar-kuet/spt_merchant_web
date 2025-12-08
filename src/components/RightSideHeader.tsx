@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/Button";
 import Balance from "@/components/ui/Balance";
 import { Avatar, AvatarImage } from "@/components/ui/Avatar";
 import { useSidebar } from "@/context/SidebarContext";
-import React, { useState, useEffect } from "react";
+import { useAuth } from "@/context/AuthContext";
+import React, { useState } from "react";
 import { FaTimes } from "react-icons/fa";
 import Link from "next/link";
 
@@ -14,6 +15,7 @@ const imgLink = "https://avatars.githubusercontent.com/u/173485995?v=4&size=64";
 
 const RightSideHeader = () => {
   const { isOpen, toggle } = useSidebar();
+  const { user, logout } = useAuth();
   const [rightOpen, setRightOpen] = useState(false);
   const [isToggling, setIsToggling] = useState(false);
 
@@ -25,6 +27,11 @@ const RightSideHeader = () => {
     toggle();
     // Reset the toggle state after a short delay for visual feedback
     setTimeout(() => setIsToggling(false), 300);
+  };
+
+  const handleLogout = () => {
+    logout();
+    closeRight();
   };
 
   return (
@@ -40,36 +47,53 @@ const RightSideHeader = () => {
           <FaBars size={18} />
         </button>
         <div className="flex gap-2 justify-center items-center">
-          <div className="hidden sm:block">
-            <Link href="/parcels/add-parcel/bulk-parcel">
-              <Button variant="default" size="default">
-                Add Bulk Parcel
-              </Button>
-            </Link>
-          </div>
-          <div className="hidden sm:block">
-            <Link href="/parcels/add-parcel/single-parcel">
-              <Button variant="outline" size="default">
-                Add Single Parcel
-              </Button>
-            </Link>
-          </div>
+          {user ? (
+            <>
+              <div className="hidden sm:block">
+                <Link href="/parcels/add-parcel/bulk-parcel">
+                  <Button variant="default" size="default">
+                    Add Bulk Parcel
+                  </Button>
+                </Link>
+              </div>
+              <div className="hidden sm:block">
+                <Link href="/parcels/add-parcel/single-parcel">
+                  <Button variant="outline" size="default">
+                    Add Single Parcel
+                  </Button>
+                </Link>
+              </div>
 
-          <div className="hidden sm:block">
-            <Balance text="Available Balance" balance="3000" />
-          </div>
-          <FaRegBell size={20} />
+              <div className="hidden sm:block">
+                <Balance text="Available Balance" balance="3000" />
+              </div>
+              <FaRegBell size={20} />
 
-          <div className="ml-2 cursor-pointer" onClick={openRight}>
-            <Avatar>
-              <AvatarImage src={imgLink} alt="avatar" />
-            </Avatar>
-          </div>
+              <div className="ml-2 cursor-pointer" onClick={openRight}>
+                <Avatar>
+                  <AvatarImage src={imgLink} alt="avatar" />
+                </Avatar>
+              </div>
+            </>
+          ) : (
+            <div className="flex gap-2">
+              <Link href="/auth/login">
+                <Button variant="outline" size="default">
+                  Login
+                </Button>
+              </Link>
+              <Link href="/auth/register">
+                <Button variant="default" size="default">
+                  Register
+                </Button>
+              </Link>
+            </div>
+          )}
         </div>
       </div>
 
       {/* Right-side drawer for mobile */}
-      {rightOpen && (
+      {rightOpen && user && (
         <>
           <div
             className="fixed inset-0 z-40 bg-black/30"
@@ -82,10 +106,8 @@ const RightSideHeader = () => {
                   <AvatarImage src={imgLink} alt="avatar" />
                 </Avatar>
                 <div>
-                  <div className="font-medium">John Doe</div>
-                  <div className="text-xs text-slate-500">
-                    Logistics Manager
-                  </div>
+                  <div className="font-medium">{user.name}</div>
+                  <div className="text-xs text-slate-500">{user.email}</div>
                 </div>
               </div>
               <button
@@ -109,6 +131,14 @@ const RightSideHeader = () => {
                     Add Single Parcel
                   </Button>
                 </Link>
+                <Button
+                  variant="outline"
+                  size="default"
+                  className="w-full"
+                  onClick={handleLogout}
+                >
+                  Logout
+                </Button>
               </div>
             </div>
           </div>
