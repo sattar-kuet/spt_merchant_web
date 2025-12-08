@@ -27,40 +27,56 @@ const LeftBar = () => {
     return pathname.startsWith(path);
   };
 
-  // Single sidebar implementation that works on all screen sizes
-  const sidebarClasses = `p-5 bg-white h-screen w-68 ${
-    isOpen ? "block" : "hidden"
+  // Improved responsive sidebar implementation
+  const sidebarClasses = `p-5 bg-white h-screen fixed md:relative md:block z-30 transition-all duration-300 ease-in-out ${
+    isOpen ? "left-0 w-64" : "-left-64 md:left-0 md:w-64"
   }`;
 
   return (
-    <div className={sidebarClasses}>
-      <div className="flex items-center gap-4 mb-8">
-        <Avatar>
-          <AvatarImage src={imgLink} alt="avatar" />
-        </Avatar>
-        <p className="text-base">Parcel.INC</p>
-        <button
+    <>
+      {/* Mobile overlay */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-20 md:hidden"
           onClick={close}
-          className="ml-auto cursor-pointer"
-          aria-label="Close sidebar"
-        >
-          <IoMdClose size={23} />
-        </button>
-      </div>
+        />
+      )}
 
-      {menuItems.map((item) => (
-        <Link
-          href={item.path}
-          key={item.name}
-          className={`${
-            isActive(item.path) ? "text-white bg-blue-600" : "text-slate-700"
-          } flex justify-start items-center px-3 py-2 rounded-sm gap-4 text-xs sm:text-sm md:text-base mb-4`}
-        >
-          {item.icon}
-          {item.name}
-        </Link>
-      ))}
-    </div>
+      <div className={sidebarClasses}>
+        <div className="flex items-center gap-4 mb-8">
+          <Avatar>
+            <AvatarImage src={imgLink} alt="avatar" />
+          </Avatar>
+          <p className="text-base truncate">Parcel.INC</p>
+          <button
+            onClick={close}
+            className="ml-auto cursor-pointer md:hidden"
+            aria-label="Close sidebar"
+          >
+            <IoMdClose size={23} />
+          </button>
+        </div>
+
+        {menuItems.map((item) => (
+          <Link
+            href={item.path}
+            key={item.name}
+            className={`${
+              isActive(item.path) ? "text-white bg-blue-600" : "text-slate-700"
+            } flex justify-start items-center px-3 py-2 rounded-sm gap-4 text-xs sm:text-sm md:text-base mb-4`}
+            onClick={() => {
+              // Close sidebar on mobile after navigation
+              if (window.innerWidth < 768) {
+                close();
+              }
+            }}
+          >
+            {item.icon}
+            <span className="truncate">{item.name}</span>
+          </Link>
+        ))}
+      </div>
+    </>
   );
 };
 

@@ -12,7 +12,7 @@ const OrderSummary: React.FC<{
 
   return (
     <div className="sticky top-6 space-y-4">
-      <div className="bg-white rounded-lg border border-slate-200 p-4">
+      <div className="bg-white rounded-lg border border-slate-200 p-4 sm:p-6">
         <h4 className="font-medium">Order Summary</h4>
         <div className="mt-3 text-sm text-slate-600">
           <div className="flex justify-between py-1">
@@ -30,9 +30,13 @@ const OrderSummary: React.FC<{
         </div>
       </div>
 
-      <div className="flex justify-end gap-3">
-        <Button variant="outline" size="default">Cancel</Button>
-        <Button variant="default" size="default">Create Parcel</Button>
+      <div className="flex flex-col sm:flex-row justify-end gap-3">
+        <Button variant="outline" size="default" className="w-full sm:w-auto">
+          Cancel
+        </Button>
+        <Button variant="default" size="default" className="w-full sm:w-auto">
+          Create Parcel
+        </Button>
       </div>
     </div>
   );

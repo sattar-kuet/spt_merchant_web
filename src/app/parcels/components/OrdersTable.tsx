@@ -35,69 +35,132 @@ const OrdersTable: React.FC = () => {
     router.push(`/parcels/${encodeURIComponent(id)}`);
   };
 
+  // Get status badge color
+  const getStatusColor = (status: string) => {
+    if (status === "Delivered") return "bg-green-100 text-green-800";
+    if (status === "Delivery Failed") return "bg-red-100 text-red-800";
+    if (status === "Out for Delivery") return "bg-blue-100 text-blue-800";
+    return "bg-slate-100 text-slate-800";
+  };
+
+  // Get payment status badge color
+  const getPaymentStatusColor = (status: "Paid" | "Unpaid") => {
+    return status === "Paid"
+      ? "bg-green-100 text-green-800"
+      : "bg-amber-100 text-amber-800";
+  };
+
   return (
-    <div className="bg-white border border-slate-200 rounded-lg overflow-hidden">
-      <table className="w-full text-sm">
-        <thead className="bg-slate-50">
-          <tr className="text-left text-xs text-slate-500">
-            <th className="p-4 w-10"><Checkbox /></th>
-            <th className="p-4">ORDER ID</th>
-            <th className="p-4">TRACKING NO.</th>
-            <th className="p-4">CUSTOMER</th>
-            <th className="p-4">MERCHANT</th>
-            <th className="p-4">COD AMOUNT</th>
-            <th className="p-4">PAYMENT STATUS</th>
-            <th className="p-4">DELIVERY STATE</th>
-            <th className="p-4">ACTIONS</th>
-          </tr>
-        </thead>
-        <tbody>
-          {sampleOrders.map((o) => (
-            <tr
-              key={o.id}
-              className="border-t hover:bg-slate-50 cursor-pointer"
-              role="button"
-              tabIndex={0}
-              onClick={() => goToOrder(o.id)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") goToOrder(o.id);
-              }}
-            >
-              <td className="p-4"><Checkbox onClick={(e) => e.stopPropagation()} /></td>
-              <td className="p-4 font-medium">{o.id}</td>
-              <td className="p-4 text-slate-500">{o.tracking}</td>
-              <td className="p-4">
-                <div className="font-medium">{o.customer}</div>
-                <div className="text-xs text-slate-400">{o.phone}</div>
-              </td>
-              <td className="p-4 text-slate-500">{o.merchant}</td>
-              <td className="p-4">{o.cod}</td>
-              <td className="p-4">
-                {o.paymentStatus === "Paid" ? (
-                  <Badge color="bg-green-100 text-green-800">Paid</Badge>
-                ) : (
-                  <Badge color="bg-amber-100 text-amber-800">Unpaid</Badge>
-                )}
-              </td>
-              <td className="p-4">
-                <Badge color={
-                  o.deliveryState === "Delivered"
-                    ? "bg-green-100 text-green-800"
-                    : o.deliveryState === "Delivery Failed"
-                    ? "bg-red-100 text-red-800"
-                    : o.deliveryState === "Out for Delivery"
-                    ? "bg-blue-100 text-blue-800"
-                    : "bg-slate-100 text-slate-800"
-                }>
-                  {o.deliveryState}
-                </Badge>
-              </td>
-              <td className="p-4 text-slate-400">•••</td>
+    <>
+      {/* Desktop Table View */}
+      <div className="bg-white border border-slate-200 rounded-lg overflow-hidden hidden md:block">
+        <table className="w-full text-sm">
+          <thead className="bg-slate-50">
+            <tr className="text-left text-xs text-slate-500">
+              <th className="p-4 w-10">
+                <Checkbox />
+              </th>
+              <th className="p-4">ORDER ID</th>
+              <th className="p-4">TRACKING NO.</th>
+              <th className="p-4">CUSTOMER</th>
+              <th className="p-4">MERCHANT</th>
+              <th className="p-4">COD AMOUNT</th>
+              <th className="p-4">PAYMENT STATUS</th>
+              <th className="p-4">DELIVERY STATE</th>
+              <th className="p-4">ACTIONS</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+          </thead>
+          <tbody>
+            {sampleOrders.map((o) => (
+              <tr
+                key={o.id}
+                className="border-t hover:bg-slate-50 cursor-pointer"
+                role="button"
+                tabIndex={0}
+                onClick={() => goToOrder(o.id)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") goToOrder(o.id);
+                }}
+              >
+                <td className="p-4">
+                  <Checkbox onClick={(e) => e.stopPropagation()} />
+                </td>
+                <td className="p-4 font-medium">{o.id}</td>
+                <td className="p-4 text-slate-500">{o.tracking}</td>
+                <td className="p-4">
+                  <div className="font-medium">{o.customer}</div>
+                  <div className="text-xs text-slate-400">{o.phone}</div>
+                </td>
+                <td className="p-4 text-slate-500">{o.merchant}</td>
+                <td className="p-4">{o.cod}</td>
+                <td className="p-4">
+                  <Badge color={getPaymentStatusColor(o.paymentStatus)}>
+                    {o.paymentStatus}
+                  </Badge>
+                </td>
+                <td className="p-4">
+                  <Badge color={getStatusColor(o.deliveryState)}>
+                    {o.deliveryState}
+                  </Badge>
+                </td>
+                <td className="p-4 text-slate-400">•••</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Mobile Card View */}
+      <div className="md:hidden space-y-4">
+        {sampleOrders.map((order) => (
+          <div
+            key={order.id}
+            className="bg-white border border-slate-200 rounded-lg p-4 cursor-pointer hover:bg-slate-50"
+            onClick={() => goToOrder(order.id)}
+          >
+            <div className="flex justify-between items-start">
+              <div>
+                <div className="font-medium">{order.id}</div>
+                <div className="text-xs text-slate-500 mt-1">
+                  {order.tracking}
+                </div>
+              </div>
+              <div className="flex flex-col items-end">
+                <Badge color={getPaymentStatusColor(order.paymentStatus)}>
+                  {order.paymentStatus}
+                </Badge>
+                <div className="mt-1">
+                  <Badge color={getStatusColor(order.deliveryState)}>
+                    {order.deliveryState}
+                  </Badge>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-3 pt-3 border-t border-slate-100">
+              <div className="flex justify-between">
+                <div className="text-sm text-slate-600">Customer</div>
+                <div className="font-medium">{order.customer}</div>
+              </div>
+              {order.phone && (
+                <div className="flex justify-between mt-1">
+                  <div className="text-sm text-slate-600">Phone</div>
+                  <div className="text-sm">{order.phone}</div>
+                </div>
+              )}
+              <div className="flex justify-between mt-1">
+                <div className="text-sm text-slate-600">Merchant</div>
+                <div className="text-sm">{order.merchant}</div>
+              </div>
+              <div className="flex justify-between mt-1">
+                <div className="text-sm text-slate-600">COD Amount</div>
+                <div className="font-medium">{order.cod}</div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </>
   );
 };
 

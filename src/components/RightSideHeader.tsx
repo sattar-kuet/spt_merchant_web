@@ -51,14 +51,22 @@ const RightSideHeader = () => {
             <>
               <div className="hidden sm:block">
                 <Link href="/parcels/add-parcel/bulk-parcel">
-                  <Button variant="default" size="default">
+                  <Button
+                    variant="default"
+                    size="default"
+                    className="text-xs sm:text-sm"
+                  >
                     Add Bulk Parcel
                   </Button>
                 </Link>
               </div>
               <div className="hidden sm:block">
                 <Link href="/parcels/add-parcel/single-parcel">
-                  <Button variant="outline" size="default">
+                  <Button
+                    variant="outline"
+                    size="default"
+                    className="text-xs sm:text-sm"
+                  >
                     Add Single Parcel
                   </Button>
                 </Link>
@@ -78,12 +86,20 @@ const RightSideHeader = () => {
           ) : (
             <div className="flex gap-2">
               <Link href="/auth/login">
-                <Button variant="outline" size="default">
+                <Button
+                  variant="outline"
+                  size="default"
+                  className="text-xs sm:text-sm"
+                >
                   Login
                 </Button>
               </Link>
               <Link href="/auth/register">
-                <Button variant="default" size="default">
+                <Button
+                  variant="default"
+                  size="default"
+                  className="text-xs sm:text-sm"
+                >
                   Register
                 </Button>
               </Link>
@@ -99,15 +115,17 @@ const RightSideHeader = () => {
             className="fixed inset-0 z-40 bg-black/30"
             onClick={closeRight}
           />
-          <div className="fixed top-0 right-0 z-50 h-full w-72 bg-white shadow-lg p-4">
+          <div className="fixed top-0 right-0 z-50 h-full w-64 sm:w-72 bg-white shadow-lg p-4">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
                 <Avatar>
                   <AvatarImage src={imgLink} alt="avatar" />
                 </Avatar>
-                <div>
-                  <div className="font-medium">{user.name}</div>
-                  <div className="text-xs text-slate-500">{user.email}</div>
+                <div className="max-w-[calc(100%-40px)]">
+                  <div className="font-medium truncate">{user.name}</div>
+                  <div className="text-xs text-slate-500 truncate">
+                    {user.email}
+                  </div>
                 </div>
               </div>
               <button
@@ -122,19 +140,27 @@ const RightSideHeader = () => {
               <Balance text="Available Balance" balance="3000" />
               <div className="flex flex-col gap-2">
                 <Link href="/parcels/add-parcel/bulk-parcel">
-                  <Button variant="default" size="default" className="w-full">
+                  <Button
+                    variant="default"
+                    size="default"
+                    className="w-full text-xs sm:text-sm"
+                  >
                     Add Bulk Parcel
                   </Button>
                 </Link>
                 <Link href="/parcels/add-parcel/single-parcel">
-                  <Button variant="outline" size="default" className="w-full">
+                  <Button
+                    variant="outline"
+                    size="default"
+                    className="w-full text-xs sm:text-sm"
+                  >
                     Add Single Parcel
                   </Button>
                 </Link>
                 <Button
                   variant="outline"
                   size="default"
-                  className="w-full"
+                  className="w-full text-xs sm:text-sm"
                   onClick={handleLogout}
                 >
                   Logout

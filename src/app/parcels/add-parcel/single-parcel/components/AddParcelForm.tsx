@@ -18,10 +18,10 @@ const AddParcelForm: React.FC = () => {
   const codNumber = parseFloat(codAmount) || 0;
 
   return (
-    <div className="p-12 w-full">
+    <div className="p-4 sm:p-6 w-full">
       <AddHeader />
 
-      <div className="mt-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <div className="mt-4 sm:mt-6 grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6">
         <div className="lg:col-span-3 space-y-4">
           <CustomerInformation
             fullName={fullName}
