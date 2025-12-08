@@ -2,6 +2,8 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import axios from 'axios';
+import { removeAuthToken } from '@/lib/auth';
+import { isAuthenticated } from '@/lib/auth';
 
 // Updated to use your actual API endpoint
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3001';
@@ -10,7 +12,6 @@ interface User {
   user_id: number;
   name: string;
   email: string;
-  api_key: string;
   groups: string[];
 }
 
@@ -30,14 +31,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    // Check if user is logged in from localStorage
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      try {
-        setUser(JSON.parse(storedUser));
-      } catch (e) {
-        console.error('Failed to parse user data', e);
-      }
+    // Check if user is logged in by verifying token exists
+    if (isAuthenticated()) {
+      // In a real app, you might want to validate the token with the backend
+      // For now, we'll just set a minimal user state
+      // The full user data should be fetched when needed
+      setUser(null); // We'll fetch user data when needed
     }
     setLoading(false);
   }, []);
@@ -50,19 +49,21 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         name,
         email,
         password
+      }, {
+        withCredentials: true // Enable sending cookies
       });
 
       if (response.data.success) {
+        // The token should be set in a cookie by the backend
+        // Store only non-sensitive user data in state
         const userData = {
           user_id: response.data.user_id,
           name: response.data.name,
           email: response.data.email,
-          api_key: response.data.api_key,
-          groups: response.data.groups
+          groups: response.data.groups || []
         };
         
         setUser(userData);
-        localStorage.setItem('user', JSON.stringify(userData));
         return { success: true };
       } else {
         return { success: false, message: 'Registration failed' };
@@ -88,19 +89,21 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const response = await axios.post(`${API_BASE_URL}/login`, {
         email,
         password
+      }, {
+        withCredentials: true // Enable sending cookies
       });
 
       if (response.data.success) {
+        // The token should be set in a cookie by the backend
+        // Store only non-sensitive user data in state
         const userData = {
           user_id: response.data.user_id,
           name: response.data.name,
           email: response.data.email,
-          api_key: response.data.api_key,
-          groups: response.data.groups
+          groups: response.data.groups || []
         };
         
         setUser(userData);
-        localStorage.setItem('user', JSON.stringify(userData));
         return { success: true };
       } else {
         return { success: false, message: 'Login failed' };
@@ -121,12 +124,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem('user');
+    // Remove token cookie
+    removeAuthToken();
+    // In a real app, you might want to call a logout endpoint to clear server-side session
   };
 
   const value = {
     user,
-    isAuthenticated: !!user,
+    isAuthenticated: !!user || isAuthenticated(),
     login,
     register,
     logout,

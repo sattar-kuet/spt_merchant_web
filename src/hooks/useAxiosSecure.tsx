@@ -1,34 +1,53 @@
 "use client";
 
-import axios, { AxiosInstance } from "axios";
+import axios, { AxiosInstance, InternalAxiosRequestConfig } from "axios";
 import { useEffect, useMemo } from "react";
+import { getAuthToken } from "@/lib/auth";
 import { useAuth } from "@/context/AuthContext";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001";
 
 export default function useAxiosSecure(): AxiosInstance {
-  const { user } = useAuth();
+  const { logout } = useAuth();
 
   const axiosInstance = useMemo(() => {
-    return axios.create({ baseURL: API_BASE_URL });
+    const instance = axios.create({ 
+      baseURL: API_BASE_URL,
+      withCredentials: true // Enable sending cookies
+    });
+    return instance;
   }, []);
 
   useEffect(() => {
-    // add request interceptor to include Authorization header when available
+    // Request interceptor to add Authorization header
     const reqInterceptor = axiosInstance.interceptors.request.use(
-      (config) => {
-        if (user && user.api_key) {
-          config.headers.Authorization = `Bearer ${user.api_key}`;
+      (config: InternalAxiosRequestConfig) => {
+        const token = getAuthToken();
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
         }
         return config;
       },
       (error) => Promise.reject(error)
     );
 
+    // Response interceptor to handle 401 errors
+    const resInterceptor = axiosInstance.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        if (error.response?.status === 401) {
+          // Token expired or invalid, log the user out
+          logout();
+        }
+        return Promise.reject(error);
+      }
+    );
+
     return () => {
       axiosInstance.interceptors.request.eject(reqInterceptor);
+      axiosInstance.interceptors.response.eject(resInterceptor);
     };
-  }, [axiosInstance, user]);
+  }, [axiosInstance, logout]);
 
   return axiosInstance;
 }

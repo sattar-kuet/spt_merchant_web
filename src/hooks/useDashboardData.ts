@@ -56,7 +56,7 @@ interface FormattedEarningData {
 }
 
 export const useDashboardData = () => {
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const queryClient = useQueryClient();
   const axiosSecure = useAxiosSecure();
 
@@ -74,22 +74,22 @@ export const useDashboardData = () => {
 
 
   const dashboardQuery = useQuery({
-    queryKey: ['dashboard', user?.api_key],
+    queryKey: ['dashboard'],
     queryFn: async () => {
-      if (!user) throw new Error('No user');
+      if (!isAuthenticated) throw new Error('Not authenticated');
       return fetchDashboard();
     },
-    enabled: !!user,
+    enabled: isAuthenticated,
     staleTime: 1000 * 60,
   });
 
   const dailyChartQuery = useQuery({
-    queryKey: ['dashboard', 'daily', user?.api_key],
+    queryKey: ['dashboard', 'daily'],
     queryFn: async () => {
-      if (!user) throw new Error('No user');
+      if (!isAuthenticated) throw new Error('Not authenticated');
       return fetchChart('daily');
     },
-    enabled: !!user,
+    enabled: isAuthenticated,
     staleTime: 1000 * 60,
   });
 
@@ -151,7 +151,7 @@ export const useDashboardData = () => {
   };
 
   const formatEarningData = (endpoint: 'daily' | 'monthly' = 'daily'): FormattedEarningData[] => {
-    const chartData = endpoint === 'daily' ? dailyChartQuery.data : queryClient.getQueryData(['dashboard', endpoint, user?.api_key]) as ChartData | undefined;
+    const chartData = endpoint === 'daily' ? dailyChartQuery.data : queryClient.getQueryData(['dashboard', endpoint]) as ChartData | undefined;
     if (!chartData) return [];
 
     return chartData.earning.map((item) => ({ x: item.label, y: item.value }));
@@ -161,13 +161,13 @@ export const useDashboardData = () => {
   const refreshData = () => dashboardQuery.refetch();
 
   const fetchChartData = async (endpoint: 'daily' | 'monthly' = 'daily') => {
-    if (!user) return null;
-    const key = ['dashboard', endpoint, user.api_key];
+    if (!isAuthenticated) return null;
+    const key = ['dashboard', endpoint];
     return queryClient.fetchQuery({ queryKey: key, queryFn: () => fetchChart(endpoint) });
   };
   useEffect(() => {
     // queries auto-manage fetch when `user` becomes available
-  }, [user]);
+  }, [isAuthenticated]);
 
   return {
     dashboardData: dashboardQuery.data ?? null,
