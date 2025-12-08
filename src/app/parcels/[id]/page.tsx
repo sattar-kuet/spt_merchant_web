@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import React from "react";
+import { Button } from "@/components/ui/Button";
 
 export const metadata: Metadata = {
   title: "Order Detail",
@@ -15,8 +16,8 @@ export default async function OrderDetail({ params }: { params: { id: string } }
           <div className="text-sm text-blue-600 mt-1">Tracking Number: #{id}</div>
         </div>
         <div className="flex gap-3">
-          <button className="rounded-md border px-4 py-2 text-sm">Edit Order</button>
-          <button className="rounded-md bg-blue-600 px-4 py-2 text-sm text-white">Print Label</button>
+          <Button variant="outline" size="default">Edit Order</Button>
+          <Button variant="default" size="default">Print Label</Button>
         </div>
       </div>
 

@@ -1,6 +1,8 @@
 "use client";
 
 import React from "react";
+import { Input } from "@/components/ui/Input";
+import { Button } from "@/components/ui/Button";
 
 const OrdersHeader: React.FC = () => {
   return (
@@ -11,14 +13,13 @@ const OrdersHeader: React.FC = () => {
 
       <div className="flex items-center gap-3">
         <div className="relative w-64">
-          <input
-            className="w-full rounded-md border px-3 py-2 text-sm"
+          <Input
             placeholder="Search"
           />
         </div>
-        <button className="rounded-md bg-blue-600 px-4 py-2 text-white text-sm">
+        <Button variant="default" size="default">
           + Create New Order
-        </button>
+        </Button>
       </div>
     </div>
   );

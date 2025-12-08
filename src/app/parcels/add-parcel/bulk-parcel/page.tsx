@@ -2,6 +2,7 @@
 
 import React, { useRef, useState } from "react";
 import Link from "next/link";
+import { Button } from "@/components/ui/Button";
 
 export default function BulkParcelPage() {
 	const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -50,13 +51,15 @@ export default function BulkParcelPage() {
 							onChange={onFileChange}
 						/>
 
-						<button
+						<Button
+							variant="outline"
+							size="default"
 							type="button"
 							onClick={onBrowse}
-							className="mt-6 bg-slate-100 text-slate-800 px-4 py-2 rounded-md text-sm shadow-sm hover:bg-slate-200"
+							className="mt-6"
 						>
 							Browse files
-						</button>
+						</Button>
 
 						{fileName && <div className="mt-4 text-sm text-slate-600">Selected: {fileName}</div>}
 					</div>
@@ -67,7 +70,7 @@ export default function BulkParcelPage() {
 				</div>
 
 				<div className="mt-8 flex justify-end">
-					<button className="bg-blue-500 text-white px-5 py-2 rounded-md shadow hover:bg-blue-600">Add Parcels</button>
+					<Button variant="default" size="default">Add Parcels</Button>
 				</div>
 			</div>
 		</div>

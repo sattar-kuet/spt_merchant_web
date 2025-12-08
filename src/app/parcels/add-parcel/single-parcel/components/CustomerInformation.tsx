@@ -1,6 +1,8 @@
 "use client";
 
 import React from "react";
+import { Input } from "@/components/ui/Input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/Select";
 
 const CustomerInformation: React.FC<{
   fullName: string;
@@ -15,31 +17,39 @@ const CustomerInformation: React.FC<{
       <h3 className="text-lg font-medium">Customer Information</h3>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <input
+        <Input
           value={fullName}
           onChange={(e) => setFullName(e.target.value)}
           placeholder="Enter customer's full name"
-          className="w-full rounded-md border px-3 py-2 text-sm"
         />
-        <input
+        <Input
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
           placeholder="Enter phone number"
-          className="w-full rounded-md border px-3 py-2 text-sm"
         />
-        <input
+        <Input
           value={address}
           onChange={(e) => setAddress(e.target.value)}
           placeholder="Enter full address"
-          className="w-full md:col-span-2 rounded-md border px-3 py-2 text-sm"
+          className="md:col-span-2"
         />
 
-        <select className="w-full rounded-md border px-3 py-2 text-sm">
-          <option>Select a district</option>
-        </select>
-        <select className="w-full rounded-md border px-3 py-2 text-sm">
-          <option>Select a city</option>
-        </select>
+        <Select>
+          <SelectTrigger>
+            <SelectValue placeholder="Select a district" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="district1">District 1</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select>
+          <SelectTrigger>
+            <SelectValue placeholder="Select a city" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="city1">City 1</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
     </div>
   );

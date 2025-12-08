@@ -2,6 +2,7 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
+import { Checkbox } from "@/components/ui/Checkbox";
 
 type Order = {
   id: string;
@@ -39,7 +40,7 @@ const OrdersTable: React.FC = () => {
       <table className="w-full text-sm">
         <thead className="bg-slate-50">
           <tr className="text-left text-xs text-slate-500">
-            <th className="p-4 w-10"><input type="checkbox"/></th>
+            <th className="p-4 w-10"><Checkbox /></th>
             <th className="p-4">ORDER ID</th>
             <th className="p-4">TRACKING NO.</th>
             <th className="p-4">CUSTOMER</th>
@@ -62,7 +63,7 @@ const OrdersTable: React.FC = () => {
                 if (e.key === "Enter" || e.key === " ") goToOrder(o.id);
               }}
             >
-              <td className="p-4"><input type="checkbox" onClick={(e) => e.stopPropagation()} /></td>
+              <td className="p-4"><Checkbox onClick={(e) => e.stopPropagation()} /></td>
               <td className="p-4 font-medium">{o.id}</td>
               <td className="p-4 text-slate-500">{o.tracking}</td>
               <td className="p-4">

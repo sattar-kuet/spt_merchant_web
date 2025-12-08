@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { Input } from "@/components/ui/Input";
 
 const FinancialInfo: React.FC<{
   codAmount: string;
@@ -12,11 +13,11 @@ const FinancialInfo: React.FC<{
 
       <div className="mt-4">
         <label className="text-sm text-slate-700">Cash on Delivery (COD) Amount</label>
-        <input
+        <Input
           value={codAmount}
           onChange={(e) => setCodAmount(e.target.value)}
           placeholder="$ 0.00"
-          className="mt-2 w-full rounded-md border px-3 py-2 text-sm"
+          className="mt-2"
         />
       </div>
     </div>

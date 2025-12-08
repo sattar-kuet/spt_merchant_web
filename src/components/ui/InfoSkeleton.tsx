@@ -1,3 +1,5 @@
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 interface DashboardItem {
   title: string;
@@ -6,21 +8,30 @@ interface DashboardItem {
   status: "growing" | "equal" | "warning";
 }
 
-const InfoSkeleton = ({ item,bg }: { item: DashboardItem, bg: string } ) => {
-  // Determine color based on status
-  const progressColor =
-    item.status === "growing"
-      ? "text-green-500"
-      : item.status === "equal"
-      ? "text-yellow-600"
-      : "text-red-500";
+const getStatusVariant = (status: DashboardItem["status"]) => {
+  switch (status) {
+    case "growing":
+      return "default";
+    case "equal":
+      return "secondary";
+    case "warning":
+      return "destructive";
+    default:
+      return "default";
+  }
+};
+
+const InfoSkeleton = ({ item, bg }: { item: DashboardItem; bg: string }) => {
+  const statusVariant = getStatusVariant(item.status);
 
   return (
-    <div className={`p-4 rounded-lg shadow-sm flex flex-col gap-2 ${bg}`}>
-      <p className="text-sm text-gray-500">{item.title}</p>
-      <p className="text-3xl font-semibold">{item.amount}</p>
-      <p className={`text-sm font-medium ${progressColor}`}>{item.progress}</p>
-    </div>
+    <Card className={bg}>
+      <CardContent className="p-4 flex flex-col gap-2">
+        <p className="text-sm text-gray-500">{item.title}</p>
+        <p className="text-3xl font-semibold">{item.amount}</p>
+        <Badge variant={statusVariant}>{item.progress}</Badge>
+      </CardContent>
+    </Card>
   );
 };
 

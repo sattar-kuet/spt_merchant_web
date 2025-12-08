@@ -1,43 +1,45 @@
 import { IoCubeOutline } from "react-icons/io5";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 interface RecentOrderItems {
-    orderId: string;
-    customer: string;
-    status: "Delivered" | "In-Progress" | "Failed";
+  orderId: string;
+  customer: string;
+  status: "Delivered" | "In-Progress" | "Failed";
 }
 
+const getStatusVariant = (status: RecentOrderItems["status"]) => {
+  switch (status) {
+    case "Delivered":
+      return "default";
+    case "In-Progress":
+      return "secondary";
+    case "Failed":
+      return "destructive";
+    default:
+      return "default";
+  }
+};
 
 const RecentOrderSkeleton = ({ item }: { item: RecentOrderItems }) => {
+  const statusVariant = getStatusVariant(item.status);
 
-      const statusColor =
-    item.status === "Delivered"
-      ? "text-green-500"
-      : item.status === "In-Progress"
-      ? "text-yellow-600"
-      : "text-red-500";
-
-      const statusBgColor =
-    item.status === "Delivered"
-      ? "bg-green-200"
-      : item.status === "In-Progress"
-      ? "bg-yellow-200"
-      : "bg-red-200";
-
-
-    return (
+  return (
+    <Card>
+      <CardContent className="p-3">
         <div className="flex items-center justify-between">
-            <div className="flex gap-2">
-                <IoCubeOutline size={35} color="#155dfc" />
-                <div className="">
-                    <p className="text-sm font-semibold">{item.orderId}</p>
-                    <p className="text-xs text-gray-600">{item.customer}</p>
-                </div>
+          <div className="flex gap-2">
+            <IoCubeOutline size={35} className="text-primary" />
+            <div className="">
+              <p className="text-sm font-semibold">{item.orderId}</p>
+              <p className="text-xs text-gray-600">{item.customer}</p>
             </div>
-            <p className={`text-xs px-2 py-1 ${statusBgColor} ${statusColor} rounded-2xl`}>
-                {item.status}
-            </p>
+          </div>
+          <Badge variant={statusVariant}>{item.status}</Badge>
         </div>
-    )
-}
+      </CardContent>
+    </Card>
+  );
+};
 
-export default RecentOrderSkeleton
+export default RecentOrderSkeleton;

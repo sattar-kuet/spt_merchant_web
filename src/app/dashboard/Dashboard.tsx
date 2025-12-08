@@ -1,5 +1,4 @@
-import React from "react";
-import InfoSkeleton from "../../components/ui/InfoSkeleton";
+import InfoSkeleton from "@/components/ui/InfoSkeleton";
 import RecentOrders from "./components/RecentOrders";
 import GrowthChart from "./components/GrowthChart";
 

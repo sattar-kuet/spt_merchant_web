@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { Button } from "@/components/ui/Button";
 
 const OrderSummary: React.FC<{
   codAmount: number;
@@ -30,8 +31,8 @@ const OrderSummary: React.FC<{
       </div>
 
       <div className="flex justify-end gap-3">
-        <button className="rounded-md border px-4 py-2 text-sm">Cancel</button>
-        <button className="rounded-md bg-blue-600 px-4 py-2 text-sm text-white">Create Parcel</button>
+        <Button variant="outline" size="default">Cancel</Button>
+        <Button variant="default" size="default">Create Parcel</Button>
       </div>
     </div>
   );
