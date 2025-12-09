@@ -75,20 +75,14 @@ export const useDashboardData = () => {
 
   const dashboardQuery = useQuery({
     queryKey: ['dashboard'],
-    queryFn: async () => {
-      if (!isAuthenticated) throw new Error('Not authenticated');
-      return fetchDashboard();
-    },
+    queryFn: fetchDashboard,
     enabled: isAuthenticated,
     staleTime: 1000 * 60,
   });
 
   const dailyChartQuery = useQuery({
     queryKey: ['dashboard', 'daily'],
-    queryFn: async () => {
-      if (!isAuthenticated) throw new Error('Not authenticated');
-      return fetchChart('daily');
-    },
+    queryFn: () => fetchChart('daily'),
     enabled: isAuthenticated,
     staleTime: 1000 * 60,
   });
@@ -166,8 +160,18 @@ export const useDashboardData = () => {
     return queryClient.fetchQuery({ queryKey: key, queryFn: () => fetchChart(endpoint) });
   };
   useEffect(() => {
-    // queries auto-manage fetch when `user` becomes available
-  }, [isAuthenticated]);
+    // When authentication state changes to authenticated, invalidate and refetch queries
+    if (isAuthenticated) {
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+    }
+  }, [isAuthenticated, queryClient]);
+
+  // Add this effect to handle authentication state changes
+  useEffect(() => {
+    if (!isAuthenticated) {
+      queryClient.removeQueries({ queryKey: ['dashboard'] });
+    }
+  }, [isAuthenticated, queryClient]);
 
   return {
     dashboardData: dashboardQuery.data ?? null,
