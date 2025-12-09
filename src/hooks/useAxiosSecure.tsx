@@ -13,7 +13,6 @@ export default function useAxiosSecure(): AxiosInstance {
   const axiosInstance = useMemo(() => {
     const instance = axios.create({ 
       baseURL: API_BASE_URL,
-      withCredentials: true // Enable sending cookies
     });
     return instance;
   }, []);
