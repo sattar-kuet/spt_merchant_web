@@ -26,17 +26,20 @@ const Dashboard = () => {
   if (loading) {
     return (
       <ProtectedRoute>
-        <div className="my-8 flex flex-col gap-3 w-full">
+        <div className="my-8 flex flex-col gap-3 w-full border-black">
           <div>
             <p className="text-2xl sm:text-3xl font-semibold">Dashboard</p>
             <p className="text-sm text-slate-500 mt-1">
               Loading your dashboard data...
             </p>
           </div>
-          
+
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             {[1, 2, 3, 4].map((index) => (
-              <Card key={index} className={`${colors[index-1]} animate-pulse`}>
+              <Card
+                key={index}
+                className={`${colors[index - 1]} animate-pulse`}
+              >
                 <CardContent className="p-4 flex flex-col gap-2">
                   <div className="h-4 bg-gray-200 rounded w-1/2"></div>
                   <div className="h-8 bg-gray-200 rounded w-3/4"></div>

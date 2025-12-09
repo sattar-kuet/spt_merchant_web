@@ -143,11 +143,13 @@ const RegisterPage = () => {
         </form>
 
         <div className="text-sm text-center">
+          Already have an account?
           <Link
             href="/auth/login"
             className="font-medium text-indigo-600 hover:text-indigo-500"
           >
-            Already have an account? Sign in
+            {" "}
+            Sign in
           </Link>
         </div>
       </div>

@@ -1,5 +1,5 @@
 import OrdersHeader from "./components/OrdersHeader";
-import FiltersBar from "../../components/FiltersBar";
+import FiltersBar from "@/components/FiltersBar";
 import OrdersTable from "./components/OrdersTable";
 import Pagination from "./components/Pagination";
 
