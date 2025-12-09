@@ -57,14 +57,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       });
 
       if (response.data.success) {
-        // Store api_key in cookie and keep only non-sensitive data in localStorage/state
-        if (response.data.api_key) setAuthToken(response.data.api_key);
-        const userData = {
-          user_id: response.data.user_id,
-          name: response.data.name,
-          email: response.data.email,
-          groups: response.data.groups || []
-        };
+        // Extract api_key and keep remaining user fields via spread
+        const { api_key, ...rest } = response.data;
+        if (api_key) setAuthToken(api_key);
+
+        // Ensure groups exists
+        const userData = { ...(rest as any), groups: rest.groups || [] } as any;
 
         setUser(userData);
         try {
@@ -101,14 +99,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       });
 
       if (response.data.success) {
-        // Save API key to cookie, and store non-sensitive user info locally
-        if (response.data.api_key) setAuthToken(response.data.api_key);
-        const userData = {
-          user_id: response.data.user_id,
-          name: response.data.name,
-          email: response.data.email,
-          groups: response.data.groups || []
-        };
+        // Extract api_key and keep remaining user fields via spread
+        const { api_key, ...rest } = response.data;
+        if (api_key) setAuthToken(api_key);
+
+        const userData = { ...(rest as any), groups: rest.groups || [] } as any;
 
         setUser(userData);
         try {
