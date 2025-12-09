@@ -37,7 +37,7 @@ export default function RootLayout({
             <ReactQueryProvider>
               <div className="flex min-h-screen bg-slate-50">
                 <LeftBar />
-                <div className="flex-1 flex flex-col min-w-0 md:ml-0">
+                <div className="flex-1 flex flex-col min-w-0">
                   <header className="p-4 border-b bg-slate-50">
                     <div className="w-full mx-auto px-4">
                       <RightSideHeader />

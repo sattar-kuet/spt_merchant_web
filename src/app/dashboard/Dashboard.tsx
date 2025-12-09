@@ -79,15 +79,6 @@ const Dashboard = () => {
               Here&apos;s an overview of your parcel
             </p>
           </div>
-          
-          {dashboardData && (
-            <div className="shrink-0">
-              <Balance 
-                text="Available Balance" 
-                balance={dashboardData.balance.toFixed(2)} 
-              />
-            </div>
-          )}
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
