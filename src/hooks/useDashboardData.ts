@@ -72,7 +72,6 @@ export const useDashboardData = () => {
     return response.data.data;
   };
 
-
   const dashboardQuery = useQuery({
     queryKey: ['dashboard'],
     queryFn: fetchDashboard,
@@ -87,6 +86,13 @@ export const useDashboardData = () => {
     staleTime: 1000 * 60,
   });
 
+  const monthlyChartQuery = useQuery({
+    queryKey: ["dashboard", "monthly"],
+    queryFn: () => fetchChart("monthly"),
+    enabled: isAuthenticated,
+    staleTime: 1000 * 60,
+  });
+
   const formatDashboardItems = (): FormattedDashboardItem[] => {
     const dashboardData = dashboardQuery.data;
     if (!dashboardData) return [];
@@ -96,26 +102,26 @@ export const useDashboardData = () => {
         title: "Total Orders",
         amount: dashboardData.total_orders,
         progress: "+0%",
-        status: "growing"
+        status: "growing",
       },
       {
         title: "Delivered",
         amount: dashboardData.delivered_orders,
         progress: "+0%",
-        status: "growing"
+        status: "growing",
       },
       {
         title: "In-Progress",
         amount: dashboardData.inprogress_orders,
         progress: "+0%",
-        status: "equal"
+        status: "equal",
       },
       {
         title: "Failed",
         amount: dashboardData.failed_orders,
         progress: "+0%",
-        status: "warning"
-      }
+        status: "warning",
+      },
     ];
   };
 
@@ -123,9 +129,9 @@ export const useDashboardData = () => {
     const dashboardData = dashboardQuery.data;
     if (!dashboardData) return [];
 
-    return dashboardData.recent_orders.slice(0, 3).map(order => {
+    return dashboardData.recent_orders.slice(0, 3).map((order) => {
       let status: "Delivered" | "In-Progress" | "Failed" = "In-Progress";
-      
+
       if (order.status === "delivered") {
         status = "Delivered";
       } else if (order.status === "assigned_for_delivery") {
@@ -135,17 +141,20 @@ export const useDashboardData = () => {
       } else if (order.status === "failed") {
         status = "Failed";
       }
-      
+
       return {
         orderId: order.tracking_number,
         customer: `${order.location.district}, ${order.location.city}`,
-        status
+        status,
       };
     });
   };
 
-  const formatEarningData = (endpoint: 'daily' | 'monthly' = 'daily'): FormattedEarningData[] => {
-    const chartData = endpoint === 'daily' ? dailyChartQuery.data : queryClient.getQueryData(['dashboard', endpoint]) as ChartData | undefined;
+  const formatEarningData = (
+    endpoint: "daily" | "monthly" = "daily"
+  ): FormattedEarningData[] => {
+    const chartData =
+      endpoint === "daily" ? dailyChartQuery.data : monthlyChartQuery.data;
     if (!chartData) return [];
 
     return chartData.earning.map((item) => ({ x: item.label, y: item.value }));
@@ -154,34 +163,43 @@ export const useDashboardData = () => {
   // expose a manual refresh
   const refreshData = () => dashboardQuery.refetch();
 
-  const fetchChartData = async (endpoint: 'daily' | 'monthly' = 'daily') => {
+  const fetchChartData = async (endpoint: "daily" | "monthly" = "daily") => {
     if (!isAuthenticated) return null;
-    const key = ['dashboard', endpoint];
-    return queryClient.fetchQuery({ queryKey: key, queryFn: () => fetchChart(endpoint) });
+    const key = ["dashboard", endpoint];
+    return queryClient.fetchQuery({
+      queryKey: key,
+      queryFn: () => fetchChart(endpoint),
+    });
   };
   useEffect(() => {
     // When authentication state changes to authenticated, invalidate and refetch queries
     if (isAuthenticated) {
-      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
     }
   }, [isAuthenticated, queryClient]);
 
   // Add this effect to handle authentication state changes
   useEffect(() => {
     if (!isAuthenticated) {
-      queryClient.removeQueries({ queryKey: ['dashboard'] });
+      queryClient.removeQueries({ queryKey: ["dashboard"] });
     }
   }, [isAuthenticated, queryClient]);
 
   return {
     dashboardData: dashboardQuery.data ?? null,
     loading: dashboardQuery.isLoading,
-    error: dashboardQuery.error ? (dashboardQuery.error as Error).message : null,
-    chartLoading: dailyChartQuery.isLoading,
-    chartError: dailyChartQuery.error ? (dailyChartQuery.error as Error).message : null,
+    error: dashboardQuery.error
+      ? (dashboardQuery.error as Error).message
+      : null,
+    chartLoading: dailyChartQuery.isLoading || monthlyChartQuery.isLoading,
+    chartError: dailyChartQuery.error
+      ? (dailyChartQuery.error as Error).message
+      : monthlyChartQuery.error
+      ? (monthlyChartQuery.error as Error).message
+      : null,
     formattedDashboardItems: formatDashboardItems(),
     formattedRecentOrders: formatRecentOrders(),
-    formattedEarningData: formatEarningData(),
+    formattedEarningData: formatEarningData,
     refreshData,
     fetchChartData,
   };

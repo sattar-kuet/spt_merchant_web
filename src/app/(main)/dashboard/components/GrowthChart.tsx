@@ -80,21 +80,21 @@ const GrowthChart = () => {
         <div>
           <h3 className="text-lg font-semibold">Earnings</h3>
           <p className="text-sm text-gray-500">
-            {chartType === 'daily' ? 'Last 7 days' : 'Last 7 months'}
+            {chartType === "daily" ? "Last 7 days" : "Last 7 months"}
           </p>
         </div>
         <div className="flex gap-2">
           <Button
-            variant={chartType === 'daily' ? 'default' : 'outline'}
+            variant={chartType === "daily" ? "default" : "outline"}
             size="sm"
-            onClick={() => handleToggleChart('daily')}
+            onClick={() => handleToggleChart("daily")}
           >
             Weekly
           </Button>
           <Button
-            variant={chartType === 'monthly' ? 'default' : 'outline'}
+            variant={chartType === "monthly" ? "default" : "outline"}
             size="sm"
-            onClick={() => handleToggleChart('monthly')}
+            onClick={() => handleToggleChart("monthly")}
           >
             Monthly
           </Button>
@@ -102,7 +102,7 @@ const GrowthChart = () => {
       </div>
       <div style={{ outline: "none" }}>
         <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={formattedEarningData}>
+          <BarChart data={formattedEarningData(chartType)}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="x" />
             <YAxis />
