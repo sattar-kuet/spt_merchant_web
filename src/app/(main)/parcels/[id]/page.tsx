@@ -1,23 +1,109 @@
-import type { Metadata } from "next";
+"use client";
+
 import React from "react";
 import { Button } from "@/components/ui/Button";
+import { useParams } from "next/navigation";
+import { useOrderData } from "@/hooks/useOrderData";
 
-export const metadata: Metadata = {
-  title: "Order Detail",
+// Helper function to format currency
+const formatCurrency = (amount: number): string => {
+  return `৳${amount.toFixed(2)}`;
 };
-export default async function OrderDetail({ params }: { params: { id: string } }) {
-  const { id } = await params;
+
+// Helper function to get status color
+const getStatusColor = (status: string): string => {
+  switch (status.toLowerCase()) {
+    case "delivered":
+      return "text-green-600";
+    case "pending":
+      return "text-amber-500";
+    case "in_transit":
+    case "out_for_delivery":
+      return "text-blue-600";
+    case "cancelled":
+      return "text-red-600";
+    case "paid":
+      return "text-green-600";
+    case "unsettled":
+      return "text-amber-500";
+    default:
+      return "text-slate-600";
+  }
+};
+
+// Helper function to format delivery state
+const formatDeliveryState = (state: string): string => {
+  // Convert snake_case to Title Case
+  return state
+    .split("_")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+};
+
+export default function OrderDetail() {
+  const params = useParams();
+  const id = params.id as string;
+
+  const { data, isLoading, isError, error } = useOrderData(id);
+
+  if (isLoading) {
+    return (
+      <div className="p-5 w-full">
+        <div className="flex justify-center items-center h-64">
+          <div>Loading order details...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="p-5 w-full">
+        <div className="flex justify-center items-center h-64">
+          <div>
+            Error loading order details:{" "}
+            {error instanceof Error ? error.message : "Unknown error"}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!data) {
+    return (
+      <div className="p-5 w-full">
+        <div className="flex justify-center items-center h-64">
+          <div>Order not found</div>
+        </div>
+      </div>
+    );
+  }
+
+  // Calculate totals
+  const subtotal = data.order_lines.reduce(
+    (sum, line) => sum + line.subtotal,
+    0
+  );
+
   return (
     <div className="p-5 w-full">
       <div className="flex items-start justify-between">
         <div>
-          <div className="text-sm text-slate-500">Dashboard / Orders / ID : {id}</div>
-          <h1 className="text-2xl font-semibold mt-2">Order ID: {id}</h1>
-          <div className="text-sm text-blue-600 mt-1">Tracking Number: #{id}</div>
+          <div className="text-sm text-slate-500">
+            Dashboard / Orders / ID : {data.id}
+          </div>
+          <h1 className="text-2xl font-semibold mt-2">Order ID: {data.name}</h1>
+          <div className="text-sm text-blue-600 mt-1">
+            Tracking Number: #{data.name}
+          </div>
         </div>
         <div className="flex gap-3">
-          <Button variant="outline" size="default">Edit Order</Button>
-          <Button variant="default" size="default">Print Label</Button>
+          <Button variant="outline" size="default">
+            Edit Order
+          </Button>
+          <Button variant="default" size="default">
+            Print Label
+          </Button>
         </div>
       </div>
 
@@ -28,33 +114,40 @@ export default async function OrderDetail({ params }: { params: { id: string } }
             <table className="w-full text-sm">
               <thead className="text-xs text-slate-500 border-b">
                 <tr>
-                  <th className="py-2 text-left">PRODUCT NAME</th>
+                  <th className="py-2 text-left">Product ID</th>
+                  <th className="py-2 text-left">Amount Name</th>
                   <th className="py-2 text-left">QUANTITY</th>
                   <th className="py-2 text-left">UNIT PRICE</th>
                   <th className="py-2 text-right">SUBTOTAL</th>
                 </tr>
               </thead>
               <tbody>
-                <tr className="border-b">
-                  <td className="py-3">Premium Wireless Headphones</td>
-                  <td>1</td>
-                  <td>$35.00</td>
-                  <td className="text-right">$35.00</td>
-                </tr>
-                <tr>
-                  <td className="py-3">Ergonomic Mouse Pad</td>
-                  <td>2</td>
-                  <td>$5.00</td>
-                  <td className="text-right">$10.00</td>
-                </tr>
+                {data.order_lines.map((line) => (
+                  <tr key={line.id} className="border-b">
+                    <td className="py-3">{line.product_id}</td>
+                    <td className="py-3">{line.name}</td>
+                    <td>{line.qty}</td>
+                    <td>{formatCurrency(line.price_unit)}</td>
+                    <td className="text-right">
+                      {formatCurrency(line.subtotal)}
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
 
             <div className="mt-4 text-right text-sm text-slate-600">
-              <div>Subtotal <span className="ml-4 font-medium">$45.00</span></div>
-              <div>Shipping <span className="ml-4">$5.00</span></div>
-              <div>Taxes <span className="ml-4">$4.50</span></div>
-              <div className="mt-2 font-semibold">Grand Total <span className="ml-4">$54.50</span></div>
+              <div>
+                Subtotal{" "}
+                <span className="ml-4 font-medium">
+                  {formatCurrency(subtotal)}
+                </span>
+              </div>
+              {/* Add shipping and taxes if available in the API */}
+              <div className="mt-2 font-semibold">
+                Grand Total{" "}
+                <span className="ml-4">{formatCurrency(subtotal)}</span>
+              </div>
             </div>
           </div>
 
@@ -63,16 +156,18 @@ export default async function OrderDetail({ params }: { params: { id: string } }
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-slate-600">
               <div>
                 <div className="font-medium">Merchant Name</div>
-                <div>John&apos;s Store</div>
+                <div>{data.merchant_name}</div>
                 <div className="mt-2 font-medium">Contact Phone</div>
-                <div>(123) 456-7890</div>
+                <div>N/A</div> {/* Not provided in API response */}
               </div>
 
               <div>
                 <div className="font-medium">Customer Name</div>
-                <div>Jane Doe</div>
+                <div>{data.customer_name}</div>
                 <div className="mt-2 font-medium">Delivery Address</div>
-                <div>123 Maple Street, Anytown, USA 12345</div>
+                <div>{data.customer_address}</div>
+                <div className="mt-2 font-medium">Phone</div>
+                <div>{data.customer_phone}</div>
               </div>
             </div>
           </div>
@@ -82,20 +177,52 @@ export default async function OrderDetail({ params }: { params: { id: string } }
           <div className="bg-white border border-slate-200 rounded-lg p-4">
             <h4 className="font-medium">Order Summary</h4>
             <div className="mt-3 text-sm text-slate-600 space-y-2">
-              <div className="flex justify-between"><span>Delivery State</span><span className="text-amber-500">In Transit</span></div>
-              <div className="flex justify-between"><span>Total Weight</span><span>2.5 kg</span></div>
-              <div className="flex justify-between"><span>Parcel Type</span><span>Express</span></div>
-              <div className="flex justify-between"><span>Order Type</span><span>Delivery</span></div>
+              <div className="flex justify-between">
+                <span>Delivery State</span>
+                <span className={getStatusColor(data.delivery_state)}>
+                  {formatDeliveryState(data.delivery_state)}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span>Total Weight</span>
+                <span>{data.total_weight} kg</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Parcel Type</span>
+                <span>{data.parcel_type}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Order Type</span>
+                <span>{formatDeliveryState(data.order_type)}</span>
+              </div>
             </div>
           </div>
 
           <div className="bg-white border border-slate-200 rounded-lg p-4">
             <h4 className="font-medium">Financial Summary</h4>
             <div className="mt-3 text-sm text-slate-600 space-y-2">
-              <div className="flex justify-between"><span>Payment Status</span><span className="text-green-600">Paid</span></div>
-              <div className="flex justify-between"><span>COD Status</span><span className="text-amber-500">Pending</span></div>
-              <div className="flex justify-between"><span>COD Amount</span><span>$45.00</span></div>
-              <div className="flex justify-between"><span>COD Collected</span><span>$0.00</span></div>
+              <div className="flex justify-between">
+                <span>Payment Status</span>
+                <span className={getStatusColor(data.payment_status)}>
+                  {data.payment_status.charAt(0).toUpperCase() +
+                    data.payment_status.slice(1)}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span>COD Status</span>
+                <span className={getStatusColor(data.cod_status)}>
+                  {data.cod_status.charAt(0).toUpperCase() +
+                    data.cod_status.slice(1)}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span>COD Amount</span>
+                <span>{formatCurrency(data.cod_amount)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>COD Collected</span>
+                <span>{formatCurrency(data.cod_collected)}</span>
+              </div>
             </div>
           </div>
         </div>

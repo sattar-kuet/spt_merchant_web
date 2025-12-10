@@ -42,11 +42,56 @@ const OrdersTable: React.FC<OrdersTableProps> = ({
 
   // Get status badge color
   const getStatusColor = (status: string) => {
-    if (status === "Delivered") return "bg-green-100 text-green-800";
-    if (status === "Assigned for Delivery") return "bg-blue-100 text-blue-800";
-    if (status === "Ready for Pickup") return "bg-yellow-100 text-yellow-800";
-    if (status === "Delivery Failed") return "bg-red-100 text-red-800";
-    return "bg-slate-100 text-slate-800";
+    // Map actual status values from API to display colors
+    switch (status) {
+      case "Delivered":
+        return { color: "bg-green-100 text-green-800", label: "Delivered" };
+      case "Out for Delivery":
+        return {
+          color: "bg-blue-100 text-blue-800",
+          label: "Out for Delivery",
+        };
+      case "Ready for Pickup":
+        return {
+          color: "bg-yellow-100 text-yellow-800",
+          label: "Ready for Pickup",
+        };
+      case "Delivery Failed":
+        return { color: "bg-red-100 text-red-800", label: "Delivery Failed" };
+      case "Created":
+        return { color: "bg-purple-100 text-purple-800", label: "Created" };
+      case "Assigned for Pickup":
+        return {
+          color: "bg-indigo-100 text-indigo-800",
+          label: "Assigned for Pickup",
+        };
+      case "Rejected by Merchant":
+        return {
+          color: "bg-red-100 text-red-800",
+          label: "Rejected by Merchant",
+        };
+      case "Pickup Done":
+        return { color: "bg-green-100 text-green-800", label: "Pickup Done" };
+      case "In Hub":
+        return { color: "bg-blue-100 text-blue-800", label: "In Hub" };
+      case "Returned to Hub":
+        return {
+          color: "bg-orange-100 text-orange-800",
+          label: "Returned to Hub",
+        };
+      case "Return Initiated":
+        return {
+          color: "bg-orange-100 text-orange-800",
+          label: "Return Initiated",
+        };
+      case "Returned to Merchant":
+        return {
+          color: "bg-gray-100 text-gray-800",
+          label: "Returned to Merchant",
+        };
+      default:
+        return { color: "bg-slate-100 text-slate-800", label: status };
+    }
   };
 
   if (loading) {
@@ -108,8 +153,8 @@ const OrdersTable: React.FC<OrdersTableProps> = ({
                     {order.customer_address}
                   </td>
                   <td className="p-4">
-                    <Badge color={getStatusColor(order.status)}>
-                      {order.status}
+                    <Badge color={getStatusColor(order.status).color}>
+                      {getStatusColor(order.status).label}
                     </Badge>
                   </td>
                 </tr>
@@ -142,8 +187,8 @@ const OrdersTable: React.FC<OrdersTableProps> = ({
                       {order.customer_address}
                     </div>
                   </div>
-                  <Badge color={getStatusColor(order.status)}>
-                    {order.status}
+                  <Badge color={getStatusColor(order.status).color}>
+                    {getStatusColor(order.status).label}
                   </Badge>
                 </div>
               </CardContent>

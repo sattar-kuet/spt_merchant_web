@@ -32,18 +32,45 @@ const DEFAULT_PAGINATION = {
   per_page: 10
 };
 
-export const useOrdersData = (page: number = 1, limit: number = 10) => {
+interface FilterParams {
+  status?: string | null;
+  search?: string | null;
+}
+
+export const useOrdersData = (
+  page: number = 1,
+  limit: number = 10,
+  filters: FilterParams = {}
+) => {
   const { isAuthenticated } = useAuth();
   const axiosSecure = useAxiosSecure();
 
   const fetchOrders = async (): Promise<OrdersResponse> => {
-    const response = await axiosSecure.get(`/orders?page=${page}&limit=${limit}`);
-    if (!response.data.success) throw new Error('Failed to fetch orders data');
+    // Build query parameters as an object
+    const params: Record<string, string> = {
+      page: page.toString(),
+      limit: limit.toString(),
+    };
+
+    // Add filters if they exist
+    if (filters.status) {
+      params.status = filters.status;
+    }
+
+    if (filters.search) {
+      params.search = filters.search;
+    }
+
+    const url = "/orders";
+    console.log("Fetching orders with URL:", url, "and params:", params); // Debug log
+    const response = await axiosSecure.get(url, { params });
+    console.log("Received response:", response.data); // Debug log
+    if (!response.data.success) throw new Error("Failed to fetch orders data");
     return response.data;
   };
 
   const ordersQuery = useQuery({
-    queryKey: ['orders', page, limit],
+    queryKey: ["orders", page, limit, filters],
     queryFn: fetchOrders,
     enabled: isAuthenticated,
     staleTime: 1000 * 60, // 1 minute
@@ -51,11 +78,12 @@ export const useOrdersData = (page: number = 1, limit: number = 10) => {
 
   // Extract pagination data or use defaults
   const paginationData = ordersQuery.data?.pagination || DEFAULT_PAGINATION;
-  
+
   // If we have orders but no pagination data, calculate basic pagination
   const calculatedPagination = {
     ...paginationData,
-    total_orders: ordersQuery.data?.orders?.length || paginationData.total_orders
+    total_orders:
+      ordersQuery.data?.orders?.length || paginationData.total_orders,
   };
 
   return {
