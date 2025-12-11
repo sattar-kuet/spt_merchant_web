@@ -1,10 +1,9 @@
 "use client";
-
-import Link from "next/link";
 import usePickupPointData from "@/hooks/usePickupPointData";
 import { FiEdit, FiPlus } from "react-icons/fi";
 import { useState } from "react";
 import AddPickupModal from "./AddPickupModal";
+import EditPickupModal from "./EditPickupModal";
 import { Button } from "@/components/ui/Button";
 
 function getTitle(point: any) {
@@ -52,8 +51,10 @@ const PickupPointsPage = () => {
   const { pickupPoints, pickupPointsQuery } = usePickupPointData();
 
   const loading = pickupPointsQuery.isLoading;
-  const points = pickupPoints || [];
-  const [openAdd, setOpenAdd] = useState(false);
+    const points = pickupPoints || [];
+    const [openAdd, setOpenAdd] = useState(false);
+    const [editOpen, setEditOpen] = useState(false);
+    const [editId, setEditId] = useState<string | number | null>(null);
 
   return (
     <div className="p-4 sm:p-6 w-full">
@@ -106,20 +107,28 @@ const PickupPointsPage = () => {
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <Link
-                    href={`/settings/pickup/${p.id || p._id || "edit"}`}
+                  <button
+                    onClick={() => {
+                      const id = p.id ?? p._id ?? null;
+                      setEditId(id);
+                      // open the modal on next tick so modal receives editId prop
+                       setTimeout(() => setEditOpen(true), 0);
+                    }}
                     className="text-slate-400 hover:text-slate-600"
                     aria-label={`Edit ${getTitle(p)}`}
                   >
                     <FiEdit />
-                  </Link>
+                  </button>
                 </div>
               </div>
             ))}
 
             {/* Always show Add New Address dashed box like the attachment */}
             <Button
-              onClick={() => setOpenAdd(true)}
+              onClick={() => {
+                setEditId(null);
+                setOpenAdd(true);
+              }}
               className="w-full"
             >
               <div className="inline-flex items-center gap-2 text-indigo-600 text-sm font-medium">
@@ -133,6 +142,7 @@ const PickupPointsPage = () => {
         )}
       </div>
       <AddPickupModal open={openAdd} onClose={() => setOpenAdd(false)} />
+      <EditPickupModal open={editOpen} onClose={() => setEditOpen(false)} id={editId as any} />
     </div>
   );
 };

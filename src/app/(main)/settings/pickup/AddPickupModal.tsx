@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import useParcelOptions from "@/hooks/useParcelOptions";
 import usePickupPointData from "@/hooks/usePickupPointData";
 
@@ -24,11 +24,8 @@ export default function AddPickupModal({ open, onClose }: Props) {
   // fetch districts and cities (cities depend on selected district)
   const { districts = [], cities = [] } = useParcelOptions(form.district_id as any);
 
-  const mutation = createPickupPoint;
-
   function onChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
     const { name, value } = e.target;
-    // reset city when district changes
     if (name === "district_id") {
       setForm((s) => ({ ...s, district_id: value, city_id: "" }));
     } else {
@@ -38,28 +35,25 @@ export default function AddPickupModal({ open, onClose }: Props) {
 
   function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    // Convert numeric fields
     const payload = {
       ...form,
       city_id: form.city_id ? Number(form.city_id) : undefined,
       district_id: form.district_id ? Number(form.district_id) : undefined,
     };
-    mutation.mutate(payload, {
-      onSuccess: () => {
-        // close modal on successful create
-        onClose();
-        // reset form
-        setForm({
-          name: "",
-          address: "",
-          contact_name: "",
-          phone: "",
-          city_id: "",
-          district_id: "",
-        });
-      },
-    });
+    const sendPayload = {
+      ...payload,
+      contact_person: (payload as any).contact_name ?? (payload as any).contact_person,
+      active: (payload as any).active !== undefined ? (payload as any).active : true,
+    };
+
+    createPickupPoint.mutate(sendPayload, { onSuccess: () => onClose() });
   }
+
+  useEffect(() => {
+    if (!open) return;
+    // clear when opening for create
+    setForm({ name: "", address: "", contact_name: "", phone: "", city_id: "", district_id: "" });
+  }, [open]);
 
   if (!open) return null;
 
@@ -71,56 +65,29 @@ export default function AddPickupModal({ open, onClose }: Props) {
         <form onSubmit={onSubmit} className="mt-4 space-y-3">
           <div>
             <label className="block text-sm text-slate-600">Name</label>
-            <input
-              name="name"
-              value={form.name}
-              onChange={onChange}
-              className="mt-1 w-full border rounded px-3 py-2"
-              required
-            />
+            <input name="name" value={form.name} onChange={onChange} className="mt-1 w-full border rounded px-3 py-2" required />
           </div>
 
           <div>
             <label className="block text-sm text-slate-600">Address</label>
-            <input
-              name="address"
-              value={form.address}
-              onChange={onChange}
-              className="mt-1 w-full border rounded px-3 py-2"
-              required
-            />
+            <input name="address" value={form.address} onChange={onChange} className="mt-1 w-full border rounded px-3 py-2" required />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-sm text-slate-600">Contact Name</label>
-              <input
-                name="contact_name"
-                value={form.contact_name}
-                onChange={onChange}
-                className="mt-1 w-full border rounded px-3 py-2"
-              />
+              <input name="contact_name" value={form.contact_name} onChange={onChange} className="mt-1 w-full border rounded px-3 py-2" />
             </div>
             <div>
               <label className="block text-sm text-slate-600">Phone</label>
-              <input
-                name="phone"
-                value={form.phone}
-                onChange={onChange}
-                className="mt-1 w-full border rounded px-3 py-2"
-              />
+              <input name="phone" value={form.phone} onChange={onChange} className="mt-1 w-full border rounded px-3 py-2" />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-sm text-slate-600">District</label>
-              <select
-                name="district_id"
-                value={form.district_id}
-                onChange={onChange}
-                className="mt-1 w-full border rounded px-3 py-2"
-              >
+              <select name="district_id" value={form.district_id} onChange={onChange} className="mt-1 w-full border rounded px-3 py-2">
                 <option value="">Select district</option>
                 {districts.map((d: any) => {
                   const id = d.id ?? d.district_id ?? d._id ?? d.value;
@@ -135,13 +102,7 @@ export default function AddPickupModal({ open, onClose }: Props) {
             </div>
             <div>
               <label className="block text-sm text-slate-600">City</label>
-              <select
-                name="city_id"
-                value={form.city_id}
-                onChange={onChange}
-                className="mt-1 w-full border rounded px-3 py-2"
-                disabled={!form.district_id}
-              >
+              <select name="city_id" value={form.city_id} onChange={onChange} className="mt-1 w-full border rounded px-3 py-2" disabled={!form.district_id}>
                 <option value="">Select city</option>
                 {cities.map((c: any) => {
                   const id = c.id ?? c.city_id ?? c._id ?? c.value;
@@ -155,29 +116,16 @@ export default function AddPickupModal({ open, onClose }: Props) {
               </select>
             </div>
           </div>
+            <div className="flex items-center justify-end gap-2 mt-3">
+              <button type="button" onClick={onClose} className="px-4 py-2 rounded bg-slate-100 text-sm">Cancel</button>
+              <button type="submit" disabled={createPickupPoint.isPending} className="px-4 py-2 rounded bg-indigo-600 text-white text-sm">
+                {createPickupPoint.isPending ? "Creating..." : "Create"}
+              </button>
+            </div>
 
-          <div className="flex items-center justify-end gap-2 mt-3">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 rounded bg-slate-100 text-sm"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={mutation.isPending}
-              className="px-4 py-2 rounded bg-indigo-600 text-white text-sm"
-            >
-              {mutation.isPending ? "Saving..." : "Save"}
-            </button>
-          </div>
-
-          {mutation.isError && (
-            <p className="text-sm text-red-600">Failed to save. Try again.</p>
-          )}
-        </form>
+            {createPickupPoint.isError && <p className="text-sm text-red-600">Failed to create. Try again.</p>}
+          </form>
+        </div>
       </div>
-    </div>
   );
 }

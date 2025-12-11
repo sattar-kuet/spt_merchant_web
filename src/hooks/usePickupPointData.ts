@@ -37,9 +37,25 @@ export default function usePickupPointData() {
 		},
 	});
 
+	const updatePickupPoint = useMutation({
+		mutationFn: async ({ id, payload }: { id: string | number; payload: any }) => {
+			const body = {
+				...payload,
+				city_id: payload.city_id ? Number(payload.city_id) : undefined,
+				district_id: payload.district_id ? Number(payload.district_id) : undefined,
+			};
+			const resp = await axiosSecure.put(`/pickup-points/${id}`, body);
+			return resp.data;
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["pickup-points"] });
+		},
+	});
+
 	return {
 		pickupPoints: pickupPointsQuery.data,
 		pickupPointsQuery,
 		createPickupPoint,
+		updatePickupPoint,
 	};
 }
