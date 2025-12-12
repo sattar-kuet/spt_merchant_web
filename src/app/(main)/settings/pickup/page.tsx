@@ -130,8 +130,9 @@ const PickupPointsPage = () => {
                 setOpenAdd(true);
               }}
               className="w-full"
+              variant="outline"
             >
-              <div className="inline-flex items-center gap-2 text-indigo-600 text-sm font-medium">
+              <div className="inline-flex py-2 items-center gap-2 text-indigo-600 text-sm font-medium">
                 <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-indigo-50 text-indigo-600">
                   <FiPlus />
                 </span>
