@@ -126,7 +126,17 @@ const AddParcelForm: React.FC = () => {
 
                   createParcel.mutate(payload, {
                   onSuccess: () => {
-                    router.push('/parcels');
+                    Swal.fire({
+                      icon: 'success',
+                      title: 'Created',
+                      text: 'Parcel created successfully',
+                      toast: true,
+                      position: 'top-end',
+                      timer: 1500,
+                      showConfirmButton: false,
+                    }).then(() => {
+                      router.push('/parcels');
+                    });
                   },
                     onError: (err) => {
                       console.error('Create parcel failed', err);

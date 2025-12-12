@@ -34,11 +34,7 @@ const OrdersPage = () => {
     // Reset to first page when filters change
     setCurrentPage(1);
   };
-
-  // Show pagination if we have pagination data and either:
-  // 1. Total pages > 1, OR
-  // 2. We have orders (assuming API might not return pagination data but we still want to show pagination controls)
-  const shouldShowPagination =
+const shouldShowPagination =
     pagination && (pagination.total_pages > 1 || orders.length > 0);
 
   return (

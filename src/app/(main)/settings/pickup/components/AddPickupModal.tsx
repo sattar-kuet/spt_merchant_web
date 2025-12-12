@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import useParcelOptions from "@/hooks/useParcelOptions";
 import usePickupPointData from "@/hooks/usePickupPointData";
+import Swal from 'sweetalert2';
 
 type Props = {
   open: boolean;
@@ -46,7 +47,28 @@ export default function AddPickupModal({ open, onClose }: Props) {
       active: (payload as any).active !== undefined ? (payload as any).active : true,
     };
 
-    createPickupPoint.mutate(sendPayload, { onSuccess: () => onClose() });
+    createPickupPoint.mutate(sendPayload, {
+      onSuccess: () => {
+        Swal.fire({
+          icon: 'success',
+          title: 'Created',
+          text: 'Pickup point created successfully',
+          toast: true,
+          position: 'top-end',
+          timer: 1500,
+          showConfirmButton: false,
+        }).then(() => onClose());
+      },
+      onError: (err: any) => {
+        // eslint-disable-next-line no-console
+        console.error('AddPickupModal: create failed', err);
+        Swal.fire({
+          icon: 'error',
+          title: 'Failed',
+          text: err?.message || 'Failed to create pickup point',
+        });
+      },
+    });
   }
 
   useEffect(() => {
