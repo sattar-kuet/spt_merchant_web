@@ -8,8 +8,11 @@ import FinancialInfo from "./FinancialInfo";
 import FeeCalculator from "@/components/FeeCalculator";
 import useAxiosSecure from "@/hooks/useAxiosSecure";
 import { useQueryClient } from "@tanstack/react-query";
+import useCreateParcel from "@/hooks/useCreateParcel";
 import useParcelOptions from "@/hooks/useParcelOptions";
 import { useRouter } from 'next/navigation';
+import { Button } from "@/components/ui/Button";
+import Swal from 'sweetalert2';
 
 const AddParcelForm: React.FC = () => {
   const [fullName, setFullName] = useState("");
@@ -29,6 +32,7 @@ const AddParcelForm: React.FC = () => {
   const axiosSecure = useAxiosSecure();
   const queryClient = useQueryClient();
   const router = useRouter();
+  const createParcel = useCreateParcel();
 
   const { parcelTypes, districts, cities, pickupPoints } = useParcelOptions(selectedDistrict);
 
@@ -101,36 +105,42 @@ const AddParcelForm: React.FC = () => {
             </div>
 
             <div className="flex flex-col sm:flex-row justify-end gap-3">
-              <button className="btn btn-outline w-full sm:w-auto" type="button">Cancel</button>
-              <button
-                className="btn btn-primary w-full sm:w-auto"
-                onClick={async () => {
+              <Button variant="default" className="w-full sm:w-auto" type="button">Cancel</Button>
+                <Button
+                variant="secondary"
+                className="w-full sm:w-auto"
+                disabled={createParcel.isPending}
+                onClick={() => {
                   const payload = {
-                    parcel_type_id: parcelType ? Number(parcelType) : undefined,
-                    delivery_speed_id: 1,
-                    customer_name: fullName,
-                    customer_phone: phone,
-                    customer_address: address,
-                    customer_city_id: selectedCity && selectedCity !== "-1" ? Number(selectedCity) : undefined,
-                    customer_district_id: selectedDistrict && selectedDistrict !== "-1" ? Number(selectedDistrict) : undefined,
-                    pickup_point_id: selectedPickupPoint && selectedPickupPoint !== "-1" ? Number(selectedPickupPoint) : undefined,
-                    total_weight: weight ? Number(weight) : undefined,
-                    cod_amount: codNumber,
+                  parcel_type_id: parcelType ? Number(parcelType) : undefined,
+                  delivery_speed_id: 1,
+                  customer_name: fullName,
+                  customer_phone: phone,
+                  customer_address: address,
+                  customer_city_id: selectedCity && selectedCity !== "-1" ? Number(selectedCity) : undefined,
+                  customer_district_id: selectedDistrict && selectedDistrict !== "-1" ? Number(selectedDistrict) : undefined,
+                  pickup_point_id: selectedPickupPoint && selectedPickupPoint !== "-1" ? Number(selectedPickupPoint) : undefined,
+                  total_weight: weight ? Number(weight) : undefined,
+                  cod_amount: codNumber,
                   } as any;
 
-                  try {
-                    await axiosSecure.post(`/orders`, payload);
-                    queryClient.invalidateQueries({ queryKey: ["orders"] });
-                    // redirect to parcels list on success
+                  createParcel.mutate(payload, {
+                  onSuccess: () => {
                     router.push('/parcels');
-                  } catch (err) {
-                    console.error(err);
-                    alert("Failed to create parcel");
-                  }
+                  },
+                    onError: (err) => {
+                      console.error('Create parcel failed', err);
+                      Swal.fire({
+                        icon: 'error',
+                        title: 'Failed',
+                        text: err?.message || 'Failed to create parcel'
+                      });
+                    },
+                  });
                 }}
-              >
-                Create Parcel
-              </button>
+                >
+                {createParcel.isPending ? 'Creating...' : 'Create Parcel'}
+                </Button>
             </div>
           </div>
         </div>
