@@ -9,6 +9,7 @@ import FeeCalculator from "@/components/FeeCalculator";
 import useAxiosSecure from "@/hooks/useAxiosSecure";
 import { useQueryClient } from "@tanstack/react-query";
 import useParcelOptions from "@/hooks/useParcelOptions";
+import { useRouter } from 'next/navigation';
 
 const AddParcelForm: React.FC = () => {
   const [fullName, setFullName] = useState("");
@@ -27,6 +28,7 @@ const AddParcelForm: React.FC = () => {
 
   const axiosSecure = useAxiosSecure();
   const queryClient = useQueryClient();
+  const router = useRouter();
 
   const { parcelTypes, districts, cities, pickupPoints } = useParcelOptions(selectedDistrict);
 
@@ -119,7 +121,8 @@ const AddParcelForm: React.FC = () => {
                   try {
                     await axiosSecure.post(`/orders`, payload);
                     queryClient.invalidateQueries({ queryKey: ["orders"] });
-                    alert("Parcel created successfully");
+                    // redirect to parcels list on success
+                    router.push('/parcels');
                   } catch (err) {
                     console.error(err);
                     alert("Failed to create parcel");

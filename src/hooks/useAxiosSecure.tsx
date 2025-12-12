@@ -18,13 +18,16 @@ export default function useAxiosSecure(): AxiosInstance {
   }, []);
 
   useEffect(() => {
-    // Request interceptor to add Authorization header
+    // Request interceptor to add Authorization header and enforce client-side expiry
     const reqInterceptor = axiosInstance.interceptors.request.use(
       (config: InternalAxiosRequestConfig) => {
         const token = getAuthToken();
-        if (token) {
-          config.headers.Authorization = `Bearer ${token}`;
+        if (!token) {
+          // token expired or missing -> force logout and prevent the request
+          logout();
+          return Promise.reject(new Error("Auth token expired"));
         }
+        config.headers.Authorization = `Bearer ${token}`;
         return config;
       },
       (error) => Promise.reject(error)

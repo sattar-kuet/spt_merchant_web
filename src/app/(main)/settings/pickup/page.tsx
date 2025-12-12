@@ -2,8 +2,8 @@
 import usePickupPointData from "@/hooks/usePickupPointData";
 import { FiEdit, FiPlus } from "react-icons/fi";
 import { useState } from "react";
-import AddPickupModal from "./AddPickupModal";
-import EditPickupModal from "./EditPickupModal";
+import AddPickupModal from "./components/AddPickupModal";
+import EditPickupModal from "./components/EditPickupModal";
 import { Button } from "@/components/ui/Button";
 
 function getTitle(point: any) {

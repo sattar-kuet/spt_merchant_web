@@ -2,7 +2,13 @@
 
 import React from "react";
 import { Input } from "@/components/ui/Input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/Select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/Select";
 
 const ParcelDetails: React.FC<{
   weight: string;
@@ -16,31 +22,42 @@ const ParcelDetails: React.FC<{
       <h3 className="text-lg font-medium">Parcel Details</h3>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-        <Input
-          value={weight}
-          onChange={(e) => setWeight(e.target.value)}
-          placeholder="e.g., 2.5"
-        />
-        <Select value={parcelType} onValueChange={setParcelType}>
-          <SelectTrigger>
-            <SelectValue placeholder="Select a type" />
-          </SelectTrigger>
-          <SelectContent>
-            {parcelTypes && parcelTypes.length > 0 ? (
-              parcelTypes.map((t) => (
-                <SelectItem key={t.id} value={String(t.id)}>
-                  {t.name}
-                </SelectItem>
-              ))
-            ) : (
-              <>
-                <SelectItem value="document">Document</SelectItem>
-                <SelectItem value="parcel">Parcel</SelectItem>
-                <SelectItem value="fragile">Fragile</SelectItem>
-              </>
-            )}
-          </SelectContent>
-        </Select>
+        <div>
+          <label htmlFor="parcel-weight" className="text-sm">
+            Parcel Weight
+          </label>
+          <Input
+            id="parcel-weight"
+            value={weight}
+            onChange={(e) => setWeight(e.target.value)}
+            placeholder="2.5"
+          />
+        </div>
+        <div>
+          <label htmlFor="parcel-type" className="text-sm">
+            Parcel Type
+          </label>
+          <Select value={parcelType} onValueChange={setParcelType}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select a type" />
+            </SelectTrigger>
+            <SelectContent>
+              {parcelTypes && parcelTypes.length > 0 ? (
+                parcelTypes.map((t) => (
+                  <SelectItem key={t.id} value={String(t.id)}>
+                    {t.name}
+                  </SelectItem>
+                ))
+              ) : (
+                <>
+                  <SelectItem value="document">Document</SelectItem>
+                  <SelectItem value="parcel">Parcel</SelectItem>
+                  <SelectItem value="fragile">Fragile</SelectItem>
+                </>
+              )}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
     </div>
   );

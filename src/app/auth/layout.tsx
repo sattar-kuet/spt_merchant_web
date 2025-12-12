@@ -24,12 +24,10 @@ export default function AuthLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className="antialiased min-h-screen bg-gray-50">
-        <ReactQueryProvider>
-          {children}
-        </ReactQueryProvider>
-      </body>
-    </html>
+    <div className="antialiased min-h-screen bg-gray-50">
+      <ReactQueryProvider>
+        {children}
+      </ReactQueryProvider>
+    </div>
   );
 }

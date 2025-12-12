@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import axios from 'axios';
-import { removeAuthToken, setAuthToken, isAuthenticated } from '@/lib/auth';
+import { removeAuthToken, setAuthToken, isAuthenticated, getAuthToken } from '@/lib/auth';
 
 // Updated to use your actual API endpoint
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3001';
@@ -46,6 +46,26 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setLoading(false);
   }, []);
 
+  // Periodically check token validity and log out proactively if token expired
+  useEffect(() => {
+    const id = setInterval(() => {
+      try {
+        const token = getAuthToken();
+        if (!token) {
+          // clear state/token and redirect without calling logout (avoids dependency problems)
+          setUser(null);
+          try { localStorage.removeItem('user'); } catch (e) { /* ignore */ }
+          removeAuthToken();
+          try { window.location.href = '/auth/login'; } catch (e) { /* ignore */ }
+        }
+      } catch (e) {
+        // ignore
+      }
+    }, 30 * 1000); // every 30s
+
+    return () => clearInterval(id);
+  }, []);
+
   const register = async (name: string, email: string, password: string) => {
     try {
       setLoading(true);
@@ -58,8 +78,28 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
       if (response.data.success) {
         // Extract api_key and keep remaining user fields via spread
-        const { api_key, ...rest } = response.data;
-        if (api_key) setAuthToken(api_key);
+        const { api_key, expires_in, expires_at, ...rest } = response.data;
+        if (api_key) {
+          // prefer expires_in (seconds) if provided, else use expires_at (timestamp)
+          if (typeof expires_in === 'number') {
+            setAuthToken(api_key, expires_in);
+          } else if (expires_at) {
+            try {
+              const at = Number(expires_at);
+              if (!Number.isNaN(at)) {
+                const ttl = Math.floor((at - Date.now()) / 1000);
+                if (ttl > 0) setAuthToken(api_key, ttl);
+                else setAuthToken(api_key);
+              } else {
+                setAuthToken(api_key);
+              }
+            } catch (e) {
+              setAuthToken(api_key);
+            }
+          } else {
+            setAuthToken(api_key);
+          }
+        }
 
         // Ensure groups exists
         const userData = { ...(rest as any), groups: rest.groups || [] } as any;
@@ -100,8 +140,27 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
       if (response.data.success) {
         // Extract api_key and keep remaining user fields via spread
-        const { api_key, ...rest } = response.data;
-        if (api_key) setAuthToken(api_key);
+        const { api_key, expires_in, expires_at, ...rest } = response.data;
+        if (api_key) {
+          if (typeof expires_in === 'number') {
+            setAuthToken(api_key, expires_in);
+          } else if (expires_at) {
+            try {
+              const at = Number(expires_at);
+              if (!Number.isNaN(at)) {
+                const ttl = Math.floor((at - Date.now()) / 1000);
+                if (ttl > 0) setAuthToken(api_key, ttl);
+                else setAuthToken(api_key);
+              } else {
+                setAuthToken(api_key);
+              }
+            } catch (e) {
+              setAuthToken(api_key);
+            }
+          } else {
+            setAuthToken(api_key);
+          }
+        }
 
         const userData = { ...(rest as any), groups: rest.groups || [] } as any;
 
@@ -139,7 +198,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       console.error('Failed to remove user from localStorage', e);
     }
     removeAuthToken();
-    // In a real app, you might want to call a logout endpoint to clear server-side session
+    // Redirect to login so user cannot access protected screens
+    try {
+      window.location.href = '/auth/login';
+    } catch (e) {
+      // ignore in non-browser contexts
+    }
+    // In a real app, you might also call a logout endpoint to clear server-side session
   };
 
   const value = {
