@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
+import Swal from 'sweetalert2';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -26,13 +27,25 @@ const LoginPage = () => {
       const result = await login(email, password);
       
       if (result.success) {
-        router.push('/');
+        Swal.fire({
+          icon: 'success',
+          title: 'Signed in',
+          text: 'You have signed in successfully',
+          toast: true,
+          position: 'top-end',
+          timer: 1200,
+          showConfirmButton: false,
+        }).then(() => router.push('/'));
       } else {
-        setError(result.message || 'Login failed');
+        const msg = result.message || 'Login failed';
+        setError(msg);
+        Swal.fire({ icon: 'error', title: 'Failed', text: msg });
       }
-    } catch (err) {
-      setError('An unexpected error occurred');
+    } catch (err: any) {
+      const msg = err?.message || 'An unexpected error occurred';
+      setError(msg);
       console.error(err);
+      Swal.fire({ icon: 'error', title: 'Error', text: msg });
     } finally {
       setLoading(false);
     }
