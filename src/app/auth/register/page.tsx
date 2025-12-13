@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
+import Swal from 'sweetalert2';
 
 const RegisterPage = () => {
   const [name, setName] = useState('');
@@ -38,13 +39,25 @@ const RegisterPage = () => {
       const result = await register(name, email, password);
       
       if (result.success) {
-        router.push('/'); // Redirect to dashboard after successful registration
+        Swal.fire({
+          icon: 'success',
+          title: 'Registered',
+          text: 'Account created successfully',
+          toast: true,
+          position: 'top-end',
+          timer: 1400,
+          showConfirmButton: false,
+        }).then(() => router.push('/'));
       } else {
-        setError(result.message || 'Registration failed');
+        const msg = result.message || 'Registration failed';
+        setError(msg);
+        Swal.fire({ icon: 'error', title: 'Failed', text: msg });
       }
-    } catch (err) {
-      setError('An unexpected error occurred');
+    } catch (err: any) {
+      const msg = err?.message || 'An unexpected error occurred';
+      setError(msg);
       console.error(err);
+      Swal.fire({ icon: 'error', title: 'Error', text: msg });
     } finally {
       setLoading(false);
     }
