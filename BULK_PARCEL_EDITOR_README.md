@@ -1,128 +1,185 @@
-# Bulk Parcel Editor - Google Sheets Integration Implementation Plan
+# Bulk Parcel Editor - Google Sheets Integration
 
 ## Overview
 
-This document outlines the implementation plan for integrating Google Sheets functionality into the bulk parcel editor feature. The current implementation uses Handsontable as a spreadsheet editor, but we plan to replace it with actual Google Sheets embedding and API integration for better functionality and user experience.
+This document describes the Google Sheets integration for the bulk parcel editor feature. We have successfully replaced the Handsontable spreadsheet editor with an embedded Google Sheets iframe to provide a full Google Sheets experience without requiring users to authenticate through the application.
 
-## Current Implementation
+## Implementation Details
 
-The current bulk parcel editor is located at `src/app/(main)/parcels/add-parcel/bulk-parcel/page.tsx` and features:
+### Completed Implementation
 
-1. File upload interface for Excel/CSV files
-2. Spreadsheet editor using Handsontable library
-3. Toggle between upload and editor views
-4. Basic spreadsheet functionality (cell editing, formatting toolbar)
+1. **Replaced Handsontable with Google Sheets iframe**
+   - Embedded the Google Sheets directly in the page using iframe
+   - Removed the Handsontable implementation and dependencies
+   - Maintained the existing UI/UX design around the editor
 
-## Proposed Implementation Plan
+2. **Provided Full Google Sheets Experience**
+   - Users can edit the sheet directly in the browser
+   - No authentication required for editing
+   - Full Google Sheets UI and functionality available
 
-Based on the Google Sheets Embedding + API Integration document, we will implement the following architecture:
+3. **Implemented Backend Data Reading**
+   - Created server-side API routes for reading Google Sheets data
+   - Implemented sheet clearing functionality after submission
+   - Preserved the toggle between upload and editor views
 
-```
-Next.js App → Google Sheets API → Your Backend → Database
-```
+4. **Dynamic Sheet Creation Per User**
+   - Each user gets their own Google Sheet when they navigate to the editor
+   - Sheets are created with descriptive names including user ID and timestamp
+   - Headers are automatically added to new sheets for consistency
+   - Sheets are automatically shared with the service account for API access
 
-### Implementation Steps
+## Current Workflow
 
-1. **Set up Google Sheets API in Google Cloud Console**
-   - Create a new project in Google Cloud Console
-   - Enable the Google Sheets API
-   - Configure OAuth 2.0 credentials
-   - Set up proper authentication scopes
+1. Users navigate to the bulk parcel editor page
+2. They can toggle between file upload and Google Sheets editor views
+3. When switching to the editor view, a new Google Sheet is automatically created for them
+4. Users can directly edit their personalized Google Sheet
+5. Users click "Add Parcels" to submit their data
+6. The application reads data from the Google Sheet via API
+7. After successful submission, the sheet is automatically cleared (except headers)
 
-2. **Create an embedded editor using Google Sheets embed iframe**
-   - Replace the current Handsontable implementation with Google Sheets embedded editor
-   - Implement proper iframe integration with required permissions
-   - Ensure responsive design works across devices
+## Technical Changes
 
-3. **Use Google Sheets API to read data programmatically**
-   - Implement API calls to fetch spreadsheet data
-   - Parse and validate the received data
-   - Handle different data formats and structures
+### Files Created
 
-4. **Process and import the data into your database**
-   - Create data transformation layer
-   - Implement validation and error handling
-   - Develop database import functionality
+1. `src/lib/googleSheets.ts` - Client-side utility functions for Google Sheets API integration
+2. `src/hooks/useGoogleSheets.ts` - Custom React hook for Google Sheets operations
+3. `src/app/api/google-sheets/read/route.ts` - API route for reading Google Sheets data
+4. `src/app/api/google-sheets/clear/route.ts` - API route for clearing Google Sheets data
+5. `src/app/api/google-sheets/create/route.ts` - API route for creating new Google Sheets
 
-## Technical Requirements
+### Files Modified
 
-### Dependencies to Install
+1. `src/app/(main)/parcels/add-parcel/bulk-parcel/page.tsx` - Main page component with Google Sheets iframe integration
+2. `package.json` - Updated dependencies
+
+### Dependencies Added
+
 - `googleapis` - Official Google APIs client library for Node.js
-- `google-auth-library` - Google Authentication Library
 
-### Environment Variables Needed
+### Dependencies Removed
+
+- `@handsontable/react` - Handsontable React component
+- `handsontable` - Handsontable library and CSS
+- `google-auth-library` - Google Authentication Library (no longer needed)
+
+## Environment Variables
+
+To fully configure the Google Sheets integration, add the following to your `.env.local` file:
+
 ```env
-GOOGLE_CLIENT_ID=your_google_client_id
-GOOGLE_CLIENT_SECRET=your_google_client_secret
-GOOGLE_REDIRECT_URI=http://localhost:3000/api/auth/callback
-GOOGLE_SHEET_SCOPES=https://www.googleapis.com/auth/spreadsheets
+NEXT_PUBLIC_API_BASE_URL=https://spt.itscholarbd.com/api/v1
+NEXT_PUBLIC_GOOGLE_SHEET_ID=1FnM5enepgMx13vBp3fyG7m8397UZSZOLWFcR_b0BOfU
+GOOGLE_SERVICE_ACCOUNT_EMAIL=your-service-account-email@your-project.iam.gserviceaccount.com
+GOOGLE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nYOUR_PRIVATE_KEY_HERE\n-----END PRIVATE KEY-----\n"
 ```
 
-## Implementation Phases
+## Google Cloud Project Setup
 
-### Phase 1: Google Cloud Setup and Authentication
-- Set up Google Cloud project
-- Configure OAuth 2.0 credentials
-- Implement authentication flow in Next.js app
+To enable full functionality, you need to set up a Google Cloud project with service account authentication:
 
-### Phase 2: Google Sheets Embedding
-- Replace Handsontable with Google Sheets embedded editor
-- Implement proper iframe integration
-- Maintain existing UI/UX design
+1. Create a new project in the [Google Cloud Console](https://console.cloud.google.com/)
+2. Enable the Google Sheets API and Google Drive API in the API Library
+3. Create a service account and download the JSON key file
+4. Share your Google Sheet with the service account email address
+5. Add the service account credentials to your `.env.local` file
 
-### Phase 3: API Integration
-- Implement Google Sheets API data reading
-- Create data parsing and validation functions
-- Handle API errors and edge cases
+Note: For the dynamic sheet creation feature, you need both the Google Sheets API and Google Drive API enabled, and your service account needs both scopes:
+- `https://www.googleapis.com/auth/spreadsheets`
+- `https://www.googleapis.com/auth/drive`
 
-### Phase 4: Data Processing and Import
-- Develop data transformation layer
-- Implement database import functionality
-- Add proper error handling and logging
+## Security Considerations
 
-## Files to Modify
+1. **Service Account Authentication**: The application uses service account authentication to read data from Google Sheets, not user authentication.
+2. **Credential Storage**: Service account credentials should be stored securely and not exposed to the client-side.
+3. **Scope Limitation**: Only request the minimum required scopes for your application.
+4. **Sheet Sharing**: Make sure to share your Google Sheet with the service account email address with appropriate permissions.
+5. **User Isolation**: Each user gets their own sheet, preventing data conflicts between users.
 
-1. `src/app/(main)/parcels/add-parcel/bulk-parcel/page.tsx` - Main page component
-2. `src/lib/googleSheets.ts` - Google Sheets API integration (new file)
-3. `src/hooks/useGoogleSheets.ts` - Custom hook for Google Sheets integration (new file)
-4. Environment configuration files
+## Architecture
 
-## Expected Benefits
+The implementation follows a client-server architecture:
 
-1. **Enhanced Functionality**: Real Google Sheets editor with all its features
-2. **Better User Experience**: Familiar interface for users already accustomed to Google Sheets
-3. **Improved Collaboration**: Multiple users can work on the same sheet simultaneously
-4. **Advanced Features**: Access to Google Sheets formulas, formatting, and other advanced features
-5. **Seamless Integration**: Direct integration with Google Drive and other Google services
+1. **Client-Side**: Displays the Google Sheets iframe for direct editing and handles user interactions
+2. **Server-Side API Routes**: Handle Google Sheets API calls for reading, clearing, and creating data
+3. **Google Sheets API**: Provides access to spreadsheet data
+4. **Google Drive API**: Enables dynamic creation of new spreadsheets
 
-## Potential Challenges
+This separation ensures that users can edit their sheets directly while the application can programmatically manage the data.
 
-1. **Authentication Complexity**: Managing OAuth 2.0 flow and token refresh
-2. **Rate Limiting**: Handling Google Sheets API quotas and limits
-3. **Data Synchronization**: Ensuring data consistency between Google Sheets and database
-4. **Error Handling**: Properly handling API errors and network issues
-5. **Performance**: Optimizing API calls to minimize latency
+## Current Implementation Notes
 
-## Success Criteria
+The current implementation provides a seamless user experience:
 
-1. Successful replacement of Handsontable with Google Sheets embedded editor
-2. Functional data reading from Google Sheets via API
-3. Proper data transformation and import into the database
-4. Maintained or improved performance compared to current implementation
-5. Positive user feedback on the new functionality
+1. Users automatically get their own Google Sheet when they navigate to the editor
+2. The application can read data from the sheet via API
+3. The sheet is automatically cleared after successful submission
+4. All existing UI functionality is preserved
+5. Users are isolated from each other, preventing data conflicts
 
-## Timeline Estimate
+For production use, you should:
 
-- Phase 1: 2-3 days
-- Phase 2: 3-4 days
-- Phase 3: 3-4 days
-- Phase 4: 2-3 days
-- Testing and Refinement: 2-3 days
+1. Implement proper error handling and logging
+2. Add rate limiting for API calls
+3. Implement proper authentication for the API routes
+4. Add input validation and sanitization
+5. Set up proper monitoring and alerting
+6. Implement a cleanup mechanism for old sheets
+7. Add user identification based on actual authentication rather than random IDs
 
-Total estimated time: 12-17 days
+## Troubleshooting
+
+### "Storage Quota Exceeded" Error
+
+Even if you have sufficient storage space (e.g., 9GB used of 15GB), you might encounter this error due to:
+
+1. **Hidden/System Files**: Google Drive counts hidden and system files toward your quota
+2. **Trash/Recycle Bin**: Files in the trash still count toward your storage quota
+3. **Temporary Quota Limits**: Google may impose temporary limits on API usage
+4. **App-Specific Quotas**: Some Google APIs have per-app quotas
+
+#### Solutions:
+
+1. **Check Detailed Storage Usage**:
+   - Go to [Google One storage page](https://one.google.com/storage)
+   - Click on "Manage storage"
+   - Look for any large files or unexpected storage usage
+
+2. **Empty Trash Completely**:
+   - Go to [Google Drive](https://drive.google.com)
+   - Click on "Trash" in the left sidebar
+   - Click "Empty trash" at the top
+
+3. **Try Creating a Test Sheet Manually**:
+   - Go to [Google Sheets](https://sheets.google.com)
+   - Try creating a new blank spreadsheet
+   - See if you get the same error
+
+4. **Wait and Retry**:
+   - Temporary quota limits may reset after some time
+   - Try again after a few hours
+
+5. **Use Template Approach**:
+   - The system now falls back to copying a template sheet if creation fails
+   - This reduces storage usage as it reuses an existing sheet structure
+
+### "Permission Denied" Error
+
+This usually occurs when:
+1. The Google Drive API is not enabled
+2. The service account doesn't have proper permissions
+3. The scopes are incorrectly configured
+
+#### Solutions:
+1. Ensure both Google Sheets API and Google Drive API are enabled
+2. Verify the service account credentials in your `.env.local` file
+3. Check that the service account email is shared with appropriate permissions on any existing sheets
 
 ## Resources
 
 - [Google Sheets API Documentation](https://developers.google.com/sheets/api)
+- [Google Drive API Documentation](https://developers.google.com/drive)
+- [Embedding Google Sheets](https://support.google.com/docs/answer/183965?co=GENIE.Platform%3DDesktop&hl=en)
 - [Google Identity Platform Documentation](https://developers.google.com/identity)
-- [Handsontable to Google Sheets Migration Guide](to be created)
+- [Service Accounts](https://cloud.google.com/iam/docs/service-accounts)

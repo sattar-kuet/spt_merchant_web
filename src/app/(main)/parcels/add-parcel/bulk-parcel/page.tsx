@@ -1,98 +1,103 @@
 "use client";
 
-import React, { useRef, useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
-import { HotTable } from "@handsontable/react";
-import Handsontable from "handsontable";
-import "handsontable/dist/handsontable.full.css";
+import { useGoogleSheets } from "@/hooks/useGoogleSheets";
+import Swal from "sweetalert2";
 
 export default function BulkParcelPage() {
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const hotTableComponent = useRef<any>(null);
-  const [fileName, setFileName] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<"upload" | "editor">("upload");
+  const { 
+    loading, 
+    error, 
+    currentSheetId, 
+    createNewSheet, 
+    readParcelData, 
+    clearSheet 
+  } = useGoogleSheets();
+  
+  const [sheetUrl, setSheetUrl] = useState<string | null>(null);
+  const [isLoadingSheet, setIsLoadingSheet] = useState(false);
 
-  // Sample data for the spreadsheet
-  const [sheetData, setSheetData] = useState<Array<Array<string>>>([
-    ["Name", "Address", "Weight", "Type", "Phone"],
-    ["John Doe", "123 Main St", "2.5", "Parcel", "555-1234"],
-    ["Jane Smith", "456 Oak Ave", "1.0", "Document", "555-5678"],
-    ["Bob Johnson", "789 Pine Rd", "3.2", "Fragile", "555-9012"],
-  ]);
-
-  // State for formula bar
-  const [formulaBarValue, setFormulaBarValue] = useState<string>("");
-
-  function onBrowse() {
-    fileInputRef.current?.click();
-  }
-
-  function onFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const f = e.target.files?.[0];
-    setFileName(f ? f.name : null);
-  }
-
-  function onDrop(e: React.DragEvent<HTMLDivElement>) {
-    e.preventDefault();
-    const f = e.dataTransfer.files?.[0];
-    if (f) setFileName(f.name);
-  }
-
-  function onDragOver(e: React.DragEvent<HTMLDivElement>) {
-    e.preventDefault();
-  }
-
-  // Handle data changes from Handsontable
-  const handleDataChange = (
-    changes: Handsontable.CellChange[] | null,
-    source: Handsontable.ChangeSource
-  ) => {
-    if (changes) {
-      const newData = [...sheetData];
-      changes.forEach((change) => {
-        const [row, prop, oldValue, newValue] = change;
-        // Ensure row exists
-        if (!newData[row]) {
-          newData[row] = [];
-        }
-        // Convert prop to number if it's a string representation of a number
-        const col =
-          typeof prop === "string" ? parseInt(prop, 10) : (prop as number);
-        if (!isNaN(col)) {
-          newData[row][col] = newValue as string;
-        }
-      });
-      setSheetData(newData);
-    }
-  };
-
-  // Handle cell selection
-  const handleCellSelection = (row: number, col: number) => {
-    if (sheetData[row] && sheetData[row][col] !== undefined) {
-      setFormulaBarValue(sheetData[row][col]);
-    }
-  };
-
-  // Resize Handsontable when component mounts or window resizes
+  // Create a new sheet when the user navigates to the editor
   useEffect(() => {
-    const handleResize = () => {
-      if (hotTableComponent.current && hotTableComponent.current.hotInstance) {
-        hotTableComponent.current.hotInstance.render();
+    const initializeSheet = async () => {
+      if (viewMode === "editor" && !currentSheetId && !isLoadingSheet) {
+        setIsLoadingSheet(true);
+        try {
+          // In a real app, you would get the actual user ID
+          const userId = "user-" + Math.random().toString(36).substr(2, 9);
+          const result = await createNewSheet("SPT Merchant Bulk Parcel Sheet", userId);
+          setSheetUrl(result.sheetUrl);
+        } catch (err) {
+          console.error("Error creating sheet:", err);
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: "Failed to create Google Sheet. Please try again.",
+          });
+        } finally {
+          setIsLoadingSheet(false);
+        }
       }
     };
 
-    // Initial render
-    handleResize();
+    initializeSheet();
+  }, [viewMode, currentSheetId, isLoadingSheet, createNewSheet]);
 
-    // Add event listener for window resize
-    window.addEventListener("resize", handleResize);
+  // Check for OAuth2 callback code in URL parameters
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get("code");
 
-    // Cleanup
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
+    if (code) {
+      // Remove code from URL without processing it
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
   }, []);
+
+  function onBrowse() {
+    // File browse functionality can be implemented if needed
+  }
+
+  // Function to handle adding parcels
+  const handleAddParcels = async () => {
+    try {
+      // Read data from Google Sheets
+      const parcels = await readParcelData();
+
+      if (parcels.length === 0) {
+        Swal.fire({
+          icon: "info",
+          title: "No Data",
+          text: "No parcel data found in the sheet.",
+        });
+        return;
+      }
+
+      // Here you would typically send the data to your backend
+      // For now, we'll just show a success message
+      console.log("Parcels to be added:", parcels);
+
+      // Show success message
+      Swal.fire({
+        icon: "success",
+        title: "Parcels Added",
+        text: `${parcels.length} parcels have been added successfully.`,
+      });
+
+      // Clear the sheet (except headers)
+      await clearSheet();
+    } catch (err: any) {
+      console.error("Error adding parcels:", err);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: err.message || "Failed to add parcels.",
+      });
+    }
+  };
 
   return (
     <div className="p-4 sm:p-8">
@@ -103,7 +108,7 @@ export default function BulkParcelPage() {
               Add Multiple Parcels at Once
             </h1>
             <p className="text-sm text-slate-500 mt-2">
-              Save time by uploading an Excel file with your parcel information.
+              Save time by using Google Sheets to enter your parcel information.
             </p>
           </div>
           <Button
@@ -122,11 +127,7 @@ export default function BulkParcelPage() {
           {viewMode === "upload" ? (
             // File upload interface
             <>
-              <div
-                className="border-2 border-dashed border-slate-300 rounded-md py-12 sm:py-20 flex flex-col items-center justify-center"
-                onDrop={onDrop}
-                onDragOver={onDragOver}
-              >
+              <div className="border-2 border-dashed border-slate-300 rounded-md py-12 sm:py-20 flex flex-col items-center justify-center">
                 <div className="text-3xl sm:text-4xl mb-3 sm:mb-4 text-slate-300">
                   📁
                 </div>
@@ -137,14 +138,6 @@ export default function BulkParcelPage() {
                   Accepted formats: .xlsx, .xls, .csv
                 </div>
 
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept=".xlsx,.xls,.csv"
-                  className="hidden"
-                  onChange={onFileChange}
-                />
-
                 <Button
                   variant="outline"
                   size="default"
@@ -154,12 +147,6 @@ export default function BulkParcelPage() {
                 >
                   Browse files
                 </Button>
-
-                {fileName && (
-                  <div className="mt-3 sm:mt-4 text-sm text-slate-600 text-center px-4">
-                    Selected: {fileName}
-                  </div>
-                )}
               </div>
 
               <div className="mt-4 text-center">
@@ -170,200 +157,51 @@ export default function BulkParcelPage() {
               </div>
             </>
           ) : (
-            // Exact Google Sheets Interface with Full Width
+            // Google Sheets Interface with Full Width
             <div className="w-full">
               <div className="mb-4">
-                <h2 className="text-xl font-semibold mb-2">XLSX Editor</h2>
+                <h2 className="text-xl font-semibold mb-2">
+                  Google Sheets Editor
+                </h2>
                 <p className="text-sm text-slate-500">
-                  Edit your parcel data directly in the spreadsheet
+                  Edit your parcel data directly in Google Sheets
+                </p>
+                <p className="text-xs text-slate-400 mt-2">
+                  Note: You can edit the sheet directly. Make sure to follow the
+                  column format.
                 </p>
               </div>
 
-              {/* Google Sheets Header Bar */}
-              <div className="bg-white border border-gray-300 rounded-t">
-                {/* Menu Bar */}
-                <div className="flex items-center px-4 py-1 border-b border-gray-300 text-sm">
-                  <div className="flex items-center space-x-4">
-                    <span className="font-medium">File</span>
-                    <span>Edit</span>
-                    <span>View</span>
-                    <span>Insert</span>
-                    <span>Format</span>
-                    <span>Data</span>
-                    <span>Tools</span>
-                    <span>Extensions</span>
-                    <span>Help</span>
+              {/* Loading state */}
+              {isLoadingSheet && (
+                <div className="w-full flex items-center justify-center" style={{ height: "700px" }}>
+                  <div className="text-center">
+                    <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500 mb-4"></div>
+                    <p>Creating your personalized Google Sheet...</p>
                   </div>
                 </div>
+              )}
 
-                {/* Toolbar */}
-                <div className="flex items-center px-4 py-2 border-b border-gray-300">
-                  <div className="flex items-center space-x-2">
-                    <button className="p-1 rounded hover:bg-gray-200">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-5 w-5 text-gray-600"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M7.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l2.293 2.293a1 1 0 010 1.414z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    </button>
-                    <button className="p-1 rounded hover:bg-gray-200">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-5 w-5 text-gray-600"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    </button>
-                  </div>
+              {/* Google Sheets iframe - Editable version */}
+              {!isLoadingSheet && sheetUrl && (
+                <div className="w-full" style={{ height: "700px" }}>
+                  <iframe
+                    src={`${sheetUrl}/edit?widget=true&headers=false`}
+                    className="w-full h-full border border-gray-300 rounded"
+                    frameBorder="0"
+                    title="Bulk Parcel Editor"
+                  ></iframe>
+                </div>
+              )}
 
-                  <div className="border-l border-gray-300 h-6 mx-3"></div>
-
-                  <div className="flex items-center space-x-2">
-                    <select className="text-sm border border-gray-300 rounded px-2 py-1 bg-white">
-                      <option>Calibri</option>
-                      <option>Arial</option>
-                      <option>Times New Roman</option>
-                    </select>
-                    <select className="text-sm border border-gray-300 rounded px-2 py-1 bg-white w-16">
-                      <option>10</option>
-                      <option>11</option>
-                      <option>12</option>
-                      <option>14</option>
-                      <option>16</option>
-                      <option>18</option>
-                      <option>20</option>
-                    </select>
-
-                    <div className="border-l border-gray-300 h-6 mx-3"></div>
-
-                    <button className="p-1 rounded hover:bg-gray-200">
-                      <span className="font-bold">B</span>
-                    </button>
-                    <button className="p-1 rounded hover:bg-gray-200">
-                      <span className="italic">I</span>
-                    </button>
-                    <button className="p-1 rounded hover:bg-gray-200">
-                      <span className="underline">U</span>
-                    </button>
-
-                    <div className="border-l border-gray-300 h-6 mx-3"></div>
-
-                    <button className="p-1 rounded hover:bg-gray-200">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-5 w-5 text-gray-600"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
-                        />
-                      </svg>
-                    </button>
-                    <button className="p-1 rounded hover:bg-gray-200">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-5 w-5 text-gray-600"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M4 6h16M4 12h16M4 18h16"
-                        />
-                      </svg>
-                    </button>
+              {/* Error state */}
+              {!isLoadingSheet && !sheetUrl && currentSheetId && (
+                <div className="w-full flex items-center justify-center" style={{ height: "700px" }}>
+                  <div className="text-center text-red-500">
+                    <p>Error loading Google Sheet. Please try again.</p>
                   </div>
                 </div>
-
-                {/* Formula Bar */}
-                <div className="flex items-center px-4 py-2 border-b border-gray-300">
-                  <div className="flex items-center">
-                    <div className="bg-gray-100 px-2 py-1 border border-gray-300 rounded-l text-sm font-medium">
-                      fx
-                    </div>
-                    <input
-                      type="text"
-                      value={formulaBarValue}
-                      onChange={(e) => setFormulaBarValue(e.target.value)}
-                      className="flex-1 px-2 py-1 text-sm border border-gray-300 rounded-r focus:outline-none w-64"
-                      placeholder="Enter cell value or formula"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Google Sheets Main Content Area - Full Width */}
-              <div className="border-l border-r border-b border-gray-300 rounded-b w-full" style={{ height: '700px' }}>
-                <HotTable
-                  ref={hotTableComponent}
-                  data={sheetData}
-                  rowHeaders={true}
-                  colHeaders={true}
-                  contextMenu={false}
-                  columnSorting={false}
-                  filters={false}
-                  dropdownMenu={false}
-                  licenseKey="non-commercial-and-evaluation"
-                  height="100%"
-                  width="100%"
-                  stretchH="none"
-                  autoWrapRow={false}
-                  autoWrapCol={false}
-                  afterChange={handleDataChange}
-                  afterSelection={(row, column) => handleCellSelection(row, column)}
-                  readOnly={false}
-                  manualColumnResize={true}
-                  manualRowResize={true}
-                  fillHandle={false}
-                  columnHeaderHeight={undefined}
-                  rowHeights={undefined}
-                  viewportColumnRenderingOffset={undefined}
-                  viewportRowRenderingOffset={undefined}
-                  renderAllRows={false}
-                  renderAllColumns={false}
-                  preventOverflow="horizontal"
-                  className="w-full h-full"
-                  outsideClickDeselects={false}
-                  disableVisualSelection={false}
-                  persistentState={true}
-                  observeDOMVisibility={true}
-                  allowInvalid={true}
-                  preventWheel={false}
-                />
-              </div>
-
-              {/* Google Sheets Footer/Status Bar */}
-              <div className="flex justify-between items-center px-4 py-1 bg-gray-100 border border-gray-300 rounded-b text-xs">
-                <div className="flex items-center space-x-4">
-                  <span>Sheet1</span>
-                  <span>Add Sheet</span>
-                </div>
-                <div className="flex items-center space-x-4">
-                  <span>100%</span>
-                  <span>A1</span>
-                </div>
-              </div>
+              )}
 
               <div className="mt-4 text-center">
                 <Link href="#" className="text-sm text-blue-600">
@@ -375,8 +213,13 @@ export default function BulkParcelPage() {
         </div>
 
         <div className="mt-6 sm:mt-8 flex justify-end">
-          <Button variant="default" size="default">
-            Add Parcels
+          <Button
+            variant="default"
+            size="default"
+            onClick={handleAddParcels}
+            disabled={loading || isLoadingSheet}
+          >
+            {loading ? "Adding Parcels..." : "Add Parcels"}
           </Button>
         </div>
       </div>
