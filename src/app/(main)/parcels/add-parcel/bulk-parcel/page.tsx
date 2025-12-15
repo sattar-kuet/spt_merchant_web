@@ -4,30 +4,33 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { useGoogleSheets } from "@/hooks/useGoogleSheets";
+import { GoogleAuthButton } from "@/components/GoogleAuthButton";
+import { useSession } from "next-auth/react";
 import Swal from "sweetalert2";
 
 export default function BulkParcelPage() {
+  const { data: session, status } = useSession();
   const [viewMode, setViewMode] = useState<"upload" | "editor">("upload");
-  const { 
-    loading, 
-    error, 
-    currentSheetId, 
-    createNewSheet, 
-    readParcelData, 
-    clearSheet 
+  const {
+    loading,
+    error,
+    currentSheetId,
+    createNewSheet,
+    readParcelData,
+    clearSheet
   } = useGoogleSheets();
-  
+
   const [sheetUrl, setSheetUrl] = useState<string | null>(null);
   const [isLoadingSheet, setIsLoadingSheet] = useState(false);
 
   // Create a new sheet when the user navigates to the editor
   useEffect(() => {
     const initializeSheet = async () => {
-      if (viewMode === "editor" && !currentSheetId && !isLoadingSheet) {
+      if (viewMode === "editor" && !currentSheetId && !isLoadingSheet && session) {
         setIsLoadingSheet(true);
         try {
           // In a real app, you would get the actual user ID
-          const userId = "user-" + Math.random().toString(36).substr(2, 9);
+          const userId = session.user?.email?.split('@')[0] || "user-" + Math.random().toString(36).substr(2, 9);
           const result = await createNewSheet("SPT Merchant Bulk Parcel Sheet", userId);
           setSheetUrl(result.sheetUrl);
         } catch (err) {
@@ -44,7 +47,7 @@ export default function BulkParcelPage() {
     };
 
     initializeSheet();
-  }, [viewMode, currentSheetId, isLoadingSheet, createNewSheet]);
+  }, [viewMode, currentSheetId, isLoadingSheet, createNewSheet, session]);
 
   // Check for OAuth2 callback code in URL parameters
   useEffect(() => {
@@ -111,16 +114,20 @@ export default function BulkParcelPage() {
               Save time by using Google Sheets to enter your parcel information.
             </p>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() =>
-              setViewMode(viewMode === "upload" ? "editor" : "upload")
-            }
-            className="ml-4"
-          >
-            {viewMode === "upload" ? "Switch to Editor" : "Switch to Upload"}
-          </Button>
+          <div className="flex items-center gap-3 ml-4">
+            <GoogleAuthButton session={session} />
+            {session && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() =>
+                  setViewMode(viewMode === "upload" ? "editor" : "upload")
+                }
+              >
+                {viewMode === "upload" ? "Switch to Editor" : "Switch to Upload"}
+              </Button>
+            )}
+          </div>
         </div>
 
         <div className="mt-6 sm:mt-8 bg-white rounded-lg p-4 sm:p-8 shadow-sm">

@@ -1,52 +1,58 @@
 import { NextRequest } from 'next/server';
 import { google } from 'googleapis';
+import { auth } from '@/lib/auth-google';
 
-// Function to get authenticated Google Sheets client using service account
-const getAuthenticatedSheetsClient = async () => {
+// API route to clear data from Google Sheets using user's OAuth token
+export async function POST(request: NextRequest) {
   try {
-    // Use service account credentials
-    const auth = new google.auth.GoogleAuth({
-      credentials: {
-        client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-        private_key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-      },
-      scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+    // Get the authenticated session
+    const session = await auth();
+
+    if (!session || !session.accessToken) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: 'Not authenticated. Please sign in with Google.',
+        requiresAuth: true
+      }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    const body = await request.json();
+    const { spreadsheetId, range = 'Sheet1!A2:Z1000' } = body;
+
+    // Create OAuth2 client with user's access token
+    const oauth2Client = new google.auth.OAuth2();
+    oauth2Client.setCredentials({
+      access_token: session.accessToken,
     });
 
     const sheets = google.sheets({
       version: 'v4',
-      auth,
+      auth: oauth2Client,
     });
 
-    return sheets;
-  } catch (error) {
-    console.error('Error initializing Google Sheets client:', error);
-    throw new Error('Failed to initialize Google Sheets client');
-  }
-};
-
-// API route to clear data from Google Sheets
-export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json();
-    const { spreadsheetId, range = 'Sheet1!A2:Z1000' } = body;
-    
-    // Use the provided spreadsheetId or fallback to the environment variable
-    const sheetId = spreadsheetId || process.env.NEXT_PUBLIC_GOOGLE_SHEET_ID || 'placeholder-sheet-id';
-    
-    const sheets = await getAuthenticatedSheetsClient();
-    
     await sheets.spreadsheets.values.clear({
-      spreadsheetId: sheetId,
+      spreadsheetId,
       range,
     });
-    
+
     return new Response(JSON.stringify({ success: true }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
     });
   } catch (error: any) {
     console.error('Error clearing sheet data:', error);
+
+    // Handle auth errors
+    if (error.code === 401 || error.code === 403) {
+      return new Response(JSON.stringify({ success: false, error: 'Authentication failed or expired' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
     return new Response(JSON.stringify({ success: false, error: error.message }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
