@@ -1,6 +1,6 @@
 "use client";
 
-import { signIn, signOut } from "next-auth/react";
+import { signIn } from "next-auth/react";
 import { Button } from "@/components/ui/Button";
 
 interface GoogleAuthButtonProps {
@@ -15,13 +15,6 @@ export function GoogleAuthButton({ session }: GoogleAuthButtonProps) {
                     <p className="font-medium">{session.user.name}</p>
                     <p className="text-slate-500 text-xs">{session.user.email}</p>
                 </div>
-                <Button
-                    variant="outline"
-                    onClick={() => signOut()}
-                    className="text-sm"
-                >
-                    Sign Out
-                </Button>
             </div>
         );
     }

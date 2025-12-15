@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@/components/ui/Button";
+import { cn } from "@/lib/utils";
 
 interface SheetToggleButtonProps {
     isEditorOpen: boolean;
@@ -9,47 +9,43 @@ interface SheetToggleButtonProps {
 
 export function SheetToggleButton({ isEditorOpen, onClick }: SheetToggleButtonProps) {
     return (
-        <Button
-            variant="outline"
-            size="icon"
+        <div
+            className={cn(
+                "relative flex items-center w-56 h-10 p-1 rounded-full cursor-pointer select-none transition-colors duration-200",
+                "bg-slate-200 shadow-[inset_0_2px_4px_rgba(0,0,0,0.1)]"
+            )}
             onClick={onClick}
-            className={`relative w-9 h-9 p-0 hover:bg-transparent transition-all duration-200 ${isEditorOpen ? "" : ""
-                }`}
-            title={isEditorOpen ? "Close Editor" : "Open Google Sheet Editor"}
+            role="switch"
+            aria-checked={isEditorOpen}
+            aria-label="Toggle View Mode"
         >
-            <div className="relative flex items-center justify-center w-full h-full">
-                {/* Google Sheet Icon */}
-                <svg
-                    viewBox="0 0 24 24"
-                    role="img"
-                    aria-label="Google Sheets"
-                    className={`w-full h-full transition-opacity duration-200 ${isEditorOpen ? "opacity-50 grayscale" : ""}`}
-                >
-                    {/* Main Body */}
-                    <path fill="#0F9D58" d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6z" />
-
-                    {/* Fold */}
-                    <path fill="#87CEFA" opacity="0.5" d="M14 2v6h6" />
-                    <path fill="#000" opacity="0.1" d="M13 2v6h1V2h-1z M14 7h6v1h-6V7z" />
-
-                    {/* White Grid Cells */}
-                    <rect x="7" y="10" width="4" height="2.5" rx="0.5" fill="#fff" />
-                    <rect x="12" y="10" width="4" height="2.5" rx="0.5" fill="#fff" />
-
-                    <rect x="7" y="13.5" width="4" height="2.5" rx="0.5" fill="#fff" />
-                    <rect x="12" y="13.5" width="4" height="2.5" rx="0.5" fill="#fff" />
-
-                    <rect x="7" y="17" width="4" height="2.5" rx="0.5" fill="#fff" />
-                    <rect x="12" y="17" width="4" height="2.5" rx="0.5" fill="#fff" />
-                </svg>
-
-                {/* The "Line" (Slash) - Only visible when editor is open */}
-                {isEditorOpen && (
-                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                        <div className="w-[120%] h-0.5 bg-red-500 rotate-45 transform origin-center rounded-full shadow-sm" />
-                    </div>
+            {/* Sliding Thumb */}
+            <div
+                className={cn(
+                    "absolute top-1 bottom-1 w-[calc(50%-4px)] bg-white rounded-full shadow-[0_2px_4px_rgba(0,0,0,0.1)] transition-transform duration-300 ease-in-out",
+                    isEditorOpen ? "translate-x-[calc(100%+4px)]" : "translate-x-0"
                 )}
-            </div>
-        </Button>
+            />
+
+            {/* Upload Label */}
+            <span
+                className={cn(
+                    "relative z-10 w-1/2 text-center text-sm font-medium transition-colors duration-200",
+                    !isEditorOpen ? "text-slate-900" : "text-slate-500"
+                )}
+            >
+                Upload
+            </span>
+
+            {/* Google Sheet Label */}
+            <span
+                className={cn(
+                    "relative z-10 w-1/2 text-center text-sm font-medium transition-colors duration-200",
+                    isEditorOpen ? "text-slate-900" : "text-slate-500"
+                )}
+            >
+                Google Sheet
+            </span>
+        </div>
     );
 }

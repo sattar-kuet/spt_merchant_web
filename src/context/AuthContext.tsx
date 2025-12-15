@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import axios from 'axios';
+import { signOut } from "next-auth/react";
 import { removeAuthToken, setAuthToken, isAuthenticated, getAuthToken } from '@/lib/auth';
 
 // Updated to use your actual API endpoint
@@ -48,7 +49,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   // Periodically check token validity and log out proactively if token expired
   useEffect(() => {
-    const id = setInterval(() => {
+    const id = setInterval(async () => {
       try {
         const token = getAuthToken();
         if (!token) {
@@ -56,6 +57,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           setUser(null);
           try { localStorage.removeItem('user'); } catch (e) { /* ignore */ }
           removeAuthToken();
+
+          try {
+            await signOut({ redirect: false });
+          } catch (e) { /* ignore */ }
+
           try { window.location.href = '/auth/login'; } catch (e) { /* ignore */ }
         }
       } catch (e) {
@@ -117,12 +123,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
     } catch (error: any) {
       console.error('Registration error:', error);
-      
+
       // Handle network errors specifically
       if (error.code === 'ERR_NETWORK') {
         return { success: false, message: 'Unable to connect to the server. Please check your internet connection and ensure the backend server is running.' };
       }
-      
+
       return { success: false, message: error.response?.data?.message || error.message || 'Registration failed' };
     } finally {
       setLoading(false);
@@ -177,19 +183,19 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
     } catch (error: any) {
       console.error('Login error:', error);
-      
+
       // Handle network errors specifically
       if (error.code === 'ERR_NETWORK') {
         return { success: false, message: 'Unable to connect to the server. Please check your internet connection and ensure the backend server is running.' };
       }
-      
+
       return { success: false, message: error.response?.data?.message || error.message || 'Login failed' };
     } finally {
       setLoading(false);
     }
   };
 
-  const logout = () => {
+  const logout = async () => {
     setUser(null);
     // Remove token cookie and local user data
     try {
@@ -198,6 +204,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       console.error('Failed to remove user from localStorage', e);
     }
     removeAuthToken();
+
+    // Clear NextAuth session (Google OAuth) without redirecting immediately
+    // We handle the main redirect manually below
+    try {
+      await signOut({ redirect: false });
+    } catch (e) {
+      console.error('Failed to sign out from NextAuth', e);
+    }
+
     // Redirect to login so user cannot access protected screens
     try {
       window.location.href = '/auth/login';
