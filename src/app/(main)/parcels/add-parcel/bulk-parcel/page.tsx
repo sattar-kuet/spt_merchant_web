@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { useGoogleSheets } from "@/hooks/useGoogleSheets";
 import { GoogleAuthButton } from "@/components/GoogleAuthButton";
+import { SheetToggleButton } from "@/components/SheetToggleButton";
 import { useSession } from "next-auth/react";
 import Swal from "sweetalert2";
 
@@ -117,15 +118,12 @@ export default function BulkParcelPage() {
           <div className="flex items-center gap-3 ml-4">
             <GoogleAuthButton session={session} />
             {session && (
-              <Button
-                variant="outline"
-                size="sm"
+              <SheetToggleButton
+                isEditorOpen={viewMode === "editor"}
                 onClick={() =>
                   setViewMode(viewMode === "upload" ? "editor" : "upload")
                 }
-              >
-                {viewMode === "upload" ? "Switch to Editor" : "Switch to Upload"}
-              </Button>
+              />
             )}
           </div>
         </div>
