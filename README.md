@@ -14,6 +14,12 @@ pnpm dev
 bun dev
 ```
 
+## Configuration & Setup
+
+### Google OAuth2 Setup
+This project uses Google OAuth2 for authentication and Google Sheets integration.
+👉 [**Read the OAuth Setup Guide**](OAUTH_SETUP_GUIDE.md)
+
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
