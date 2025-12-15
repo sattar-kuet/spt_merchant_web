@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { useGoogleSheets } from "@/hooks/useGoogleSheets";
 import { GoogleAuthButton } from "@/components/GoogleAuthButton";
 import { SheetToggleButton } from "@/components/SheetToggleButton";
+import { TutorialModal } from "@/components/TutorialModal";
 import { useSession } from "next-auth/react";
 import Swal from "sweetalert2";
 
@@ -23,6 +24,7 @@ export default function BulkParcelPage() {
 
   const [sheetUrl, setSheetUrl] = useState<string | null>(null);
   const [isLoadingSheet, setIsLoadingSheet] = useState(false);
+  const [isTutorialOpen, setIsTutorialOpen] = useState(false);
 
   // Create a new sheet when the user navigates to the editor
   useEffect(() => {
@@ -114,6 +116,15 @@ export default function BulkParcelPage() {
             <p className="text-sm text-slate-500 mt-2">
               Save time by using Google Sheets to enter your parcel information.
             </p>
+            <div className="flex items-center gap-2 mt-3 text-sm">
+              <span className="text-slate-600">Confused about how to add multiple parcels with Google Sheet?</span>
+              <button
+                onClick={() => setIsTutorialOpen(true)}
+                className="text-blue-600 hover:underline cursor-pointer font-medium flex items-center gap-1"
+              >
+                See Tutorial
+              </button>
+            </div>
           </div>
           <div className="flex items-center gap-3 ml-4">
             <GoogleAuthButton session={session} />
@@ -228,6 +239,12 @@ export default function BulkParcelPage() {
           </Button>
         </div>
       </div>
+
+      <TutorialModal
+        isOpen={isTutorialOpen}
+        onClose={() => setIsTutorialOpen(false)}
+        videoId={process.env.NEXT_PUBLIC_TUTORIAL_VIDEO_ID || "dQw4w9WgXcQ"}
+      />
     </div>
   );
 }
