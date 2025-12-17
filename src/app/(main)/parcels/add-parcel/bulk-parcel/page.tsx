@@ -9,6 +9,7 @@ import { SheetToggleButton } from "@/components/SheetToggleButton";
 import { TutorialModal } from "@/components/TutorialModal";
 import { useSession } from "next-auth/react";
 import Swal from "sweetalert2";
+import * as XLSX from "xlsx";
 
 export default function BulkParcelPage() {
   const { data: session, status } = useSession();
@@ -72,12 +73,36 @@ export default function BulkParcelPage() {
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      console.log("File selected:", file);
-      Swal.fire({
-        icon: "info",
-        title: "File Selected",
-        text: `Selected file: ${file.name}. File processing logic is not yet implemented.`,
-      });
+      const reader = new FileReader();
+
+      reader.onload = (e) => {
+        try {
+          const data = e.target?.result;
+          if (data) {
+            const workbook = XLSX.read(data, { type: "array" });
+            const sheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[sheetName];
+            const jsonData = XLSX.utils.sheet_to_json(worksheet);
+
+            console.log("Uploaded Excel Data:", jsonData);
+
+            Swal.fire({
+              icon: "success",
+              title: "File Parsed",
+              text: `Successfully parsed ${file.name}. Check the console to see the data.`,
+            });
+          }
+        } catch (error) {
+          console.error("Error parsing Excel file:", error);
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: "Failed to parse the Excel file.",
+          });
+        }
+      };
+
+      reader.readAsArrayBuffer(file);
     }
   };
 
