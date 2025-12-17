@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { useGoogleSheets } from "@/hooks/useGoogleSheets";
@@ -63,9 +63,23 @@ export default function BulkParcelPage() {
     }
   }, []);
 
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   function onBrowse() {
-    // File browse functionality can be implemented if needed
+    fileInputRef.current?.click();
   }
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      console.log("File selected:", file);
+      Swal.fire({
+        icon: "info",
+        title: "File Selected",
+        text: `Selected file: ${file.name}. File processing logic is not yet implemented.`,
+      });
+    }
+  };
 
   // Function to handle adding parcels
   const handleAddParcels = async () => {
@@ -154,6 +168,13 @@ export default function BulkParcelPage() {
                   Accepted formats: .xlsx, .xls, .csv
                 </div>
 
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleFileChange}
+                  className="hidden"
+                  accept=".xlsx,.xls,.csv"
+                />
                 <Button
                   variant="outline"
                   size="default"
