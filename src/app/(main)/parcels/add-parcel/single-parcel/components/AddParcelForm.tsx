@@ -105,7 +105,7 @@ const AddParcelForm: React.FC = () => {
             </div>
 
             <div className="flex flex-col sm:flex-row justify-end gap-3">
-              <Button variant="default" className="w-full sm:w-auto" type="button">Cancel</Button>
+              <Button variant="outline" className="w-full sm:w-auto" type="button" onClick={() => router.push('/parcels')}>Cancel</Button>
                 <Button
                 variant="secondary"
                 className="w-full sm:w-auto"
