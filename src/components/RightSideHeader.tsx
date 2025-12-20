@@ -71,7 +71,7 @@ const RightSideHeader = () => {
       <div className="flex justify-between items-center w-full flex-row-reverse">
         <button
           className={`cursor-pointer bg-transparent border-none p-0 transition-all duration-300 md:hidden ${
-            isToggling ? "scale-125 text-blue-500" : ""
+            isToggling ? "scale-125 text-primary" : ""
           }`}
           onClick={handleToggle}
           aria-label="Toggle sidebar"

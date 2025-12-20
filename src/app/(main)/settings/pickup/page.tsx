@@ -79,7 +79,7 @@ const PickupPointsPage = () => {
             <div className="mt-4">
               <button
                 onClick={() => setOpenAdd(true)}
-                className="inline-flex items-center gap-2 px-4 py-2 border border-dashed rounded-lg text-indigo-600 hover:bg-indigo-50"
+                className="inline-flex items-center gap-2 px-4 py-2 border border-dashed rounded-lg text-primary hover:bg-primary/5"
               >
                 <FiPlus /> Add New Address
               </button>
@@ -132,8 +132,8 @@ const PickupPointsPage = () => {
               className="w-full"
               variant="outline"
             >
-              <div className="inline-flex py-2 items-center gap-2 text-indigo-600 text-sm font-medium">
-                <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-indigo-50 text-indigo-600">
+              <div className="inline-flex py-2 items-center gap-2 text-primary text-sm font-medium">
+                <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary">
                   <FiPlus />
                 </span>
                 Add New Address

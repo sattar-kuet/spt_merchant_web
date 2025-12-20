@@ -159,7 +159,7 @@ export default function BulkParcelPage() {
               <span className="text-slate-600">Confused about how to add multiple parcels with Google Sheet?</span>
               <button
                 onClick={() => setIsTutorialOpen(true)}
-                className="text-blue-600 hover:underline cursor-pointer font-medium flex items-center gap-1"
+                className="text-primary hover:underline cursor-pointer font-medium flex items-center gap-1"
               >
                 See Tutorial
               </button>
@@ -212,7 +212,7 @@ export default function BulkParcelPage() {
               </div>
 
               <div className="mt-4 text-center">
-                <Link href="#" className="text-sm text-blue-600">
+                <Link href="#" className="text-sm text-primary">
                   Don&apos;t have a template? Download our template to get
                   started.
                 </Link>
@@ -238,7 +238,7 @@ export default function BulkParcelPage() {
               {isLoadingSheet && (
                 <div className="w-full flex items-center justify-center" style={{ height: "700px" }}>
                   <div className="text-center">
-                    <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500 mb-4"></div>
+                    <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary mb-4"></div>
                     <p>Creating your personalized Google Sheet...</p>
                   </div>
                 </div>
@@ -266,7 +266,7 @@ export default function BulkParcelPage() {
               )}
 
               <div className="mt-4 text-center">
-                <Link href="#" className="text-sm text-blue-600">
+                <Link href="#" className="text-sm text-primary">
                   Need help with the format? View our template example.
                 </Link>
               </div>

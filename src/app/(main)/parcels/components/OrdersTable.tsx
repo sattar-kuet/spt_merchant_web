@@ -48,7 +48,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({
         return { color: "bg-green-100 text-green-800", label: "Delivered" };
       case "Out for Delivery":
         return {
-          color: "bg-blue-100 text-blue-800",
+          color: "bg-primary/10 text-primary",
           label: "Out for Delivery",
         };
       case "Ready for Pickup":
@@ -62,7 +62,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({
         return { color: "bg-purple-100 text-purple-800", label: "Created" };
       case "Assigned for Pickup":
         return {
-          color: "bg-indigo-100 text-indigo-800",
+          color: "bg-primary/10 text-primary",
           label: "Assigned for Pickup",
         };
       case "Rejected by Merchant":
@@ -73,7 +73,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({
       case "Pickup Done":
         return { color: "bg-green-100 text-green-800", label: "Pickup Done" };
       case "In Hub":
-        return { color: "bg-blue-100 text-blue-800", label: "In Hub" };
+        return { color: "bg-primary/5 text-primary", label: "In Hub" };
       case "Returned to Hub":
         return {
           color: "bg-orange-100 text-orange-800",
@@ -98,7 +98,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({
     return (
       <div className="bg-white border border-slate-200 rounded-lg overflow-hidden">
         <div className="p-4 text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500 mx-auto"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
           <p className="mt-2 text-slate-500">Loading orders...</p>
         </div>
       </div>

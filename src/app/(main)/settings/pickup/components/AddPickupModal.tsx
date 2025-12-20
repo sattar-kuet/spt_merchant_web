@@ -140,7 +140,7 @@ export default function AddPickupModal({ open, onClose }: Props) {
           </div>
             <div className="flex items-center justify-end gap-2 mt-3">
               <button type="button" onClick={onClose} className="px-4 py-2 rounded bg-slate-100 text-sm">Cancel</button>
-              <button type="submit" disabled={createPickupPoint.isPending} className="px-4 py-2 rounded bg-indigo-600 text-white text-sm">
+              <button type="submit" disabled={createPickupPoint.isPending} className="px-4 py-2 rounded bg-secondary text-white text-sm hover:bg-secondary/90 transition-colors">
                 {createPickupPoint.isPending ? "Creating..." : "Create"}
               </button>
             </div>

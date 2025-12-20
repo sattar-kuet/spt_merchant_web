@@ -15,7 +15,7 @@ export default function ProfilePage() {
     return (
       <div className="p-6">
         <div className="bg-white p-6 rounded shadow text-sm text-slate-700">
-          You are not signed in. <Link href="/auth/login" className="text-blue-600">Sign in</Link>
+          You are not signed in. <Link href="/auth/login" className="text-primary hover:underline">Sign in</Link>
         </div>
       </div>
     );
@@ -43,8 +43,8 @@ export default function ProfilePage() {
           <div className="-mt-4 flex justify-center">
             <div className="bg-white rounded-full p-1 shadow-sm">
               <Avatar className="w-24 h-24">
-                {user.avatar ? (
-                  <AvatarImage src={String(user.avatar)} alt={name} />
+                {(user as any).avatar ? (
+                  <AvatarImage src={String((user as any).avatar)} alt={name} />
                 ) : (
                   <AvatarFallback className="text-lg font-semibold">{initials}</AvatarFallback>
                 )}
@@ -69,7 +69,7 @@ export default function ProfilePage() {
           </div>
 
           <div className="mt-6 flex justify-end">
-            <Button className="px-4 py-2 rounded bg-indigo-600 text-white text-sm">Edit</Button>
+            <Button variant="default">Edit Profile</Button>
           </div>
         </div>
       </div>

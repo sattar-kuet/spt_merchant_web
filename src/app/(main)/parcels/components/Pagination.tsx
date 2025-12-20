@@ -78,7 +78,7 @@ const Pagination: React.FC<PaginationProps> = ({
             variant="outline"
             size="sm"
             className={
-              page === currentPage ? "bg-blue-50 text-blue-600" : "bg-white"
+              page === currentPage ? "bg-primary/10 text-primary border-primary/20" : "bg-white"
             }
             onClick={() => handlePageClick(page)}
           >

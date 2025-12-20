@@ -87,7 +87,7 @@ const LeftBar = () => {
             href={item.path}
             className={`flex items-center p-3 rounded-lg mb-1 transition-colors ${
               isActive(item.path)
-                ? "bg-blue-50 text-blue-600"
+                ? "bg-primary/10 text-primary"
                 : "hover:bg-gray-100"
             }`}
           >
@@ -105,7 +105,7 @@ const LeftBar = () => {
           <button
             onClick={() => setSettingsOpen((s) => !s)}
             className={`w-full flex items-center p-3 rounded-lg mb-1 transition-colors text-left ${
-              isActive("/settings") ? "bg-blue-50 text-blue-600" : "hover:bg-gray-100"
+              isActive("/settings") ? "bg-primary/10 text-primary" : "hover:bg-gray-100"
             }`}
             aria-expanded={settingsOpen}
           >
@@ -125,7 +125,7 @@ const LeftBar = () => {
               <Link
                 href="/settings/profile"
                 className={`flex items-center p-2 rounded-md mb-1 text-sm ${
-                  pathname === "/settings/profile" ? "text-blue-600 font-medium" : "hover:bg-gray-100"
+                  pathname === "/settings/profile" ? "text-primary font-medium" : "hover:bg-gray-100"
                 }`}
               >
                 <span className="flex items-center justify-center w-6">
@@ -136,7 +136,7 @@ const LeftBar = () => {
               <Link
                 href="/settings/payment"
                 className={`flex items-center p-2 rounded-md mb-1 text-sm ${
-                  pathname === "/settings/payment" ? "text-blue-600 font-medium" : "hover:bg-gray-100"
+                  pathname === "/settings/payment" ? "text-primary font-medium" : "hover:bg-gray-100"
                 }`}
               >
                 <span className="flex items-center justify-center w-6">
@@ -147,7 +147,7 @@ const LeftBar = () => {
               <Link
                 href="/settings/pickup"
                 className={`flex items-center p-2 rounded-md mb-1 text-sm ${
-                  pathname === "/settings/pickup" ? "text-blue-600 font-medium" : "hover:bg-gray-100"
+                  pathname === "/settings/pickup" ? "text-primary font-medium" : "hover:bg-gray-100"
                 }`}
               >
                 <span className="flex items-center justify-center w-6">
@@ -158,7 +158,7 @@ const LeftBar = () => {
               <Link
                 href="/settings/help"
                 className={`flex items-center p-2 rounded-md mb-1 text-sm ${
-                  pathname === "/settings/help" ? "text-blue-600 font-medium" : "hover:bg-gray-100"
+                  pathname === "/settings/help" ? "text-primary font-medium" : "hover:bg-gray-100"
                 }`}
               >
                 <span className="flex items-center justify-center w-6">

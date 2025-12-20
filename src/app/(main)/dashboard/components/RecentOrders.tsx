@@ -54,7 +54,7 @@ const RecentOrders = () => {
 
       <Link
         href="/parcels"
-        className="text-sm text-blue-600 mt-auto text-center hover:underline"
+        className="text-sm text-primary mt-auto text-center hover:underline"
       >
         View All Orders
       </Link>

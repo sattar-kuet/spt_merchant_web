@@ -153,7 +153,7 @@ export default function PaymentPage() {
           <div className="bg-white rounded-xl shadow-sm p-6">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-medium">Add New Payment Channel</h3>
-              <button onClick={() => setShowAddForm((s) => !s)} className="text-sm text-blue-600">
+              <button onClick={() => setShowAddForm((s) => !s)} className="text-sm text-primary hover:underline">
                 {showAddForm ? 'Cancel' : 'Add New'}
               </button>
             </div>
@@ -172,7 +172,7 @@ export default function PaymentPage() {
                 />
 
                 <div className="mt-6 flex justify-end">
-                  <button onClick={onSave} disabled={createMutation.isPending} className="px-4 py-2 bg-indigo-600 text-white rounded-md">
+                  <button onClick={onSave} disabled={createMutation.isPending} className="px-4 py-2 bg-secondary text-white rounded-md hover:bg-secondary/90 transition-colors">
                     {createMutation.isPending ? 'Saving...' : 'Save Channel'}
                   </button>
                 </div>

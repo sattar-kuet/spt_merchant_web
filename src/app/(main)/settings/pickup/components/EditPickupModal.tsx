@@ -90,7 +90,7 @@ export default function EditPickupModal({ open, onClose, id }: Props) {
     };
 
     updatePickupPoint.mutate(
-      { id, payload: sendPayload },
+      { id: id as any, payload: sendPayload },
       {
         onSuccess: () => {
           Swal.fire({
@@ -180,7 +180,7 @@ export default function EditPickupModal({ open, onClose, id }: Props) {
 
           <div className="flex items-center justify-end gap-2 mt-3">
             <button type="button" onClick={onClose} className="px-4 py-2 rounded bg-slate-100 text-sm">Cancel</button>
-            <button type="submit" disabled={updatePickupPoint.isPending || loadingSingle} className="px-4 py-2 rounded bg-indigo-600 text-white text-sm">
+            <button type="submit" disabled={updatePickupPoint.isPending || loadingSingle} className="px-4 py-2 rounded bg-secondary text-white text-sm hover:bg-secondary/90 transition-colors">
               {loadingSingle ? "Loading..." : updatePickupPoint.isPending ? "Saving..." : "Save"}
             </button>
           </div>

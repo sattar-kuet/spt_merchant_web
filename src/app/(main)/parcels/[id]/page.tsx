@@ -17,9 +17,8 @@ const getStatusColor = (status: string): string => {
       return "text-green-600";
     case "pending":
       return "text-amber-500";
-    case "in_transit":
     case "out_for_delivery":
-      return "text-blue-600";
+      return "text-primary";
     case "cancelled":
       return "text-red-600";
     case "paid":
@@ -93,7 +92,7 @@ export default function OrderDetail() {
             Dashboard / Orders / ID : {data.id}
           </div>
           <h1 className="text-2xl font-semibold mt-2">Order ID: {data.name}</h1>
-          <div className="text-sm text-blue-600 mt-1">
+          <div className="text-sm text-primary mt-1">
             Tracking Number: #{data.name}
           </div>
         </div>
