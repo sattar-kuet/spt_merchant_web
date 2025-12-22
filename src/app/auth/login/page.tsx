@@ -12,20 +12,20 @@ const LoginPage = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  
+
   const router = useRouter();
   const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     setLoading(true);
     setError('');
-    
+
     try {
       // Replace with your actual API endpoint
       const result = await login(email, password);
-      
+
       if (result.success) {
         Swal.fire({
           icon: 'success',
@@ -106,12 +106,12 @@ const LoginPage = () => {
 
           <div className="flex items-center justify-between">
             <div className="text-sm">
-              <a
-                href="#"
+              <Link
+                href="/auth/forgot-password"
                 className="font-medium text-primary hover:text-primary/80"
               >
                 Forgot your password?
-              </a>
+              </Link>
             </div>
           </div>
 

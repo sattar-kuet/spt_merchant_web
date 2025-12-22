@@ -21,6 +21,9 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<{ success: boolean; message?: string }>;
   register: (name: string, email: string, password: string) => Promise<{ success: boolean; message?: string }>;
   logout: () => void;
+  forgotPassword: (email: string) => Promise<{ success: boolean; message?: string }>;
+  verifyResetCode: (email: string, code: string) => Promise<{ success: boolean; message?: string; reset_token?: string }>;
+  resetPassword: (resetToken: string, newPassword: string) => Promise<{ success: boolean; message?: string }>;
   loading: boolean;
 }
 
@@ -62,7 +65,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             await signOut({ redirect: false });
           } catch (e) { /* ignore */ }
 
-          try { window.location.href = '/auth/login'; } catch (e) { /* ignore */ }
+          try {
+            const isAuthPage = window.location.pathname.startsWith('/auth');
+            if (!isAuthPage) {
+              window.location.href = '/auth/login';
+            }
+          } catch (e) { /* ignore */ }
         }
       } catch (e) {
         // ignore
@@ -222,12 +230,99 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     // In a real app, you might also call a logout endpoint to clear server-side session
   };
 
+  const forgotPassword = async (email: string) => {
+    try {
+      setLoading(true);
+      const response = await axios.post(`${API_BASE_URL}/forgot-password`, {
+        email
+      });
+
+      if (response.data.success) {
+        return {
+          success: true,
+          message: response.data.message || 'If an account with that email exists, a reset code has been sent.'
+        };
+      } else {
+        return { success: false, message: response.data.message || 'Failed to send reset code' };
+      }
+    } catch (error: any) {
+      console.error('Forgot password error:', error);
+      if (error.code === 'ERR_NETWORK') {
+        return { success: false, message: 'Unable to connect to the server. Please check your internet connection.' };
+      }
+      return {
+        success: false,
+        message: error.response?.data?.message || error.message || 'Failed to send reset code'
+      };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const verifyResetCode = async (email: string, code: string) => {
+    try {
+      setLoading(true);
+      const response = await axios.post(`${API_BASE_URL}/verify-reset-code`, {
+        email,
+        code
+      });
+
+      if (response.data.success) {
+        return {
+          success: true,
+          message: response.data.message || 'Code verified.',
+          reset_token: response.data.reset_token
+        };
+      } else {
+        return { success: false, message: response.data.message || 'Verification failed' };
+      }
+    } catch (error: any) {
+      console.error('Verify code error:', error);
+      return {
+        success: false,
+        message: error.response?.data?.message || error.message || 'Verification failed'
+      };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const resetPassword = async (resetToken: string, newPassword: string) => {
+    try {
+      setLoading(true);
+      const response = await axios.post(`${API_BASE_URL}/reset-password`, {
+        reset_token: resetToken,
+        new_password: newPassword
+      });
+
+      if (response.data.success) {
+        return {
+          success: true,
+          message: response.data.message || 'Password updated.'
+        };
+      } else {
+        return { success: false, message: response.data.message || 'Failed to update password' };
+      }
+    } catch (error: any) {
+      console.error('Reset password error:', error);
+      return {
+        success: false,
+        message: error.response?.data?.message || error.message || 'Failed to update password'
+      };
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const value = {
     user,
     isAuthenticated: !!user || isAuthenticated(),
     login,
     register,
     logout,
+    forgotPassword,
+    verifyResetCode,
+    resetPassword,
     loading
   };
 
