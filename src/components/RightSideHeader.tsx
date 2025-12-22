@@ -4,15 +4,16 @@ import { FaBars } from "react-icons/fa6";
 import { FaRegBell, FaEye, FaEyeSlash } from "react-icons/fa";
 import { Button } from "@/components/ui/Button";
 import Balance from "@/components/ui/Balance";
-import { Avatar, AvatarImage } from "@/components/ui/Avatar";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/Avatar";
 import { useSidebar } from "@/context/SidebarContext";
 import { useAuth } from "@/context/AuthContext";
 import React, { useState } from "react";
-import { FaTimes } from "react-icons/fa";
+import { FaTimes, FaUser } from "react-icons/fa";
 import Link from "next/link";
 import { useDashboardData } from "@/hooks/useDashboardData";
 
-const imgLink = "https://avatars.githubusercontent.com/u/173485995?v=4&size=64";
+// Static image link removed in favor of dynamic avatar icons
+
 
 const RightSideHeader = () => {
   const { isOpen, toggle } = useSidebar();
@@ -58,7 +59,7 @@ const RightSideHeader = () => {
       )}
       <button
         onClick={toggleBalanceVisibility}
-        className="ml-2 text-gray-500 hover:text-gray-700 focus:outline-none"
+        className="ml-2 text-gray-500 cursor-pointer hover:text-gray-700 focus:outline-none"
         aria-label={isBalanceVisible ? "Hide balance" : "Show balance"}
       >
         {isBalanceVisible ? <FaEyeSlash size={14} /> : <FaEye size={14} />}
@@ -70,9 +71,8 @@ const RightSideHeader = () => {
     <>
       <div className="flex justify-between items-center w-full flex-row-reverse">
         <button
-          className={`cursor-pointer bg-transparent border-none p-0 transition-all duration-300 md:hidden ${
-            isToggling ? "scale-125 text-primary" : ""
-          }`}
+          className={`cursor-pointer bg-transparent border-none p-0 transition-all duration-300 md:hidden ${isToggling ? "scale-125 text-primary" : ""
+            }`}
           onClick={handleToggle}
           aria-label="Toggle sidebar"
         >
@@ -124,7 +124,9 @@ const RightSideHeader = () => {
 
               <div className="ml-2 cursor-pointer" onClick={openRight}>
                 <Avatar>
-                  <AvatarImage src={imgLink} alt="avatar" />
+                  <AvatarFallback className="bg-primary text-white  shadow-xl">
+                    {user?.name ? user.name.charAt(0).toUpperCase() : <FaUser size={14} />}
+                  </AvatarFallback>
                 </Avatar>
               </div>
             </>
@@ -164,7 +166,9 @@ const RightSideHeader = () => {
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
                 <Avatar>
-                  <AvatarImage src={imgLink} alt="avatar" />
+                  <AvatarFallback className="bg-primary text-white">
+                    {user?.name ? user.name.charAt(0).toUpperCase() : <FaUser size={16} />}
+                  </AvatarFallback>
                 </Avatar>
                 <div className="max-w-[calc(100%-40px)]">
                   <div className="font-medium truncate">{user.name}</div>

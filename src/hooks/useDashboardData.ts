@@ -195,8 +195,8 @@ export const useDashboardData = () => {
     chartError: dailyChartQuery.error
       ? (dailyChartQuery.error as Error).message
       : monthlyChartQuery.error
-      ? (monthlyChartQuery.error as Error).message
-      : null,
+        ? (monthlyChartQuery.error as Error).message
+        : null,
     formattedDashboardItems: formatDashboardItems(),
     formattedRecentOrders: formatRecentOrders(),
     formattedEarningData: formatEarningData,

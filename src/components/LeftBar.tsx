@@ -36,9 +36,8 @@ const LeftBar = () => {
   const [settingsOpen, setSettingsOpen] = useState(false);
 
   // Improved responsive sidebar implementation with adjusted width for collapsed state
-  const sidebarClasses = `p-5 bg-white h-screen fixed md:relative z-30 transition-all duration-300 ease-in-out overflow-x-hidden ${
-    isOpen ? "left-0 w-64 md:block" : "-left-64 md:left-0 md:w-26"
-  }`;
+  const sidebarClasses = `p-5 bg-white h-screen fixed md:relative z-30 transition-all duration-300 ease-in-out overflow-x-hidden ${isOpen ? "left-0 w-64 md:block" : "-left-64 md:left-0 md:w-26"
+    }`;
 
   return (
     <>
@@ -53,17 +52,11 @@ const LeftBar = () => {
       <div className={sidebarClasses}>
         <div className="flex items-center gap-4 mb-8">
           <img src={imgLink} alt="Logo" className="w-10 h-10 object-contain" />
-          <p
-            className={`text-base truncate ${
-              isOpen ? "block" : "hidden md:hidden"
-            }`}
-          >
-            Nano.INC
-          </p>
+
           {/* Collapse/Expand button for desktop, placed inside the header area with adjusted spacing and shadow */}
           <button
             onClick={toggle}
-            className="hidden cursor-pointer md:block ml-auto mr-2 text-gray-500 hover:text-gray-700 focus:outline-none shadow-sm"
+            className="hidden cursor-pointer p-1 rounded-full md:block ml-auto mr-2 text-gray-500 hover:text-gray-700 focus:outline-none shadow-sm"
             aria-label={isOpen ? "Collapse sidebar" : "Expand sidebar"}
           >
             {isOpen ? (
@@ -85,11 +78,10 @@ const LeftBar = () => {
           <Link
             key={item.path}
             href={item.path}
-            className={`flex items-center p-3 rounded-lg mb-1 transition-colors ${
-              isActive(item.path)
-                ? "bg-primary/10 text-primary"
-                : "hover:bg-gray-100"
-            }`}
+            className={`flex items-center p-3 rounded-lg mb-1 transition-colors ${isActive(item.path)
+              ? "bg-primary/10 text-primary"
+              : "hover:bg-gray-100"
+              }`}
           >
             <span className="flex items-center justify-center w-6">
               {item.icon}
@@ -104,9 +96,8 @@ const LeftBar = () => {
         <div>
           <button
             onClick={() => setSettingsOpen((s) => !s)}
-            className={`w-full flex items-center p-3 rounded-lg mb-1 transition-colors text-left ${
-              isActive("/settings") ? "bg-primary/10 text-primary" : "hover:bg-gray-100"
-            }`}
+            className={`w-full flex items-center p-3 rounded-lg mb-1 transition-colors text-left ${isActive("/settings") ? "bg-primary/10 text-primary" : "hover:bg-gray-100"
+              }`}
             aria-expanded={settingsOpen}
           >
             <span className="flex items-center justify-center w-6">
@@ -124,9 +115,8 @@ const LeftBar = () => {
             <div className="pl-9">
               <Link
                 href="/settings/profile"
-                className={`flex items-center p-2 rounded-md mb-1 text-sm ${
-                  pathname === "/settings/profile" ? "text-primary font-medium" : "hover:bg-gray-100"
-                }`}
+                className={`flex items-center p-2 rounded-md mb-1 text-sm ${pathname === "/settings/profile" ? "text-primary font-medium" : "hover:bg-gray-100"
+                  }`}
               >
                 <span className="flex items-center justify-center w-6">
                   <FiUser size={16} />
@@ -135,9 +125,8 @@ const LeftBar = () => {
               </Link>
               <Link
                 href="/settings/payment"
-                className={`flex items-center p-2 rounded-md mb-1 text-sm ${
-                  pathname === "/settings/payment" ? "text-primary font-medium" : "hover:bg-gray-100"
-                }`}
+                className={`flex items-center p-2 rounded-md mb-1 text-sm ${pathname === "/settings/payment" ? "text-primary font-medium" : "hover:bg-gray-100"
+                  }`}
               >
                 <span className="flex items-center justify-center w-6">
                   <FiCreditCard size={16} />
@@ -146,9 +135,8 @@ const LeftBar = () => {
               </Link>
               <Link
                 href="/settings/pickup"
-                className={`flex items-center p-2 rounded-md mb-1 text-sm ${
-                  pathname === "/settings/pickup" ? "text-primary font-medium" : "hover:bg-gray-100"
-                }`}
+                className={`flex items-center p-2 rounded-md mb-1 text-sm ${pathname === "/settings/pickup" ? "text-primary font-medium" : "hover:bg-gray-100"
+                  }`}
               >
                 <span className="flex items-center justify-center w-6">
                   <MdLocationOn size={16} />
@@ -157,9 +145,8 @@ const LeftBar = () => {
               </Link>
               <Link
                 href="/settings/help"
-                className={`flex items-center p-2 rounded-md mb-1 text-sm ${
-                  pathname === "/settings/help" ? "text-primary font-medium" : "hover:bg-gray-100"
-                }`}
+                className={`flex items-center p-2 rounded-md mb-1 text-sm ${pathname === "/settings/help" ? "text-primary font-medium" : "hover:bg-gray-100"
+                  }`}
               >
                 <span className="flex items-center justify-center w-6">
                   <FiHelpCircle size={16} />

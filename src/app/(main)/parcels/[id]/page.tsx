@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Button } from "@/components/ui/Button";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useOrderData } from "@/hooks/useOrderData";
 
 // Helper function to format currency
@@ -41,6 +41,7 @@ const formatDeliveryState = (state: string): string => {
 
 export default function OrderDetail() {
   const params = useParams();
+  const router = useRouter();
   const id = params.id as string;
 
   const { data, isLoading, isError, error } = useOrderData(id);
@@ -97,7 +98,11 @@ export default function OrderDetail() {
           </div>
         </div>
         <div className="flex gap-3">
-          <Button variant="outline" size="default">
+          <Button
+            variant="outline"
+            size="default"
+            onClick={() => router.push(`/parcels/${id}/edit`)}
+          >
             Edit Order
           </Button>
           <Button variant="default" size="default">
