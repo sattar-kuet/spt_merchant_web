@@ -50,8 +50,11 @@ const ResetPasswordContent = () => {
                 Swal.fire({
                     icon: 'success',
                     title: 'Password Updated',
-                    text: result.message || 'Your password has been reset successfully. Please login with your new password.',
-                    confirmButtonColor: '#ff5a1f',
+                    text: result.message || 'Your password has been reset successfully.',
+                    toast: true,
+                    position: 'top-end',
+                    timer: 1500,
+                    showConfirmButton: false,
                 }).then(() => {
                     router.push('/auth/login');
                 });

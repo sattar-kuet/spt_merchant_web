@@ -29,7 +29,10 @@ const ForgotPasswordPage = () => {
                     icon: 'success',
                     title: 'Reset link sent',
                     text: result.message,
-                    confirmButtonColor: '#ff5a1f',
+                    toast: true,
+                    position: 'top-end',
+                    timer: 1500,
+                    showConfirmButton: false,
                 }).then(() => router.push(`/auth/verify-code?email=${encodeURIComponent(email)}`));
             } else {
                 const msg = result.message || 'Something went wrong';

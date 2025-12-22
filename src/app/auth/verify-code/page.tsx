@@ -46,7 +46,10 @@ const VerifyCodeContent = () => {
                     icon: 'success',
                     title: 'Code Verified',
                     text: 'Your code is correct. Please set a new password.',
-                    confirmButtonColor: '#ff5a1f',
+                    toast: true,
+                    position: 'top-end',
+                    timer: 1500,
+                    showConfirmButton: false,
                 }).then(() => {
                     router.push(`/auth/reset-password?token=${encodeURIComponent(result.reset_token!)}`);
                 });
