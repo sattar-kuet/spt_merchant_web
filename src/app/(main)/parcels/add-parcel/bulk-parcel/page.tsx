@@ -11,12 +11,17 @@ import { useSession } from "next-auth/react";
 import Swal from "sweetalert2";
 import * as XLSX from "xlsx";
 
+const getGoogleSheetsEditorUrl = (spreadsheetId: string) =>
+  `https://docs.google.com/spreadsheets/d/${spreadsheetId}/edit?rm=minimal`;
+
+const getErrorMessage = (error: unknown, fallback: string) =>
+  error instanceof Error ? error.message : fallback;
+
 export default function BulkParcelPage() {
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
   const [viewMode, setViewMode] = useState<"upload" | "editor">("upload");
   const {
     loading,
-    error,
     currentSheetId,
     createNewSheet,
     readParcelData,
@@ -36,7 +41,7 @@ export default function BulkParcelPage() {
           // In a real app, you would get the actual user ID
           const userId = session.user?.email?.split('@')[0] || "user-" + Math.random().toString(36).substr(2, 9);
           const result = await createNewSheet("SPT Merchant Bulk Parcel Sheet", userId);
-          setSheetUrl(result.sheetUrl);
+          setSheetUrl(getGoogleSheetsEditorUrl(result.spreadsheetId));
         } catch (err) {
           console.error("Error creating sheet:", err);
           Swal.fire({
@@ -134,12 +139,12 @@ export default function BulkParcelPage() {
 
       // Clear the sheet (except headers)
       await clearSheet();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error adding parcels:", err);
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: err.message || "Failed to add parcels.",
+        text: getErrorMessage(err, "Failed to add parcels."),
       });
     }
   };
@@ -232,6 +237,16 @@ export default function BulkParcelPage() {
                   Note: You can edit the sheet directly. Make sure to follow the
                   column format.
                 </p>
+                {sheetUrl && (
+                  <Link
+                    href={sheetUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mt-3 inline-flex text-sm font-medium text-primary hover:underline"
+                  >
+                    Open in Google Sheets
+                  </Link>
+                )}
               </div>
 
               {/* Loading state */}
@@ -248,9 +263,10 @@ export default function BulkParcelPage() {
               {!isLoadingSheet && sheetUrl && (
                 <div className="w-full" style={{ height: "700px" }}>
                   <iframe
-                    src={`${sheetUrl}/edit?widget=true&headers=false`}
+                    src={sheetUrl}
                     className="w-full h-full border border-gray-300 rounded"
                     frameBorder="0"
+                    allow="clipboard-read; clipboard-write"
                     title="Bulk Parcel Editor"
                   ></iframe>
                 </div>
