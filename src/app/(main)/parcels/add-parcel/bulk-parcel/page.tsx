@@ -10,6 +10,9 @@ import { TutorialModal } from "@/components/TutorialModal";
 import { useSession } from "next-auth/react";
 import Swal from "sweetalert2";
 import * as XLSX from "xlsx";
+import useAxiosSecure from "@/hooks/useAxiosSecure";
+import useBulkCreateParcels from "@/hooks/useBulkCreateParcels";
+import { buildOrdersFromRows, RowError } from "@/lib/bulkParcels";
 
 const getGoogleSheetsEditorUrl = (spreadsheetId: string) =>
   `https://docs.google.com/spreadsheets/d/${spreadsheetId}/edit?rm=minimal`;
@@ -31,6 +34,11 @@ export default function BulkParcelPage() {
   const [sheetUrl, setSheetUrl] = useState<string | null>(null);
   const [isLoadingSheet, setIsLoadingSheet] = useState(false);
   const [isTutorialOpen, setIsTutorialOpen] = useState(false);
+  const [uploadedRows, setUploadedRows] = useState<Record<string, any>[]>([]);
+  const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
+
+  const axiosSecure = useAxiosSecure();
+  const bulkCreate = useBulkCreateParcels();
 
   // Create a new sheet when the user navigates to the editor
   useEffect(() => {
@@ -87,14 +95,15 @@ export default function BulkParcelPage() {
             const workbook = XLSX.read(data, { type: "array" });
             const sheetName = workbook.SheetNames[0];
             const worksheet = workbook.Sheets[sheetName];
-            const jsonData = XLSX.utils.sheet_to_json(worksheet);
+            const jsonData = XLSX.utils.sheet_to_json<Record<string, any>>(worksheet);
 
-            console.log("Uploaded Excel Data:", jsonData);
+            setUploadedRows(jsonData);
+            setUploadedFileName(file.name);
 
             Swal.fire({
               icon: "success",
               title: "File Parsed",
-              text: `Successfully parsed ${file.name}. Check the console to see the data.`,
+              text: `Found ${jsonData.length} parcel(s) in ${file.name}. Click "Add Parcels" to submit them.`,
             });
           }
         } catch (error) {
@@ -111,34 +120,74 @@ export default function BulkParcelPage() {
     }
   };
 
+  const showRowErrors = (errors: RowError[]) => {
+    const shown = errors.slice(0, 10);
+    const items = shown
+      .map((e) => `<li><b>Row ${e.row}:</b> ${e.message}</li>`)
+      .join("");
+    const more =
+      errors.length > shown.length
+        ? `<p>...and ${errors.length - shown.length} more row(s) with errors.</p>`
+        : "";
+    Swal.fire({
+      icon: "error",
+      title: "Invalid Parcel Data",
+      html: `<ul style="text-align:left">${items}</ul>${more}<p>Fix these rows and try again. No parcels were submitted.</p>`,
+    });
+  };
+
   // Function to handle adding parcels
   const handleAddParcels = async () => {
     try {
-      // Read data from Google Sheets
-      const parcels = await readParcelData();
+      // Rows come from the uploaded Excel file or the Google Sheet,
+      // depending on the active view
+      const rows =
+        viewMode === "editor" ? await readParcelData() : uploadedRows;
 
-      if (parcels.length === 0) {
+      if (rows.length === 0) {
         Swal.fire({
           icon: "info",
           title: "No Data",
-          text: "No parcel data found in the sheet.",
+          text:
+            viewMode === "editor"
+              ? "No parcel data found in the sheet."
+              : "Upload an Excel file first.",
         });
         return;
       }
 
-      // Here you would typically send the data to your backend
-      // For now, we'll just show a success message
-      console.log("Parcels to be added:", parcels);
+      const { orders, errors } = await buildOrdersFromRows(rows, axiosSecure);
 
-      // Show success message
+      if (errors.length > 0) {
+        showRowErrors(errors);
+        return;
+      }
+
+      if (orders.length === 0) {
+        Swal.fire({
+          icon: "info",
+          title: "No Data",
+          text: "No parcel data found to submit.",
+        });
+        return;
+      }
+
+      await bulkCreate.mutateAsync({ orders });
+
       Swal.fire({
         icon: "success",
         title: "Parcels Added",
-        text: `${parcels.length} parcels have been added successfully.`,
+        text: `${orders.length} parcel(s) have been added successfully.`,
       });
 
-      // Clear the sheet (except headers)
-      await clearSheet();
+      if (viewMode === "editor") {
+        // Clear the sheet (except headers) only after a successful submission
+        await clearSheet();
+      } else {
+        setUploadedRows([]);
+        setUploadedFileName(null);
+        if (fileInputRef.current) fileInputRef.current.value = "";
+      }
     } catch (err: unknown) {
       console.error("Error adding parcels:", err);
       Swal.fire({
@@ -214,6 +263,14 @@ export default function BulkParcelPage() {
                 >
                   Browse files
                 </Button>
+
+                {uploadedFileName && (
+                  <div className="mt-4 text-sm text-slate-600">
+                    <span className="font-medium">{uploadedFileName}</span>
+                    {" — "}
+                    {uploadedRows.length} parcel(s) ready to submit
+                  </div>
+                )}
               </div>
 
               <div className="mt-4 text-center">
@@ -295,9 +352,9 @@ export default function BulkParcelPage() {
             variant="default"
             size="default"
             onClick={handleAddParcels}
-            disabled={loading || isLoadingSheet}
+            disabled={loading || isLoadingSheet || bulkCreate.isPending}
           >
-            {loading ? "Adding Parcels..." : "Add Parcels"}
+            {loading || bulkCreate.isPending ? "Adding Parcels..." : "Add Parcels"}
           </Button>
         </div>
       </div>
