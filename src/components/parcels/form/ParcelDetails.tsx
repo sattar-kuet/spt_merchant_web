@@ -77,7 +77,7 @@ const ParcelDetails: React.FC<{
                                     </SelectItem>
                                 ))
                             ) : (
-                                <SelectItem value="" disabled>
+                                <SelectItem value="none" disabled>
                                     No delivery speeds configured
                                 </SelectItem>
                             )}
