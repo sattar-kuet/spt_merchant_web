@@ -12,6 +12,7 @@ const TEMPLATE_HEADERS = [
   'Pickup Point',
   'Parcel Weight (kg)',
   'Parcel Type',
+  'Delivery Speed',
   'COD Amount'
 ];
 
@@ -78,7 +79,7 @@ export async function POST(request: NextRequest) {
     // Add template headers to the new sheet
     await sheets.spreadsheets.values.update({
       spreadsheetId,
-      range: 'Sheet1!A1:I1',
+      range: 'Sheet1!A1:J1',
       valueInputOption: 'RAW',
       requestBody: {
         values: [TEMPLATE_HEADERS],

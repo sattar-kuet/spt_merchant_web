@@ -190,10 +190,11 @@ export default function BulkParcelPage() {
       }
     } catch (err: unknown) {
       console.error("Error adding parcels:", err);
+      const message = getErrorMessage(err, "Failed to add parcels.");
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: getErrorMessage(err, "Failed to add parcels."),
+        html: message.split("\n").map((line) => line || "&nbsp;").join("<br/>"),
       });
     }
   };

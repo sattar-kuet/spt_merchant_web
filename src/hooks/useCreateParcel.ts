@@ -13,7 +13,9 @@ export default function useCreateParcel() {
       const data = resp.data;
       // treat non-success responses as errors so callers only receive onSuccess when created
       if (data && typeof data === "object" && data.success === false) {
-        throw new Error(data.message || "Failed to create parcel");
+        // Prefer the detailed server-side error over the generic message, so
+        // the merchant sees the real reason instead of just "it failed"
+        throw new Error(data.error || data.message || "Failed to create parcel");
       }
       return data;
     },

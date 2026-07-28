@@ -89,7 +89,11 @@ export const useOrdersData = (
   return {
     orders: ordersQuery.data?.orders ?? [],
     pagination: calculatedPagination,
-    loading: ordersQuery.isLoading,
+    // isPending (not isLoading) so the loading UI is identical during SSR
+    // (query disabled, no data yet) and the client's first render (query
+    // enabled, fetching, no data yet) - avoids a hydration mismatch caused
+    // by `enabled` depending on cookie-based auth that only resolves client-side
+    loading: ordersQuery.isPending,
     error: ordersQuery.error ? (ordersQuery.error as Error).message : null,
     refetch: ordersQuery.refetch,
   };

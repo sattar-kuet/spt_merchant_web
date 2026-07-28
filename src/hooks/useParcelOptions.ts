@@ -64,6 +64,19 @@ export default function useParcelOptions(selectedDistrict?: string) {
     },
   });
 
+  const deliverySpeedsQuery = useQuery({
+    queryKey: ["delivery-speeds"],
+    queryFn: async () => {
+      const resp = await axiosSecure.get(`/delivery-speeds`);
+      const payload = resp.data;
+      if (payload == null) return [];
+      if (Array.isArray(payload)) return payload;
+      if (Array.isArray(payload.data)) return payload.data;
+      if (Array.isArray(payload.delivery_speeds)) return payload.delivery_speeds;
+      return [];
+    },
+  });
+
   return {
     parcelTypes: parcelTypesQuery.data,
     parcelTypesQuery,
@@ -73,5 +86,7 @@ export default function useParcelOptions(selectedDistrict?: string) {
     citiesQuery,
     pickupPoints: pickupPointsQuery.data,
     pickupPointsQuery,
+    deliverySpeeds: deliverySpeedsQuery.data,
+    deliverySpeedsQuery,
   };
 }

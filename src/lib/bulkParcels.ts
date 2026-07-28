@@ -10,6 +10,7 @@ export const TEMPLATE_HEADERS = {
   pickupPoint: "Pickup Point",
   weight: "Parcel Weight (kg)",
   parcelType: "Parcel Type",
+  deliverySpeed: "Delivery Speed",
   codAmount: "COD Amount",
 };
 
@@ -82,10 +83,11 @@ export async function buildOrdersFromRows(
   rows: Record<string, any>[],
   axios: AxiosInstance
 ): Promise<BuildOrdersResult> {
-  const [parcelTypesResp, districtsResp, pickupPointsResp] = await Promise.all([
+  const [parcelTypesResp, districtsResp, pickupPointsResp, deliverySpeedsResp] = await Promise.all([
     axios.get("/parcel-types"),
     axios.get("/locations/districts"),
     axios.get("/pickup-points"),
+    axios.get("/delivery-speeds"),
   ]);
 
   const parcelTypes = byName(
@@ -94,6 +96,9 @@ export async function buildOrdersFromRows(
   const districts = byName(normalizeList(districtsResp.data, "districts"));
   const pickupPoints = byName(
     normalizeList(pickupPointsResp.data, "pickup_points", "pickupPoints")
+  );
+  const deliverySpeeds = byName(
+    normalizeList(deliverySpeedsResp.data, "delivery_speeds", "deliverySpeeds")
   );
 
   const dataRows = rows.filter((row) => !isEmptyRow(row));
@@ -131,6 +136,7 @@ export async function buildOrdersFromRows(
     const cityName = cell(row, TEMPLATE_HEADERS.city);
     const pickupPointName = cell(row, TEMPLATE_HEADERS.pickupPoint);
     const parcelTypeName = cell(row, TEMPLATE_HEADERS.parcelType);
+    const deliverySpeedName = cell(row, TEMPLATE_HEADERS.deliverySpeed);
     const weightText = cell(row, TEMPLATE_HEADERS.weight);
     const codText = cell(row, TEMPLATE_HEADERS.codAmount);
 
@@ -181,6 +187,17 @@ export async function buildOrdersFromRows(
       );
     }
 
+    const deliverySpeed = deliverySpeedName
+      ? deliverySpeeds.get(deliverySpeedName.toLowerCase())
+      : undefined;
+    if (!deliverySpeed) {
+      problems.push(
+        deliverySpeedName
+          ? `Unknown delivery speed "${deliverySpeedName}"`
+          : "Delivery Speed is required"
+      );
+    }
+
     const weight = Number(weightText);
     if (!weightText || Number.isNaN(weight) || weight <= 0) {
       problems.push("Parcel Weight (kg) must be a positive number");
@@ -203,11 +220,11 @@ export async function buildOrdersFromRows(
       customer_city_id: Number(city.id),
       customer_district_id: Number(district.id),
       parcel_type_id: Number(parcelType.id),
-      delivery_speed_id: 1,
+      delivery_speed_id: Number(deliverySpeed.id),
       total_weight: weight,
       cod_amount: codAmount,
       pickup_point_id: Number(pickupPoint.id),
-      order_type: "delivery",
+      order_type: "normal_delivery",
     });
   });
 

@@ -187,11 +187,15 @@ export const useDashboardData = () => {
 
   return {
     dashboardData: dashboardQuery.data ?? null,
-    loading: dashboardQuery.isLoading,
+    // isPending (not isLoading) so the loading UI matches between SSR (query
+    // disabled, no data yet) and the client's first render (query enabled,
+    // fetching, no data yet) - `enabled` depends on cookie-based auth that
+    // only resolves client-side, so isLoading alone causes a hydration mismatch
+    loading: dashboardQuery.isPending,
     error: dashboardQuery.error
       ? (dashboardQuery.error as Error).message
       : null,
-    chartLoading: dailyChartQuery.isLoading || monthlyChartQuery.isLoading,
+    chartLoading: dailyChartQuery.isPending || monthlyChartQuery.isPending,
     chartError: dailyChartQuery.error
       ? (dailyChartQuery.error as Error).message
       : monthlyChartQuery.error

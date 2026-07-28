@@ -16,12 +16,15 @@ const ParcelDetails: React.FC<{
     parcelType: string;
     setParcelType: (v: string) => void;
     parcelTypes?: { id: number; name: string }[];
-}> = ({ weight, setWeight, parcelType, setParcelType, parcelTypes }) => {
+    deliverySpeed: string;
+    setDeliverySpeed: (v: string) => void;
+    deliverySpeeds?: { id: number; name: string }[];
+}> = ({ weight, setWeight, parcelType, setParcelType, parcelTypes, deliverySpeed, setDeliverySpeed, deliverySpeeds }) => {
     return (
         <div className="mt-4 bg-white rounded-lg border border-slate-200 p-6">
             <h3 className="text-lg font-medium">Parcel Details</h3>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
                 <div>
                     <label htmlFor="parcel-weight" className="text-sm">
                         Parcel Weight
@@ -54,6 +57,29 @@ const ParcelDetails: React.FC<{
                                     <SelectItem value="parcel">Parcel</SelectItem>
                                     <SelectItem value="fragile">Fragile</SelectItem>
                                 </>
+                            )}
+                        </SelectContent>
+                    </Select>
+                </div>
+                <div>
+                    <label htmlFor="delivery-speed" className="text-sm">
+                        Delivery Speed
+                    </label>
+                    <Select value={deliverySpeed} onValueChange={setDeliverySpeed}>
+                        <SelectTrigger>
+                            <SelectValue placeholder="Select a speed" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {deliverySpeeds && deliverySpeeds.length > 0 ? (
+                                deliverySpeeds.map((s) => (
+                                    <SelectItem key={s.id} value={String(s.id)}>
+                                        {s.name}
+                                    </SelectItem>
+                                ))
+                            ) : (
+                                <SelectItem value="" disabled>
+                                    No delivery speeds configured
+                                </SelectItem>
                             )}
                         </SelectContent>
                     </Select>

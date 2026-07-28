@@ -36,9 +36,10 @@ const ParcelForm: React.FC<ParcelFormProps> = ({
     const [selectedDistrict, setSelectedDistrict] = useState(initialData?.customer_district_id?.toString() || "");
     const [selectedCity, setSelectedCity] = useState(initialData?.customer_city_id?.toString() || "");
     const [selectedPickupPoint, setSelectedPickupPoint] = useState(initialData?.pickup_point_id?.toString() || "");
+    const [deliverySpeed, setDeliverySpeed] = useState(initialData?.delivery_speed_id?.toString() || "");
     const [calculatedFees, setCalculatedFees] = useState<any | null>(null);
 
-    const { parcelTypes, districts, cities, pickupPoints } = useParcelOptions(selectedDistrict);
+    const { parcelTypes, districts, cities, pickupPoints, deliverySpeeds } = useParcelOptions(selectedDistrict);
 
     // Sync state if initialData changes (important for edit mode after fetch)
     useEffect(() => {
@@ -52,8 +53,16 @@ const ParcelForm: React.FC<ParcelFormProps> = ({
             setSelectedDistrict(initialData.customer_district_id?.toString() || "");
             setSelectedCity(initialData.customer_city_id?.toString() || "");
             setSelectedPickupPoint(initialData.pickup_point_id?.toString() || "");
+            setDeliverySpeed(initialData.delivery_speed_id?.toString() || "");
         }
     }, [initialData]);
+
+    // Default to the first available delivery speed once loaded, if none is set yet
+    useEffect(() => {
+        if (!deliverySpeed && deliverySpeeds && deliverySpeeds.length > 0) {
+            setDeliverySpeed(String(deliverySpeeds[0].id));
+        }
+    }, [deliverySpeed, deliverySpeeds]);
 
     const codNumber = parseFloat(codAmount) || 0;
     const deliveryChargeNum = Number(calculatedFees?.delivery_charge ?? 0);
@@ -63,7 +72,8 @@ const ParcelForm: React.FC<ParcelFormProps> = ({
     const handleFormSubmit = () => {
         const payload = {
             parcel_type_id: parcelType ? Number(parcelType) : undefined,
-            delivery_speed_id: 1,
+            delivery_speed_id: deliverySpeed ? Number(deliverySpeed) : undefined,
+            order_type: "normal_delivery",
             customer_name: fullName,
             customer_phone: phone,
             customer_address: address,
@@ -106,6 +116,9 @@ const ParcelForm: React.FC<ParcelFormProps> = ({
                         parcelType={parcelType}
                         setParcelType={setParcelType}
                         parcelTypes={parcelTypes}
+                        deliverySpeed={deliverySpeed}
+                        setDeliverySpeed={setDeliverySpeed}
+                        deliverySpeeds={deliverySpeeds}
                     />
 
                     <FinancialInfo codAmount={codAmount} setCodAmount={setCodAmount} />
@@ -114,7 +127,7 @@ const ParcelForm: React.FC<ParcelFormProps> = ({
                 <div className="lg:col-span-1">
                     <FeeCalculator
                         parcel_type_id={parcelType ? Number(parcelType) : undefined}
-                        delivery_speed_id={1}
+                        delivery_speed_id={deliverySpeed ? Number(deliverySpeed) : undefined}
                         total_weight={Number(weight) || undefined}
                         cod_amount={Number(codAmount) || 0}
                         customer_city_id={selectedCity && selectedCity !== "-1" ? Number(selectedCity) : undefined}
