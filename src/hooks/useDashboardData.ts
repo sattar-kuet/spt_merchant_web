@@ -13,6 +13,8 @@ interface DashboardData {
   delivered_orders: number;
   failed_orders: number;
   inprogress_orders: number;
+  delivery_cod: number;
+  cod_in_progress: number;
   recent_orders: Array<{
     id: number;
     tracking_number: string;
@@ -42,6 +44,7 @@ interface FormattedDashboardItem {
   amount: number;
   progress: string;
   status: "growing" | "equal" | "warning";
+  isCurrency?: boolean;
 }
 
 interface FormattedRecentOrder {
@@ -121,6 +124,20 @@ export const useDashboardData = () => {
         amount: dashboardData.failed_orders,
         progress: "+0%",
         status: "warning",
+      },
+      {
+        title: "Delivery COD",
+        amount: dashboardData.delivery_cod,
+        progress: "+0%",
+        status: "equal",
+        isCurrency: true,
+      },
+      {
+        title: "COD in Progress",
+        amount: dashboardData.cod_in_progress,
+        progress: "+0%",
+        status: "equal",
+        isCurrency: true,
       },
     ];
   };

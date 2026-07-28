@@ -16,7 +16,7 @@ const SidebarContext = createContext<SidebarContextValue | undefined>(
 export const SidebarProvider: React.FC<{
   children: React.ReactNode;
 }> = ({ children }) => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);
   const mountedRef = useRef(false);
 
   useEffect(() => {

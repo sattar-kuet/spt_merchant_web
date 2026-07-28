@@ -8,12 +8,12 @@ import { useDashboardData } from "@/hooks/useDashboardData";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
-const colors = [
-  "bg-violet-500/10 border-violet-200/50",
-  "bg-green-500/10 border-green-200/50",
-  "bg-orange-500/10 border-orange-200/50",
-  "bg-red-500/10 border-red-200/50",
-];
+const SectionHeading = ({ color, children }: { color: string; children: React.ReactNode }) => (
+  <div className="flex items-center gap-2 mb-3">
+    <span className={cn("inline-block w-1.5 h-5 rounded-full", color)} />
+    <p className="text-lg font-bold text-slate-800">{children}</p>
+  </div>
+);
 
 const Dashboard = () => {
   const {
@@ -35,7 +35,7 @@ const Dashboard = () => {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {[1, 2, 3, 4].map((index) => (
+            {[1, 2, 3, 4, 5, 6].map((index) => (
               <Card
                 key={index}
                 className={cn(
@@ -80,28 +80,51 @@ const Dashboard = () => {
 
   return (
     <ProtectedRoute>
-      <div className="my-8 px-4 flex flex-col gap-3 w-full">
-        <div className="flex  flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="my-8 px-4 flex flex-col gap-6 w-full">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <p className="text-2xl sm:text-3xl font-semibold">Dashboard</p>
+            <p className="text-2xl sm:text-3xl font-extrabold bg-gradient-to-r from-blue-600 via-violet-600 to-fuchsia-600 bg-clip-text text-transparent">
+              Dashboard
+            </p>
             <p className="text-sm text-slate-500 mt-1">
               Here&apos;s an overview of your parcel
             </p>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          {formattedDashboardItems.map((item, index) => (
-            <InfoSkeleton key={item.title} item={item} bg={colors[index]} />
-          ))}
+        {/* Section 1: KPI cards (2x2) + Recent Orders */}
+        <div>
+          <SectionHeading color="bg-gradient-to-b from-blue-400 to-violet-400">
+            Order Insights
+          </SectionHeading>
+          <div className="flex flex-col lg:flex-row w-full gap-3">
+            <div className="lg:w-1/2">
+              <div className="grid grid-cols-2 gap-3">
+                {formattedDashboardItems.slice(0, 4).map((item) => (
+                  <InfoSkeleton key={item.title} item={item} />
+                ))}
+              </div>
+            </div>
+            <div className="lg:w-1/2">
+              <RecentOrders />
+            </div>
+          </div>
         </div>
 
-        <div className="flex flex-col lg:flex-row w-full gap-3">
-          <div className="lg:w-4/6">
-            <GrowthChart />
-          </div>
-          <div className="lg:w-2/6">
-            <RecentOrders />
+        {/* Section 2: COD cards + Earnings chart */}
+        <div>
+          <SectionHeading color="bg-gradient-to-b from-pink-400 to-fuchsia-400">
+            COD Insights
+          </SectionHeading>
+          <div className="flex flex-col lg:flex-row w-full gap-3">
+            <div className="lg:w-1/2 grid grid-cols-1 gap-3">
+              {formattedDashboardItems.slice(4, 6).map((item) => (
+                <InfoSkeleton key={item.title} item={item} />
+              ))}
+            </div>
+            <div className="lg:w-1/2">
+              <GrowthChart />
+            </div>
           </div>
         </div>
       </div>

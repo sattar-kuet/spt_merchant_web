@@ -75,10 +75,10 @@ const GrowthChart = () => {
   }
 
   return (
-    <div className="px-4 py-3 md:px-5 md:py-4 xl:px-6 xl:py-5 bg-white rounded-md">
+    <div className="px-4 py-3 md:px-5 md:py-4 xl:px-6 xl:py-5 bg-gradient-to-br from-white to-blue-50/40 rounded-md border border-blue-100/60 shadow-sm">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
         <div>
-          <h3 className="text-lg font-semibold">Earnings</h3>
+          <h3 className="text-lg font-semibold text-slate-800">Earnings</h3>
           <p className="text-sm text-gray-500">
             {chartType === "daily" ? "Last 7 days" : "Last 7 months"}
           </p>
@@ -103,11 +103,26 @@ const GrowthChart = () => {
       <div style={{ outline: "none" }}>
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={formattedEarningData(chartType)}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="x" />
-            <YAxis tickFormatter={(value) => `৳${value}`} />
-            <Tooltip formatter={(value: number) => [`৳${value}`, "Earning"]} />
-            <Bar dataKey="y" fill="#0ea5e9" />
+            <defs>
+              <linearGradient id="earningsBarFill" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#6d5ce8" stopOpacity={1} />
+                <stop offset="100%" stopColor="#2a78d6" stopOpacity={0.85} />
+              </linearGradient>
+            </defs>
+            <CartesianGrid strokeDasharray="3 3" stroke="#e1e0d9" vertical={false} />
+            <XAxis dataKey="x" tick={{ fill: "#898781", fontSize: 12 }} axisLine={{ stroke: "#e1e0d9" }} tickLine={false} />
+            <YAxis
+              tickFormatter={(value) => `৳${value}`}
+              tick={{ fill: "#898781", fontSize: 12 }}
+              axisLine={false}
+              tickLine={false}
+            />
+            <Tooltip
+              formatter={(value: number) => [`৳${value}`, "Earning"]}
+              cursor={{ fill: "#2a78d6", fillOpacity: 0.06 }}
+              contentStyle={{ borderRadius: 8, border: "1px solid #e1e0d9", fontSize: 12 }}
+            />
+            <Bar dataKey="y" fill="url(#earningsBarFill)" radius={[6, 6, 0, 0]} maxBarSize={40} />
           </BarChart>
         </ResponsiveContainer>
       </div>

@@ -35,9 +35,9 @@ const RecentOrders = () => {
   }
 
   return (
-    <div className="px-1 py-3 md:px-2 md:py-3 xl:px-4 xl:py-3 bg-white rounded-md w-full h-full flex flex-col">
-      <p className="text-base font-semibold">Recent Orders</p>
-      <div className="flex flex-col gap-3 mt-3 flex-grow">
+    <div className="px-1 py-3 md:px-2 md:py-3 xl:px-4 xl:py-3 bg-gradient-to-br from-white to-violet-50/40 border border-violet-100/60 shadow-sm rounded-md w-full h-full flex flex-col">
+      <p className="text-base font-semibold text-slate-800">Recent Orders</p>
+      <div className="flex flex-col gap-2 mt-2 flex-grow">
         {formattedRecentOrders.length > 0 ? (
           formattedRecentOrders.map((item, index) => (
             <RecentOrderSkeleton key={index} item={item} />
@@ -54,7 +54,7 @@ const RecentOrders = () => {
 
       <Link
         href="/parcels"
-        className="text-sm text-primary mt-auto text-center hover:underline"
+        className="text-sm text-primary mt-3 pt-2 border-t border-slate-100 text-center hover:underline"
       >
         View All Orders
       </Link>
