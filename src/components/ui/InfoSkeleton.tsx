@@ -156,7 +156,7 @@ const InfoSkeleton = ({ item }: { item: DashboardItem; bg?: string }) => {
           </p>
           <div className="flex items-baseline gap-1">
             <h3 className="text-xl font-extrabold text-slate-900 tabular-nums leading-none">
-              {item.isCurrency ? `৳${item.amount.toLocaleString()}` : item.amount.toLocaleString()}
+              {item.isCurrency ? `৳${(item.amount ?? 0).toLocaleString()}` : (item.amount ?? 0).toLocaleString()}
             </h3>
           </div>
         </div>

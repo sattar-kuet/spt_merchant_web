@@ -13,8 +13,9 @@ interface DashboardData {
   delivered_orders: number;
   failed_orders: number;
   inprogress_orders: number;
-  delivery_cod: number;
-  cod_in_progress: number;
+  // Absent on older backend deployments that predate these fields
+  delivery_cod?: number;
+  cod_in_progress?: number;
   recent_orders: Array<{
     id: number;
     tracking_number: string;
@@ -103,38 +104,39 @@ export const useDashboardData = () => {
     return [
       {
         title: "Total Orders",
-        amount: dashboardData.total_orders,
+        amount: dashboardData.total_orders ?? 0,
         progress: "+0%",
         status: "growing",
       },
       {
         title: "Delivered",
-        amount: dashboardData.delivered_orders,
+        amount: dashboardData.delivered_orders ?? 0,
         progress: "+0%",
         status: "growing",
       },
       {
         title: "In-Progress",
-        amount: dashboardData.inprogress_orders,
+        amount: dashboardData.inprogress_orders ?? 0,
         progress: "+0%",
         status: "equal",
       },
       {
         title: "Failed",
-        amount: dashboardData.failed_orders,
+        amount: dashboardData.failed_orders ?? 0,
         progress: "+0%",
         status: "warning",
       },
       {
         title: "Delivery COD",
-        amount: dashboardData.delivery_cod,
+        // Older backend deployments may not send this field yet
+        amount: dashboardData.delivery_cod ?? 0,
         progress: "+0%",
         status: "equal",
         isCurrency: true,
       },
       {
         title: "COD in Progress",
-        amount: dashboardData.cod_in_progress,
+        amount: dashboardData.cod_in_progress ?? 0,
         progress: "+0%",
         status: "equal",
         isCurrency: true,
