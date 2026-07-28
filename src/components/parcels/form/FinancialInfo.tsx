@@ -16,7 +16,7 @@ const FinancialInfo: React.FC<{
                 <Input
                     value={codAmount}
                     onChange={(e) => setCodAmount(e.target.value)}
-                    placeholder="$ 0.00"
+                    placeholder="৳ 0.00"
                     className="mt-2"
                 />
             </div>

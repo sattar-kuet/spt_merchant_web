@@ -127,15 +127,15 @@ const ParcelForm: React.FC<ParcelFormProps> = ({
                         <div className="text-sm text-slate-600 mb-3">
                             <div className="flex justify-between py-1">
                                 <span>Delivery Charge</span>
-                                <span>{deliveryChargeNum.toFixed(2)}</span>
+                                <span>৳{deliveryChargeNum.toFixed(2)}</span>
                             </div>
                             <div className="flex justify-between py-1">
                                 <span>COD Fee</span>
-                                <span>{codChargeNum.toFixed(2)}</span>
+                                <span>৳{codChargeNum.toFixed(2)}</span>
                             </div>
                             <div className="flex justify-between pt-3 border-t mt-2 font-semibold">
                                 <span>Total Amount to Collect</span>
-                                <span className="text-primary">{(totalChargeNum + codNumber).toFixed(2)}</span>
+                                <span className="text-primary">৳{(totalChargeNum + codNumber).toFixed(2)}</span>
                             </div>
                         </div>
 

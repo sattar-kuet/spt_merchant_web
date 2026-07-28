@@ -105,8 +105,8 @@ const GrowthChart = () => {
           <BarChart data={formattedEarningData(chartType)}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="x" />
-            <YAxis />
-            <Tooltip />
+            <YAxis tickFormatter={(value) => `৳${value}`} />
+            <Tooltip formatter={(value: number) => [`৳${value}`, "Earning"]} />
             <Bar dataKey="y" fill="#0ea5e9" />
           </BarChart>
         </ResponsiveContainer>

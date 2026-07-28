@@ -50,7 +50,7 @@ const RightSideHeader = () => {
       </p>
       {isBalanceVisible ? (
         <p className="text-xs md:text-sm px-2 rounded-md transition-colors duration-200">
-          ${balance}
+          ৳{balance}
         </p>
       ) : (
         <p className="text-xs md:text-sm px-2 rounded-md transition-colors duration-200">

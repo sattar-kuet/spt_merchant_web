@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 
@@ -15,13 +16,15 @@ const OrdersHeader: React.FC = () => {
         <div className="relative w-full sm:w-64">
           <Input placeholder="Search" />
         </div>
-        <Button
-          variant="default"
-          size="default"
-          className="w-full sm:w-auto whitespace-nowrap"
-        >
-          + Create New Order
-        </Button>
+        <Link href="/parcels/add-parcel/single-parcel" className="w-full sm:w-auto">
+          <Button
+            variant="default"
+            size="default"
+            className="w-full sm:w-auto whitespace-nowrap"
+          >
+            + Create New Order
+          </Button>
+        </Link>
       </div>
     </div>
   );

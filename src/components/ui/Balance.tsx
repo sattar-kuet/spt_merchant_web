@@ -10,7 +10,7 @@ const Balance = ({ text, balance }: { text: string; balance: string; }) => {
 
             <p
                 className='text-xs md:text-sm px-2  rounded-md transition-colors duration-200'
-            >${balance}</p>
+            >৳{balance}</p>
 
         </div>
     )
