@@ -41,54 +41,41 @@ const OrdersTable: React.FC<OrdersTableProps> = ({
   };
 
   // Get status badge color
+  // These are matched against the exact labels sale.order.delivery_state
+  // returns from the backend (Odoo's selection field labels), not any
+  // custom frontend wording
   const getStatusColor = (status: string) => {
-    // Map actual status values from API to display colors
     switch (status) {
       case "Delivered":
         return { color: "bg-green-100 text-green-800", label: "Delivered" };
       case "Out for Delivery":
-        return {
-          color: "bg-primary/10 text-primary",
-          label: "Out for Delivery",
-        };
+        return { color: "bg-primary/10 text-primary", label: "Out for Delivery" };
       case "Ready for Pickup":
-        return {
-          color: "bg-yellow-100 text-yellow-800",
-          label: "Ready for Pickup",
-        };
-      case "Delivery Failed":
-        return { color: "bg-red-100 text-red-800", label: "Delivery Failed" };
-      case "Created":
-        return { color: "bg-purple-100 text-purple-800", label: "Created" };
-      case "Assigned for Pickup":
-        return {
-          color: "bg-primary/10 text-primary",
-          label: "Assigned for Pickup",
-        };
+      case "Ready for Delivery":
+        return { color: "bg-yellow-100 text-yellow-800", label: status };
+      case "Rejected by Customer":
       case "Rejected by Merchant":
-        return {
-          color: "bg-red-100 text-red-800",
-          label: "Rejected by Merchant",
-        };
-      case "Pickup Done":
-        return { color: "bg-green-100 text-green-800", label: "Pickup Done" };
+      case "Rejected Returning Hub":
+        return { color: "bg-red-100 text-red-800", label: status };
+      case "Parcel Created":
+        return { color: "bg-purple-100 text-purple-800", label: status };
+      case "Assigned for Pickup":
+      case "Assigned for Delivery":
+        return { color: "bg-primary/10 text-primary", label: status };
+      case "Pickup Completed":
+        return { color: "bg-green-100 text-green-800", label: status };
       case "In Hub":
-        return { color: "bg-primary/5 text-primary", label: "In Hub" };
-      case "Returned to Hub":
-        return {
-          color: "bg-orange-100 text-orange-800",
-          label: "Returned to Hub",
-        };
-      case "Return Initiated":
-        return {
-          color: "bg-orange-100 text-orange-800",
-          label: "Return Initiated",
-        };
+        return { color: "bg-primary/5 text-primary", label: status };
+      case "Transferring for Delivery":
+      case "Transferred for Delivery":
+      case "Transferring for Return":
+      case "Transferred for Return":
+        return { color: "bg-primary/5 text-primary", label: status };
+      case "Return for Reschedule":
+      case "Rescheduled":
+        return { color: "bg-orange-100 text-orange-800", label: status };
       case "Returned to Merchant":
-        return {
-          color: "bg-gray-100 text-gray-800",
-          label: "Returned to Merchant",
-        };
+        return { color: "bg-gray-100 text-gray-800", label: status };
       default:
         return { color: "bg-slate-100 text-slate-800", label: status };
     }
