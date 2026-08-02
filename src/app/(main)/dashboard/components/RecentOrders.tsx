@@ -36,7 +36,7 @@ const RecentOrders = () => {
 
   return (
     <div className="px-1 py-3 md:px-2 md:py-3 xl:px-4 xl:py-3 bg-gradient-to-br from-white to-violet-50/40 border border-violet-100/60 shadow-sm rounded-md w-full h-full flex flex-col">
-      <p className="text-base font-semibold text-slate-800">Recent Orders</p>
+      <p className="text-base font-semibold text-slate-800">Recent Parcels</p>
       <div className="flex flex-col gap-2 mt-2 flex-grow">
         {formattedRecentOrders.length > 0 ? (
           formattedRecentOrders.map((item, index) => (
@@ -44,9 +44,9 @@ const RecentOrders = () => {
           ))
         ) : (
           <div className="flex flex-col items-center justify-center h-full py-8 text-gray-500">
-            <p className="text-lg font-medium">No orders available</p>
+            <p className="text-lg font-medium">No parcels available</p>
             <p className="text-sm mt-1">
-              There are no recent orders to display
+              There are no recent parcels to display
             </p>
           </div>
         )}
@@ -56,7 +56,7 @@ const RecentOrders = () => {
         href="/parcels"
         className="text-sm text-primary mt-3 pt-2 border-t border-slate-100 text-center hover:underline"
       >
-        View All Orders
+        View All Parcels
       </Link>
     </div>
   );

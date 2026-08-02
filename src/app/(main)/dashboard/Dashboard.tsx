@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import InfoSkeleton from "@/components/ui/InfoSkeleton";
 import RecentOrders from "./components/RecentOrders";
 import GrowthChart from "./components/GrowthChart";
@@ -15,6 +16,39 @@ const SectionHeading = ({ color, children }: { color: string; children: React.Re
   </div>
 );
 
+type InsightTab = "parcel" | "financial";
+
+const InsightTabs = ({
+  active,
+  onChange,
+}: {
+  active: InsightTab;
+  onChange: (tab: InsightTab) => void;
+}) => (
+  <div className="inline-flex items-center gap-1 rounded-full bg-slate-100 p-1 self-start sm:self-auto">
+    {(
+      [
+        { key: "parcel", label: "Parcel Insights" },
+        { key: "financial", label: "Financial Insights" },
+      ] as const
+    ).map((tab) => (
+      <button
+        key={tab.key}
+        type="button"
+        onClick={() => onChange(tab.key)}
+        className={cn(
+          "px-4 py-1.5 text-sm font-medium rounded-full transition-all cursor-pointer",
+          active === tab.key
+            ? "bg-white text-slate-900 shadow-sm"
+            : "text-slate-500 hover:text-slate-700"
+        )}
+      >
+        {tab.label}
+      </button>
+    ))}
+  </div>
+);
+
 const Dashboard = () => {
   const {
     formattedDashboardItems,
@@ -22,6 +56,7 @@ const Dashboard = () => {
     error,
     dashboardData
   } = useDashboardData();
+  const [activeTab, setActiveTab] = useState<InsightTab>("parcel");
 
   if (loading) {
     return (
@@ -90,43 +125,48 @@ const Dashboard = () => {
               Here&apos;s an overview of your parcel
             </p>
           </div>
+          <InsightTabs active={activeTab} onChange={setActiveTab} />
         </div>
 
         {/* Section 1: KPI cards (2x2) + Recent Orders */}
-        <div>
-          <SectionHeading color="bg-gradient-to-b from-blue-400 to-violet-400">
-            Order Insights
-          </SectionHeading>
-          <div className="flex flex-col lg:flex-row w-full gap-3">
-            <div className="lg:w-1/2">
-              <div className="grid grid-cols-2 gap-3">
-                {formattedDashboardItems.slice(0, 4).map((item) => (
+        {activeTab === "parcel" && (
+          <div>
+            <SectionHeading color="bg-gradient-to-b from-blue-400 to-violet-400">
+              Parcel Insights
+            </SectionHeading>
+            <div className="flex flex-col lg:flex-row w-full gap-3">
+              <div className="lg:w-1/2">
+                <div className="grid grid-cols-2 gap-3">
+                  {formattedDashboardItems.slice(0, 4).map((item) => (
+                    <InfoSkeleton key={item.title} item={item} />
+                  ))}
+                </div>
+              </div>
+              <div className="lg:w-1/2">
+                <RecentOrders />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Section 2: COD cards + Earnings chart */}
+        {activeTab === "financial" && (
+          <div>
+            <SectionHeading color="bg-gradient-to-b from-pink-400 to-fuchsia-400">
+              Financial Insights
+            </SectionHeading>
+            <div className="flex flex-col lg:flex-row w-full gap-3">
+              <div className="lg:w-1/2 grid grid-cols-1 gap-3 content-start">
+                {formattedDashboardItems.slice(4, 6).map((item) => (
                   <InfoSkeleton key={item.title} item={item} />
                 ))}
               </div>
-            </div>
-            <div className="lg:w-1/2">
-              <RecentOrders />
-            </div>
-          </div>
-        </div>
-
-        {/* Section 2: COD cards + Earnings chart */}
-        <div>
-          <SectionHeading color="bg-gradient-to-b from-pink-400 to-fuchsia-400">
-            COD Insights
-          </SectionHeading>
-          <div className="flex flex-col lg:flex-row w-full gap-3">
-            <div className="lg:w-1/2 grid grid-cols-1 gap-3">
-              {formattedDashboardItems.slice(4, 6).map((item) => (
-                <InfoSkeleton key={item.title} item={item} />
-              ))}
-            </div>
-            <div className="lg:w-1/2">
-              <GrowthChart />
+              <div className="lg:w-1/2">
+                <GrowthChart />
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
     </ProtectedRoute>
   );

@@ -35,7 +35,7 @@ const GrowthChart = () => {
             <div className="h-8 w-16 bg-gray-200 rounded"></div>
           </div>
         </div>
-        <div className="h-64 bg-gray-100 rounded animate-pulse"></div>
+        <div className="h-[220px] bg-gray-100 rounded animate-pulse"></div>
       </div>
     );
   }
@@ -101,7 +101,7 @@ const GrowthChart = () => {
         </div>
       </div>
       <div style={{ outline: "none" }}>
-        <ResponsiveContainer width="100%" height={300}>
+        <ResponsiveContainer width="100%" height={220}>
           <BarChart data={formattedEarningData(chartType)}>
             <defs>
               <linearGradient id="earningsBarFill" x1="0" y1="0" x2="0" y2="1">

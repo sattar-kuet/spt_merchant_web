@@ -9,7 +9,13 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3
 interface Order {
   id: number;
   name: string;
+  customer_name: string | null;
+  customer_phone: string | null;
   customer_address: string;
+  cod_amount: number;
+  total_weight: number;
+  parcel_type: string | null;
+  date: string | null;
   status: string;
 }
 

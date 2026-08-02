@@ -103,7 +103,7 @@ export const useDashboardData = () => {
 
     return [
       {
-        title: "Total Orders",
+        title: "Total Parcels",
         amount: dashboardData.total_orders ?? 0,
         progress: "+0%",
         status: "growing",
@@ -127,7 +127,7 @@ export const useDashboardData = () => {
         status: "warning",
       },
       {
-        title: "Delivery COD",
+        title: "Delivery Financial",
         // Older backend deployments may not send this field yet
         amount: dashboardData.delivery_cod ?? 0,
         progress: "+0%",
@@ -135,7 +135,7 @@ export const useDashboardData = () => {
         isCurrency: true,
       },
       {
-        title: "COD in Progress",
+        title: "Financial in Progress",
         amount: dashboardData.cod_in_progress ?? 0,
         progress: "+0%",
         status: "equal",

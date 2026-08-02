@@ -28,7 +28,7 @@ const THEMES: Record<
   string,
   { card: string; iconBg: string; icon: string; glow: string }
 > = {
-  "total orders": {
+  "total parcels": {
     card: "bg-gradient-to-br from-blue-50 to-sky-50 border-blue-100",
     iconBg: "bg-blue-500",
     icon: "text-white",
@@ -52,13 +52,13 @@ const THEMES: Record<
     icon: "text-white",
     glow: "bg-rose-300/30",
   },
-  "delivery cod": {
+  "delivery financial": {
     card: "bg-gradient-to-br from-violet-50 to-indigo-50 border-violet-100",
     iconBg: "bg-violet-500",
     icon: "text-white",
     glow: "bg-violet-300/30",
   },
-  "cod in progress": {
+  "financial in progress": {
     card: "bg-gradient-to-br from-pink-50 to-fuchsia-50 border-pink-100",
     iconBg: "bg-pink-500",
     icon: "text-white",
@@ -77,7 +77,7 @@ const getTheme = (title: string) => THEMES[title.toLowerCase()] ?? DEFAULT_THEME
 
 const getIcon = (title: string) => {
   switch (title.toLowerCase()) {
-    case "total orders":
+    case "total parcels":
       return <Package size={18} />;
     case "delivered":
       return <CheckCircle2 size={18} />;
@@ -85,9 +85,9 @@ const getIcon = (title: string) => {
       return <Clock size={18} />;
     case "failed":
       return <AlertCircle size={18} />;
-    case "delivery cod":
+    case "delivery financial":
       return <Truck size={18} />;
-    case "cod in progress":
+    case "financial in progress":
       return <Wallet size={18} />;
     default:
       return <Package size={18} />;
@@ -151,7 +151,7 @@ const InfoSkeleton = ({ item }: { item: DashboardItem; bg?: string }) => {
         </div>
 
         <div className="mt-1">
-          <p className="text-[9px] font-bold text-slate-500 uppercase tracking-tight leading-none mb-0.5">
+          <p className="text-xs font-bold text-slate-500 uppercase tracking-tight leading-none mb-0.5">
             {item.title}
           </p>
           <div className="flex items-baseline gap-1">

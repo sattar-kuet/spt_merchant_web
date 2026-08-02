@@ -2,13 +2,20 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
+import { Package, Scale, Phone } from "lucide-react";
 import { Checkbox } from "@/components/ui/Checkbox";
 import { Card, CardContent } from "@/components/ui/card";
 
 interface Order {
   id: number;
   name: string;
+  customer_name: string | null;
+  customer_phone: string | null;
   customer_address: string;
+  cod_amount: number;
+  total_weight: number;
+  parcel_type: string | null;
+  date: string | null;
   status: string;
 }
 
@@ -17,7 +24,7 @@ const Badge: React.FC<{ children: React.ReactNode; color?: string }> = ({
   color = "bg-gray-100 text-gray-800",
 }) => (
   <span
-    className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${color}`}
+    className={`inline-block px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${color}`}
   >
     {children}
   </span>
@@ -114,8 +121,11 @@ const OrdersTable: React.FC<OrdersTableProps> = ({
               <th className="p-4 w-10">
                 <Checkbox />
               </th>
-              <th className="p-4">ORDER ID</th>
-              <th className="p-4">CUSTOMER ADDRESS</th>
+              <th className="p-4">PARCEL</th>
+              <th className="p-4">CUSTOMER</th>
+              <th className="p-4">ADDRESS</th>
+              <th className="p-4">COD</th>
+              <th className="p-4">WEIGHT</th>
               <th className="p-4">STATUS</th>
             </tr>
           </thead>
@@ -124,7 +134,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({
               orders.map((order) => (
                 <tr
                   key={order.id}
-                  className="border-t hover:bg-slate-50 cursor-pointer"
+                  className="border-t hover:bg-slate-50 cursor-pointer transition-colors"
                   role="button"
                   tabIndex={0}
                   onClick={() => goToOrder(order.id)}
@@ -135,9 +145,42 @@ const OrdersTable: React.FC<OrdersTableProps> = ({
                   <td className="p-4">
                     <Checkbox onClick={(e) => e.stopPropagation()} />
                   </td>
-                  <td className="p-4 font-medium">{order.name}</td>
-                  <td className="p-4 text-slate-500">
+                  <td className="p-4">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                        <Package size={16} />
+                      </div>
+                      <div>
+                        <div className="font-medium text-slate-800">{order.name}</div>
+                        <div className="text-xs text-slate-400">
+                          {order.date ?? "-"}
+                          {order.parcel_type ? ` · ${order.parcel_type}` : ""}
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="p-4">
+                    <div className="font-medium text-slate-700">
+                      {order.customer_name || "-"}
+                    </div>
+                    {order.customer_phone && (
+                      <div className="flex items-center gap-1 text-xs text-slate-400 mt-0.5">
+                        <Phone size={10} />
+                        {order.customer_phone}
+                      </div>
+                    )}
+                  </td>
+                  <td className="p-4 text-slate-500 max-w-[220px]">
                     {order.customer_address}
+                  </td>
+                  <td className="p-4 font-medium text-slate-800 tabular-nums">
+                    ৳{order.cod_amount.toLocaleString()}
+                  </td>
+                  <td className="p-4 text-slate-500 tabular-nums">
+                    <div className="flex items-center gap-1">
+                      <Scale size={12} className="text-slate-400" />
+                      {order.total_weight} kg
+                    </div>
                   </td>
                   <td className="p-4">
                     <Badge color={getStatusColor(order.status).color}>
@@ -148,7 +191,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({
               ))
             ) : (
               <tr>
-                <td colSpan={4} className="p-8 text-center text-slate-500">
+                <td colSpan={7} className="p-8 text-center text-slate-500">
                   No orders found
                 </td>
               </tr>
@@ -158,7 +201,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({
       </div>
 
       {/* Mobile Card View */}
-      <div className="md:hidden space-y-4">
+      <div className="md:hidden space-y-3">
         {orders.length > 0 ? (
           orders.map((order) => (
             <Card
@@ -167,16 +210,31 @@ const OrdersTable: React.FC<OrdersTableProps> = ({
               onClick={() => goToOrder(order.id)}
             >
               <CardContent className="p-4">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <div className="font-medium">{order.name}</div>
-                    <div className="text-xs text-slate-500 mt-1">
-                      {order.customer_address}
+                <div className="flex justify-between items-start gap-2">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <div className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                      <Package size={16} />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="font-medium truncate">{order.name}</div>
+                      <div className="text-xs text-slate-500 mt-0.5 truncate">
+                        {order.customer_name || order.customer_address}
+                      </div>
                     </div>
                   </div>
                   <Badge color={getStatusColor(order.status).color}>
                     {getStatusColor(order.status).label}
                   </Badge>
+                </div>
+                <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-100 text-xs text-slate-500">
+                  <span>{order.date ?? "-"}</span>
+                  <span className="flex items-center gap-1">
+                    <Scale size={12} />
+                    {order.total_weight} kg
+                  </span>
+                  <span className="font-semibold text-slate-800">
+                    ৳{order.cod_amount.toLocaleString()}
+                  </span>
                 </div>
               </CardContent>
             </Card>
