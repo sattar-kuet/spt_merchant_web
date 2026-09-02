@@ -51,7 +51,15 @@ const LeftBar = () => {
 
       <div className={sidebarClasses}>
         <div className="flex items-center gap-4 mb-8">
-          <img src={imgLink} alt="Logo" className="w-[102px] h-auto object-contain" />
+          {isOpen ? (
+            <img src={imgLink} alt="Logo" className="w-[102px] h-auto object-contain" />
+          ) : (
+            <img
+              src="/logo-icon.png"
+              alt="Logo"
+              className="hidden md:block w-8 h-8 object-contain"
+            />
+          )}
 
           {/* Collapse/Expand button for desktop, placed inside the header area with adjusted spacing and shadow */}
           <button
