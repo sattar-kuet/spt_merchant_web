@@ -13,5 +13,5 @@ jobs:
         with:
           host: 38.242.158.202
           username: root
-          key: ${{ secrets.MERCHANT_WEB_DEPLOY_KEY }}
+          key: ${{ secrets.SPT_MERCHANT_WEB_DEPLOY_KEY }}
           script: bash /opt/node_spt_merchant_web/deploy.sh
