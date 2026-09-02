@@ -12,7 +12,7 @@ import Swal from "sweetalert2";
 import * as XLSX from "xlsx";
 import useAxiosSecure from "@/hooks/useAxiosSecure";
 import useBulkCreateParcels from "@/hooks/useBulkCreateParcels";
-import { buildOrdersFromRows, RowError } from "@/lib/bulkParcels";
+import { buildOrdersFromRows, RowError, TEMPLATE_HEADERS } from "@/lib/bulkParcels";
 
 const getGoogleSheetsEditorUrl = (spreadsheetId: string) =>
   `https://docs.google.com/spreadsheets/d/${spreadsheetId}/edit?rm=minimal`;
@@ -81,6 +81,14 @@ export default function BulkParcelPage() {
 
   function onBrowse() {
     fileInputRef.current?.click();
+  }
+
+  function handleDownloadTemplate() {
+    const headerRow = Object.values(TEMPLATE_HEADERS);
+    const worksheet = XLSX.utils.aoa_to_sheet([headerRow]);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Parcels");
+    XLSX.writeFile(workbook, "bulk_parcel_template.xlsx");
   }
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -275,10 +283,14 @@ export default function BulkParcelPage() {
               </div>
 
               <div className="mt-4 text-center">
-                <Link href="#" className="text-sm text-primary">
+                <button
+                  type="button"
+                  onClick={handleDownloadTemplate}
+                  className="text-sm text-primary hover:underline"
+                >
                   Don&apos;t have a template? Download our template to get
                   started.
-                </Link>
+                </button>
               </div>
             </>
           ) : (
@@ -340,9 +352,13 @@ export default function BulkParcelPage() {
               )}
 
               <div className="mt-4 text-center">
-                <Link href="#" className="text-sm text-primary">
+                <button
+                  type="button"
+                  onClick={handleDownloadTemplate}
+                  className="text-sm text-primary hover:underline"
+                >
                   Need help with the format? View our template example.
-                </Link>
+                </button>
               </div>
             </div>
           )}
