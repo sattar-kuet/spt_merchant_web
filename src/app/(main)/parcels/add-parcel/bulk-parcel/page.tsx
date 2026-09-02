@@ -83,12 +83,40 @@ export default function BulkParcelPage() {
     fileInputRef.current?.click();
   }
 
-  function handleDownloadTemplate() {
+  function downloadGeneratedTemplate() {
     const headerRow = Object.values(TEMPLATE_HEADERS);
     const worksheet = XLSX.utils.aoa_to_sheet([headerRow]);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Parcels");
     XLSX.writeFile(workbook, "bulk_parcel_template.xlsx");
+  }
+
+  async function handleDownloadTemplate() {
+    // Prefer the sample file the admin uploaded in Odoo (Bulk Parcel > Sample),
+    // falling back to a client-generated template if none has been uploaded yet.
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/bulk-parcel-template`
+      );
+      if (!res.ok) throw new Error("No sample template uploaded");
+
+      const blob = await res.blob();
+      const disposition = res.headers.get("Content-Disposition") || "";
+      const filename =
+        disposition.match(/filename="?([^"]+)"?/)?.[1] ||
+        "bulk_parcel_template.xlsx";
+
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch {
+      downloadGeneratedTemplate();
+    }
   }
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
