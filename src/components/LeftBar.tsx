@@ -18,7 +18,7 @@ import logo from "../../public/logo.png";
 const menuItems = [
   { name: "Dashboard", path: "/", icon: <MdDashboard size={20} /> },
   { name: "All Parcels", path: "/parcels", icon: <BsBox2 size={20} /> },
-  { name: "Reports", path: "/reports", icon: <MdBarChart size={20} /> },
+  { name: "Invoices", path: "/reports", icon: <MdBarChart size={20} /> },
   // Settings handled separately as a collapsible menu
 ];
 
