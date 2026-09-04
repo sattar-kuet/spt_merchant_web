@@ -9,7 +9,7 @@ import Swal from 'sweetalert2';
 
 const RegisterPage = () => {
   const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
@@ -35,8 +35,7 @@ const RegisterPage = () => {
     setError('');
     
     try {
-      // Replace with your actual API endpoint
-      const result = await register(name, email, password);
+      const result = await register(name, identifier, password);
       
       if (result.success) {
         Swal.fire({
@@ -98,19 +97,19 @@ const RegisterPage = () => {
               />
             </div>
             <div>
-              <label htmlFor="email-address" className="sr-only">
-                Email address
+              <label htmlFor="identifier" className="sr-only">
+                Email or Phone Number
               </label>
               <input
-                id="email-address"
-                name="email"
-                type="email"
-                autoComplete="email"
+                id="identifier"
+                name="identifier"
+                type="text"
+                autoComplete="username"
                 required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={identifier}
+                onChange={(e) => setIdentifier(e.target.value)}
                 className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
-                placeholder="Email address"
+                placeholder="Email or Phone Number"
               />
             </div>
             <div>

@@ -18,8 +18,8 @@ interface User {
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<{ success: boolean; message?: string }>;
-  register: (name: string, email: string, password: string) => Promise<{ success: boolean; message?: string }>;
+  login: (identifier: string, password: string) => Promise<{ success: boolean; message?: string }>;
+  register: (name: string, identifier: string, password: string) => Promise<{ success: boolean; message?: string }>;
   logout: () => void;
   forgotPassword: (email: string) => Promise<{ success: boolean; message?: string }>;
   verifyResetCode: (email: string, code: string) => Promise<{ success: boolean; message?: string; reset_token?: string }>;
@@ -80,13 +80,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return () => clearInterval(id);
   }, []);
 
-  const register = async (name: string, email: string, password: string) => {
+  const register = async (name: string, identifier: string, password: string) => {
     try {
       setLoading(true);
-      // Using your provided endpoint structure
+      // `identifier` can be either an email address or a phone number - the
+      // backend classifies it by shape (contains '@' => email).
       const response = await axios.post(`${API_BASE_URL}/register`, {
         name,
-        email,
+        identifier,
         password
       });
 
@@ -143,12 +144,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
-  const login = async (email: string, password: string) => {
+  const login = async (identifier: string, password: string) => {
     try {
       setLoading(true);
-      // Updated to use your provided endpoint
+      // `identifier` can be either an email address or a phone number.
       const response = await axios.post(`${API_BASE_URL}/login`, {
-        email,
+        identifier,
         password
       });
 
