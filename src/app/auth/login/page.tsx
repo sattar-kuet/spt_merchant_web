@@ -103,17 +103,6 @@ const LoginPage = () => {
             </div>
           </div>
 
-          <div className="flex items-center justify-between">
-            <div className="text-sm">
-              <Link
-                href="/auth/forgot-password"
-                className="font-medium text-primary hover:text-primary/80"
-              >
-                Forgot your password?
-              </Link>
-            </div>
-          </div>
-
           <div>
             <Button
               type="submit"
