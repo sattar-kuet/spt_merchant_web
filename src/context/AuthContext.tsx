@@ -13,6 +13,7 @@ interface User {
   name: string;
   email: string;
   groups: string[];
+  force_password_change?: boolean;
 }
 
 interface AuthContextType {
@@ -24,6 +25,7 @@ interface AuthContextType {
   forgotPassword: (email: string) => Promise<{ success: boolean; message?: string }>;
   verifyResetCode: (email: string, code: string) => Promise<{ success: boolean; message?: string; reset_token?: string }>;
   resetPassword: (resetToken: string, newPassword: string) => Promise<{ success: boolean; message?: string }>;
+  changePassword: (currentPassword: string, newPassword: string) => Promise<{ success: boolean; message?: string }>;
   loading: boolean;
 }
 
@@ -315,6 +317,46 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  const changePassword = async (currentPassword: string, newPassword: string) => {
+    try {
+      setLoading(true);
+      const token = getAuthToken();
+      const response = await axios.post(
+        `${API_BASE_URL}/change-password`,
+        { current_password: currentPassword, new_password: newPassword },
+        { headers: token ? { Authorization: `Bearer ${token}` } : {} }
+      );
+
+      if (response.data.success) {
+        // Clear the forced-change flag locally so the blocking modal
+        // disappears immediately, without waiting for a re-login.
+        setUser((prev) => {
+          if (!prev) return prev;
+          const updated = { ...prev, force_password_change: false };
+          try {
+            localStorage.setItem('user', JSON.stringify(updated));
+          } catch (e) {
+            console.error('Failed to write user to localStorage', e);
+          }
+          return updated;
+        });
+        return { success: true, message: response.data.message || 'Password updated.' };
+      }
+      return { success: false, message: response.data.message || 'Failed to update password' };
+    } catch (error: any) {
+      console.error('Change password error:', error);
+      if (error.code === 'ERR_NETWORK') {
+        return { success: false, message: 'Unable to connect to the server. Please check your internet connection.' };
+      }
+      return {
+        success: false,
+        message: error.response?.data?.message || error.message || 'Failed to update password'
+      };
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const value = {
     user,
     isAuthenticated: !!user || isAuthenticated(),
@@ -324,6 +366,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     forgotPassword,
     verifyResetCode,
     resetPassword,
+    changePassword,
     loading
   };
 

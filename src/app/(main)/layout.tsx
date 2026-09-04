@@ -5,6 +5,7 @@ import LeftBar from "@/components/LeftBar";
 import RightSideHeader from "@/components/RightSideHeader";
 import { SidebarProvider } from "@/context/SidebarContext";
 import ReactQueryProvider from "@/context/ReactQueryProvider";
+import { ForcePasswordChangeModal } from "@/components/ForcePasswordChangeModal";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -43,6 +44,7 @@ export default function MainLayout({
               </main>
             </div>
           </div>
+          <ForcePasswordChangeModal />
         </SidebarProvider>
       </ReactQueryProvider>
     </div>
