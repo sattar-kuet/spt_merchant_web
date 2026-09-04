@@ -14,6 +14,7 @@ interface User {
   email: string;
   groups: string[];
   force_password_change?: boolean;
+  setup_complete?: boolean;
 }
 
 interface AuthContextType {
@@ -26,6 +27,7 @@ interface AuthContextType {
   verifyResetCode: (email: string, code: string) => Promise<{ success: boolean; message?: string; reset_token?: string }>;
   resetPassword: (resetToken: string, newPassword: string) => Promise<{ success: boolean; message?: string }>;
   changePassword: (currentPassword: string, newPassword: string) => Promise<{ success: boolean; message?: string }>;
+  markSetupComplete: () => void;
   loading: boolean;
 }
 
@@ -357,6 +359,22 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  // Called by MerchantSetupWizard once it has confirmed (via its own
+  // pickup-point/payment-channel API calls) that setup is done, so the
+  // wizard can disappear immediately instead of waiting for a re-login.
+  const markSetupComplete = () => {
+    setUser((prev) => {
+      if (!prev) return prev;
+      const updated = { ...prev, setup_complete: true };
+      try {
+        localStorage.setItem('user', JSON.stringify(updated));
+      } catch (e) {
+        console.error('Failed to write user to localStorage', e);
+      }
+      return updated;
+    });
+  };
+
   const value = {
     user,
     isAuthenticated: !!user || isAuthenticated(),
@@ -367,6 +385,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     verifyResetCode,
     resetPassword,
     changePassword,
+    markSetupComplete,
     loading
   };
 
