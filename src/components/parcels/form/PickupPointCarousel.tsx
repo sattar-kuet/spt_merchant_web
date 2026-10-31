@@ -16,7 +16,7 @@ const PickupPointCarousel: React.FC<{
     };
 
     return (
-        <div className="w-full sm:max-w-xl">
+        <div className="w-full sm:max-w-md">
             <p className="text-sm font-medium text-slate-700">Pickup Point</p>
 
             {pickupPoints && pickupPoints.length > 0 ? (

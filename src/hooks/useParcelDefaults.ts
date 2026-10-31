@@ -7,9 +7,10 @@ export interface ParcelDefaults {
   parcel_type_id: string;
   delivery_speed_id: string;
   weight: string;
+  pickup_point_id: string;
 }
 
-const EMPTY: ParcelDefaults = { parcel_type_id: "", delivery_speed_id: "", weight: "" };
+const EMPTY: ParcelDefaults = { parcel_type_id: "", delivery_speed_id: "", weight: "", pickup_point_id: "" };
 
 // Per-merchant defaults, stored on the server against the logged-in account.
 export default function useParcelDefaults() {

@@ -67,6 +67,7 @@ const ParcelForm: React.FC<ParcelFormProps> = ({
         if (savedDefaults.parcel_type_id) setParcelType(savedDefaults.parcel_type_id);
         if (savedDefaults.delivery_speed_id) setDeliverySpeed(savedDefaults.delivery_speed_id);
         if (savedDefaults.weight) setWeight(savedDefaults.weight);
+        if (savedDefaults.pickup_point_id) setSelectedPickupPoint(savedDefaults.pickup_point_id);
     }, [initialData, savedDefaults]);
 
     // Default to the first available delivery speed once loaded, if none is set yet

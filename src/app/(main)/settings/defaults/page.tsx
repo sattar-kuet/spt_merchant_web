@@ -15,22 +15,24 @@ import useParcelDefaults from "@/hooks/useParcelDefaults";
 import Swal from "sweetalert2";
 
 const DefaultConfigurationPage = () => {
-  const { parcelTypes, deliverySpeeds } = useParcelOptions("");
+  const { parcelTypes, deliverySpeeds, pickupPoints } = useParcelOptions("");
   const { defaults, save } = useParcelDefaults();
   const [parcelType, setParcelType] = useState("");
   const [deliverySpeed, setDeliverySpeed] = useState("");
   const [weight, setWeight] = useState("");
+  const [pickupPoint, setPickupPoint] = useState("");
 
   useEffect(() => {
     if (!defaults) return;
     setParcelType(defaults.parcel_type_id);
     setDeliverySpeed(defaults.delivery_speed_id);
     setWeight(defaults.weight);
+    setPickupPoint(defaults.pickup_point_id);
   }, [defaults]);
 
   const handleSave = () => {
     save.mutate(
-      { parcel_type_id: parcelType, delivery_speed_id: deliverySpeed, weight },
+      { parcel_type_id: parcelType, delivery_speed_id: deliverySpeed, weight, pickup_point_id: pickupPoint },
       {
         onSuccess: () =>
           Swal.fire({
@@ -56,6 +58,21 @@ const DefaultConfigurationPage = () => {
       </p>
 
       <div className="mt-4 sm:mt-6 rounded-lg border border-slate-200 bg-white p-4 sm:p-6 max-w-xl space-y-4">
+        <div>
+          <label className="text-sm">Default Pickup Point</label>
+          <Select value={pickupPoint} onValueChange={setPickupPoint}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select a pickup point" />
+            </SelectTrigger>
+            <SelectContent>
+              {(pickupPoints || []).map((p: { id: number; name: string }) => (
+                <SelectItem key={p.id} value={String(p.id)}>
+                  {p.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
         <div>
           <label className="text-sm">Default Parcel Type</label>
           <Select value={parcelType} onValueChange={setParcelType}>

@@ -9,7 +9,8 @@ interface ParcelFormHeaderProps {
 
 const ParcelFormHeader: React.FC<ParcelFormHeaderProps> = ({ title, children }) => {
     return (
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6">
+            <div className="lg:col-span-3 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
                 <h2 className="text-xl sm:text-2xl font-semibold text-slate-900">
                     {title}
@@ -19,6 +20,7 @@ const ParcelFormHeader: React.FC<ParcelFormHeaderProps> = ({ title, children }) 
                 </p>
             </div>
             {children}
+            </div>
         </div>
     );
 };
