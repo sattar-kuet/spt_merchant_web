@@ -114,6 +114,12 @@ const DefaultConfigurationPage = () => {
             placeholder="2.5"
           />
         </div>
+        <div>
+          <label htmlFor="default-payment-channel" className="text-sm">
+            Default Payment Channel
+          </label>
+          <Input id="default-payment-channel" value="Cash" disabled readOnly />
+        </div>
         <div className="flex justify-end">
           <Button variant="secondary" disabled={save.isPending} onClick={handleSave}>
             {save.isPending ? "Saving..." : "Save"}
