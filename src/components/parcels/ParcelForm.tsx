@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import ParcelFormHeader from "./form/ParcelFormHeader";
 import CustomerInformation from "./form/CustomerInformation";
+import PickupPointCarousel from "./form/PickupPointCarousel";
 import ParcelDetails from "./form/ParcelDetails";
 import FinancialInfo from "./form/FinancialInfo";
 import FeeCalculator from "@/components/FeeCalculator";
@@ -103,6 +104,12 @@ const ParcelForm: React.FC<ParcelFormProps> = ({
 
             <div className="mt-4 sm:mt-6 grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6">
                 <div className="lg:col-span-3 space-y-4">
+                    <PickupPointCarousel
+                        pickupPoints={pickupPoints}
+                        selected={selectedPickupPoint}
+                        onSelect={setSelectedPickupPoint}
+                    />
+
                     <CustomerInformation
                         fullName={fullName}
                         setFullName={setFullName}
@@ -112,9 +119,6 @@ const ParcelForm: React.FC<ParcelFormProps> = ({
                         setAddress={setAddress}
                         districts={districts}
                         cities={cities}
-                        pickupPoints={pickupPoints}
-                        selectedPickupPoint={selectedPickupPoint}
-                        setSelectedPickupPoint={setSelectedPickupPoint}
                         selectedDistrict={selectedDistrict}
                         setSelectedDistrict={setSelectedDistrict}
                         selectedCity={selectedCity}
