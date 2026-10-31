@@ -4,9 +4,10 @@ import React from "react";
 
 interface ParcelFormHeaderProps {
     title: string;
+    children?: React.ReactNode;
 }
 
-const ParcelFormHeader: React.FC<ParcelFormHeaderProps> = ({ title }) => {
+const ParcelFormHeader: React.FC<ParcelFormHeaderProps> = ({ title, children }) => {
     return (
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
@@ -17,6 +18,7 @@ const ParcelFormHeader: React.FC<ParcelFormHeaderProps> = ({ title }) => {
                     Please fill in the details below
                 </p>
             </div>
+            {children}
         </div>
     );
 };

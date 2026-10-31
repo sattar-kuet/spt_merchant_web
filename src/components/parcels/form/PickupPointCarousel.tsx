@@ -16,11 +16,11 @@ const PickupPointCarousel: React.FC<{
     };
 
     return (
-        <div className="bg-white rounded-lg border border-slate-200 p-6">
-            <h3 className="text-lg font-medium">Pickup Point</h3>
+        <div className="w-full sm:max-w-xl">
+            <p className="text-sm font-medium text-slate-700">Pickup Point</p>
 
             {pickupPoints && pickupPoints.length > 0 ? (
-                <div className="mt-4 flex items-center gap-2">
+                <div className="mt-1.5 flex items-center gap-2">
                     <button
                         type="button"
                         aria-label="Previous pickup points"
@@ -41,7 +41,7 @@ const PickupPointCarousel: React.FC<{
                                     key={p.id}
                                     type="button"
                                     onClick={() => onSelect(String(p.id))}
-                                    className={`snap-start shrink-0 basis-[calc((100%-1.5rem)/3)] rounded-md border px-3 py-3 text-sm text-center truncate cursor-pointer transition-colors ${active
+                                    className={`snap-start shrink-0 basis-[calc((100%-1.5rem)/3)] rounded-md border px-3 py-2 text-sm text-center truncate cursor-pointer transition-colors ${active
                                         ? "border-primary bg-primary/10 text-primary font-medium"
                                         : "border-slate-200 hover:bg-slate-50"
                                         }`}
@@ -63,7 +63,7 @@ const PickupPointCarousel: React.FC<{
                     </button>
                 </div>
             ) : (
-                <p className="mt-3 text-sm text-slate-500">No pickup points</p>
+                <p className="mt-1.5 text-sm text-slate-500">No pickup points</p>
             )}
         </div>
     );

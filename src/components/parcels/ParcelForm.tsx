@@ -100,16 +100,16 @@ const ParcelForm: React.FC<ParcelFormProps> = ({
 
     return (
         <div className="p-4 sm:p-6 w-full">
-            <ParcelFormHeader title={title} />
+            <ParcelFormHeader title={title}>
+                <PickupPointCarousel
+                    pickupPoints={pickupPoints}
+                    selected={selectedPickupPoint}
+                    onSelect={setSelectedPickupPoint}
+                />
+            </ParcelFormHeader>
 
             <div className="mt-4 sm:mt-6 grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6">
                 <div className="lg:col-span-3 space-y-4">
-                    <PickupPointCarousel
-                        pickupPoints={pickupPoints}
-                        selected={selectedPickupPoint}
-                        onSelect={setSelectedPickupPoint}
-                    />
-
                     <CustomerInformation
                         fullName={fullName}
                         setFullName={setFullName}
