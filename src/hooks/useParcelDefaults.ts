@@ -27,7 +27,7 @@ export default function useParcelDefaults() {
 
   const save = useMutation({
     mutationFn: async (d: ParcelDefaults) => {
-      const resp = await axiosSecure.put("/parcel-defaults", d);
+      const resp = await axiosSecure.post("/parcel-defaults", d);
       if (resp.data?.success === false) throw new Error(resp.data.message);
       return resp.data;
     },
