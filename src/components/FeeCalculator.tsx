@@ -67,17 +67,13 @@ export default function FeeCalculator({
         <p className="text-sm text-red-500 mb-2">Failed to calculate fees</p>
       )}
 
-      <div className="flex justify-between mb-1">
-        <span>Delivery Charge</span>
-        <span className="font-semibold">{isLoading ? "..." : `৳${displayed.delivery_charge}`}</span>
-      </div>
       <div className="flex justify-between mb-2">
         <span>COD Charge</span>
         <span className="font-semibold">{isLoading ? "..." : `৳${displayed.cod_charge}`}</span>
       </div>
       <div className="flex justify-between mb-1 border-t border-t-gray-200 pt-2">
         <span className="text-xl font-semibold">Total Charge</span>
-        <span className="font-semibold text-xl">{isLoading ? "..." : `৳${displayed.total_charge}`}</span>
+        <span className="font-semibold text-xl">{isLoading ? "..." : `৳${displayed.cod_charge}`}</span>
       </div>
 
       {!enabled && (
