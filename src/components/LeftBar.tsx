@@ -5,7 +5,7 @@ import { BsBox2 } from "react-icons/bs";
 import { CiSettings } from "react-icons/ci";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa6";
 import { useState } from "react";
-import { FiUser, FiCreditCard, FiHelpCircle } from "react-icons/fi";
+import { FiUser, FiCreditCard, FiHelpCircle, FiSliders } from "react-icons/fi";
 import { MdLocationOn } from "react-icons/md";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
@@ -149,6 +149,16 @@ const LeftBar = () => {
                   <MdLocationOn size={16} />
                 </span>
                 <span className={`${isOpen ? "block ml-3" : "hidden md:hidden ml-3"}`}>Pick Up Point</span>
+              </Link>
+              <Link
+                href="/settings/defaults"
+                className={`flex items-center p-2 rounded-md mb-1 text-sm ${pathname === "/settings/defaults" ? "text-primary font-medium" : "hover:bg-gray-100"
+                  }`}
+              >
+                <span className="flex items-center justify-center w-6">
+                  <FiSliders size={16} />
+                </span>
+                <span className={`${isOpen ? "block ml-3" : "hidden md:hidden ml-3"}`}>Default Configuration</span>
               </Link>
               <Link
                 href="/settings/help"

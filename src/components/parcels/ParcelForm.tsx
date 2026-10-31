@@ -8,6 +8,7 @@ import FinancialInfo from "./form/FinancialInfo";
 import FeeCalculator from "@/components/FeeCalculator";
 import useParcelOptions from "@/hooks/useParcelOptions";
 import { Button } from "@/components/ui/Button";
+import { loadParcelDefaults } from "@/hooks/useParcelDefaults";
 
 interface ParcelFormProps {
     initialData?: any;
@@ -55,6 +56,15 @@ const ParcelForm: React.FC<ParcelFormProps> = ({
             setSelectedPickupPoint(initialData.pickup_point_id?.toString() || "");
             setDeliverySpeed(initialData.delivery_speed_id?.toString() || "");
         }
+    }, [initialData]);
+
+    // New parcel: pre-fill from the merchant's saved Default Configuration
+    useEffect(() => {
+        if (initialData) return;
+        const d = loadParcelDefaults();
+        if (d.parcelType) setParcelType(d.parcelType);
+        if (d.deliverySpeed) setDeliverySpeed(d.deliverySpeed);
+        if (d.weight) setWeight(d.weight);
     }, [initialData]);
 
     // Default to the first available delivery speed once loaded, if none is set yet

@@ -1,16 +1,14 @@
 "use client";
 
 import { FaBars } from "react-icons/fa6";
-import { FaRegBell, FaEye, FaEyeSlash } from "react-icons/fa";
+import { FaRegBell } from "react-icons/fa";
 import { Button } from "@/components/ui/Button";
-import Balance from "@/components/ui/Balance";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/Avatar";
 import { useSidebar } from "@/context/SidebarContext";
 import { useAuth } from "@/context/AuthContext";
 import React, { useState } from "react";
 import { FaTimes, FaUser } from "react-icons/fa";
 import Link from "next/link";
-import { useDashboardData } from "@/hooks/useDashboardData";
 
 // Static image link removed in favor of dynamic avatar icons
 
@@ -18,10 +16,8 @@ import { useDashboardData } from "@/hooks/useDashboardData";
 const RightSideHeader = () => {
   const { isOpen, toggle } = useSidebar();
   const { user, logout } = useAuth();
-  const { dashboardData, loading } = useDashboardData();
   const [rightOpen, setRightOpen] = useState(false);
   const [isToggling, setIsToggling] = useState(false);
-  const [isBalanceVisible, setIsBalanceVisible] = useState(false);
 
   const openRight = () => setRightOpen(true);
   const closeRight = () => setRightOpen(false);
@@ -33,39 +29,10 @@ const RightSideHeader = () => {
     setTimeout(() => setIsToggling(false), 300);
   };
 
-  const toggleBalanceVisibility = () => {
-    setIsBalanceVisible(!isBalanceVisible);
-  };
-
   const handleLogout = () => {
     logout();
     closeRight();
   };
-
-  // Helper component for displaying balance with toggle
-  const BalanceDisplay = ({ balance }: { balance: string }) => (
-    <div className="bg-white flex gap-2 px-2 sm:px-3 md:px-4 py-1 sm:py-1.5 md:py-2 rounded-md items-center">
-      <p className="text-xs md:text-sm px-2 rounded-md transition-colors duration-200">
-        Available Balance
-      </p>
-      {isBalanceVisible ? (
-        <p className="text-xs md:text-sm px-2 rounded-md transition-colors duration-200">
-          ৳{balance}
-        </p>
-      ) : (
-        <p className="text-xs md:text-sm px-2 rounded-md transition-colors duration-200">
-          ********
-        </p>
-      )}
-      <button
-        onClick={toggleBalanceVisibility}
-        className="ml-2 text-gray-500 cursor-pointer hover:text-gray-700 focus:outline-none"
-        aria-label={isBalanceVisible ? "Hide balance" : "Show balance"}
-      >
-        {isBalanceVisible ? <FaEyeSlash size={14} /> : <FaEye size={14} />}
-      </button>
-    </div>
-  );
 
   return (
     <>
@@ -104,22 +71,6 @@ const RightSideHeader = () => {
                 </Link>
               </div>
 
-              <div className="hidden sm:block">
-                {loading ? (
-                  <div className="bg-white flex gap-2 px-2 sm:px-3 md:px-4 py-1 sm:py-1.5 md:py-2 rounded-md items-center">
-                    <p className="text-xs md:text-sm px-2 rounded-md transition-colors duration-200">
-                      Available Balance
-                    </p>
-                    <p className="text-xs md:text-sm px-2 rounded-md transition-colors duration-200">
-                      Loading...
-                    </p>
-                  </div>
-                ) : dashboardData ? (
-                  <BalanceDisplay balance={dashboardData.balance.toFixed(2)} />
-                ) : (
-                  <BalanceDisplay balance="0.00" />
-                )}
-              </div>
               <FaRegBell size={20} />
 
               <div className="ml-2 cursor-pointer" onClick={openRight}>
@@ -186,20 +137,6 @@ const RightSideHeader = () => {
             </div>
 
             <div className="space-y-3">
-              {loading ? (
-                <div className="bg-white flex gap-2 px-2 sm:px-3 md:px-4 py-1 sm:py-1.5 md:py-2 rounded-md">
-                  <p className="text-xs md:text-sm px-2 rounded-md transition-colors duration-200">
-                    Available Balance
-                  </p>
-                  <p className="text-xs md:text-sm px-2 rounded-md transition-colors duration-200">
-                    Loading...
-                  </p>
-                </div>
-              ) : dashboardData ? (
-                <BalanceDisplay balance={dashboardData.balance.toFixed(2)} />
-              ) : (
-                <BalanceDisplay balance="0.00" />
-              )}
               <div className="flex flex-col gap-2">
                 <Link href="/parcels/add-parcel/bulk-parcel">
                   <Button
