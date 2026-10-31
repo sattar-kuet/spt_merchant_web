@@ -8,7 +8,7 @@ import FinancialInfo from "./form/FinancialInfo";
 import FeeCalculator from "@/components/FeeCalculator";
 import useParcelOptions from "@/hooks/useParcelOptions";
 import { Button } from "@/components/ui/Button";
-import { loadParcelDefaults } from "@/hooks/useParcelDefaults";
+import useParcelDefaults from "@/hooks/useParcelDefaults";
 
 interface ParcelFormProps {
     initialData?: any;
@@ -40,6 +40,7 @@ const ParcelForm: React.FC<ParcelFormProps> = ({
     const [deliverySpeed, setDeliverySpeed] = useState(initialData?.delivery_speed_id?.toString() || "");
     const [calculatedFees, setCalculatedFees] = useState<any | null>(null);
 
+    const { defaults: savedDefaults } = useParcelDefaults();
     const { parcelTypes, districts, cities, pickupPoints, deliverySpeeds } = useParcelOptions(selectedDistrict);
 
     // Sync state if initialData changes (important for edit mode after fetch)
@@ -61,11 +62,11 @@ const ParcelForm: React.FC<ParcelFormProps> = ({
     // New parcel: pre-fill from the merchant's saved Default Configuration
     useEffect(() => {
         if (initialData) return;
-        const d = loadParcelDefaults();
-        if (d.parcelType) setParcelType(d.parcelType);
-        if (d.deliverySpeed) setDeliverySpeed(d.deliverySpeed);
-        if (d.weight) setWeight(d.weight);
-    }, [initialData]);
+        if (!savedDefaults) return;
+        if (savedDefaults.parcel_type_id) setParcelType(savedDefaults.parcel_type_id);
+        if (savedDefaults.delivery_speed_id) setDeliverySpeed(savedDefaults.delivery_speed_id);
+        if (savedDefaults.weight) setWeight(savedDefaults.weight);
+    }, [initialData, savedDefaults]);
 
     // Default to the first available delivery speed once loaded, if none is set yet
     useEffect(() => {

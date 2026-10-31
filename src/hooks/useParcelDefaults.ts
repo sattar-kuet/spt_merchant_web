@@ -1,22 +1,37 @@
+"use client";
+
+import useAxiosSecure from "@/hooks/useAxiosSecure";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+
 export interface ParcelDefaults {
-  parcelType: string;
-  deliverySpeed: string;
+  parcel_type_id: string;
+  delivery_speed_id: string;
   weight: string;
 }
 
-const KEY = "spt_parcel_defaults";
+const EMPTY: ParcelDefaults = { parcel_type_id: "", delivery_speed_id: "", weight: "" };
 
-export const loadParcelDefaults = (): ParcelDefaults => {
-  const empty = { parcelType: "", deliverySpeed: "", weight: "" };
-  try {
-    return { ...empty, ...JSON.parse(localStorage.getItem(KEY) || "{}") };
-  } catch {
-    return empty;
-  }
-};
+// Per-merchant defaults, stored on the server against the logged-in account.
+export default function useParcelDefaults() {
+  const axiosSecure = useAxiosSecure();
+  const queryClient = useQueryClient();
 
-export const saveParcelDefaults = (d: ParcelDefaults) => {
-  try {
-    localStorage.setItem(KEY, JSON.stringify(d));
-  } catch {}
-};
+  const query = useQuery({
+    queryKey: ["parcel-defaults"],
+    queryFn: async (): Promise<ParcelDefaults> => {
+      const resp = await axiosSecure.get("/parcel-defaults");
+      return { ...EMPTY, ...(resp.data?.data || {}) };
+    },
+  });
+
+  const save = useMutation({
+    mutationFn: async (d: ParcelDefaults) => {
+      const resp = await axiosSecure.put("/parcel-defaults", d);
+      if (resp.data?.success === false) throw new Error(resp.data.message);
+      return resp.data;
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["parcel-defaults"] }),
+  });
+
+  return { defaults: query.data, isLoading: query.isLoading, save };
+}

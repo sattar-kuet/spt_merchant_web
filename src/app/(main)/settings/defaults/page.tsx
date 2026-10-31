@@ -11,33 +11,41 @@ import {
   SelectValue,
 } from "@/components/ui/Select";
 import useParcelOptions from "@/hooks/useParcelOptions";
-import { loadParcelDefaults, saveParcelDefaults } from "@/hooks/useParcelDefaults";
+import useParcelDefaults from "@/hooks/useParcelDefaults";
 import Swal from "sweetalert2";
 
 const DefaultConfigurationPage = () => {
   const { parcelTypes, deliverySpeeds } = useParcelOptions("");
+  const { defaults, save } = useParcelDefaults();
   const [parcelType, setParcelType] = useState("");
   const [deliverySpeed, setDeliverySpeed] = useState("");
   const [weight, setWeight] = useState("");
 
   useEffect(() => {
-    const d = loadParcelDefaults();
-    setParcelType(d.parcelType);
-    setDeliverySpeed(d.deliverySpeed);
-    setWeight(d.weight);
-  }, []);
+    if (!defaults) return;
+    setParcelType(defaults.parcel_type_id);
+    setDeliverySpeed(defaults.delivery_speed_id);
+    setWeight(defaults.weight);
+  }, [defaults]);
 
   const handleSave = () => {
-    saveParcelDefaults({ parcelType, deliverySpeed, weight });
-    Swal.fire({
-      icon: "success",
-      title: "Saved",
-      text: "Default configuration saved",
-      toast: true,
-      position: "top-end",
-      timer: 1500,
-      showConfirmButton: false,
-    });
+    save.mutate(
+      { parcel_type_id: parcelType, delivery_speed_id: deliverySpeed, weight },
+      {
+        onSuccess: () =>
+          Swal.fire({
+            icon: "success",
+            title: "Saved",
+            text: "Default configuration saved",
+            toast: true,
+            position: "top-end",
+            timer: 1500,
+            showConfirmButton: false,
+          }),
+        onError: (err) =>
+          Swal.fire({ icon: "error", title: "Failed", text: err?.message || "Failed to save" }),
+      }
+    );
   };
 
   return (
@@ -90,8 +98,8 @@ const DefaultConfigurationPage = () => {
           />
         </div>
         <div className="flex justify-end">
-          <Button variant="secondary" onClick={handleSave}>
-            Save
+          <Button variant="secondary" disabled={save.isPending} onClick={handleSave}>
+            {save.isPending ? "Saving..." : "Save"}
           </Button>
         </div>
       </div>
