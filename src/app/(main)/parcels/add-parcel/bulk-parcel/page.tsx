@@ -119,41 +119,61 @@ export default function BulkParcelPage() {
     }
   }
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
+  const parseFile = (file: File) => {
+    const reader = new FileReader();
 
-      reader.onload = (e) => {
-        try {
-          const data = e.target?.result;
-          if (data) {
-            const workbook = XLSX.read(data, { type: "array" });
-            const sheetName = workbook.SheetNames[0];
-            const worksheet = workbook.Sheets[sheetName];
-            const jsonData = XLSX.utils.sheet_to_json<Record<string, any>>(worksheet);
+    reader.onload = (e) => {
+      try {
+        const data = e.target?.result;
+        if (data) {
+          const workbook = XLSX.read(data, { type: "array" });
+          const sheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[sheetName];
+          const jsonData = XLSX.utils.sheet_to_json<Record<string, any>>(worksheet);
 
-            setUploadedRows(jsonData);
-            setUploadedFileName(file.name);
+          setUploadedRows(jsonData);
+          setUploadedFileName(file.name);
 
-            Swal.fire({
-              icon: "success",
-              title: "File Parsed",
-              text: `Found ${jsonData.length} parcel(s) in ${file.name}. Click "Add Parcels" to submit them.`,
-            });
-          }
-        } catch (error) {
-          console.error("Error parsing Excel file:", error);
           Swal.fire({
-            icon: "error",
-            title: "Error",
-            text: "Failed to parse the Excel file.",
+            icon: "success",
+            title: "File Parsed",
+            text: `Found ${jsonData.length} parcel(s) in ${file.name}. Click "Add Parcels" to submit them.`,
           });
         }
-      };
+      } catch (error) {
+        console.error("Error parsing Excel file:", error);
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Failed to parse the Excel file.",
+        });
+      }
+    };
 
-      reader.readAsArrayBuffer(file);
+    reader.readAsArrayBuffer(file);
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) parseFile(file);
+  };
+
+  const [isDragging, setIsDragging] = useState(false);
+
+  const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    setIsDragging(false);
+    const file = event.dataTransfer.files?.[0];
+    if (!file) return;
+    if (!/\.(xlsx|xls|csv)$/i.test(file.name)) {
+      Swal.fire({
+        icon: "error",
+        title: "Unsupported file",
+        text: "Please drop an .xlsx, .xls or .csv file.",
+      });
+      return;
     }
+    parseFile(file);
   };
 
   const showRowErrors = (errors: RowError[]) => {
@@ -273,7 +293,17 @@ export default function BulkParcelPage() {
           {viewMode === "upload" ? (
             // File upload interface
             <>
-              <div className="border-2 border-dashed border-slate-300 rounded-md py-12 sm:py-20 flex flex-col items-center justify-center">
+              <div
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  setIsDragging(true);
+                }}
+                onDragLeave={() => setIsDragging(false)}
+                onDrop={handleDrop}
+                className={`border-2 border-dashed rounded-md py-12 sm:py-20 flex flex-col items-center justify-center ${
+                  isDragging ? "border-primary bg-slate-50" : "border-slate-300"
+                }`}
+              >
                 <div className="text-3xl sm:text-4xl mb-3 sm:mb-4 text-slate-300">
                   📁
                 </div>
