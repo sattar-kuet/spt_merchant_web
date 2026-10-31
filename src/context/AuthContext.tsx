@@ -96,6 +96,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       });
 
       if (response.data.success) {
+        // This portal is merchants-only; other roles (admin, rider) use their own apps.
+        const roles = response.data.groups;
+        if (!Array.isArray(roles) || !roles.includes('merchant')) {
+          return { success: false, message: 'This account is not a merchant account.' };
+        }
         // Extract api_key and keep remaining user fields via spread
         const { api_key, expires_in, expires_at, ...rest } = response.data;
         if (api_key) {
