@@ -105,9 +105,6 @@ export default function OrderDetail() {
           >
             Edit Order
           </Button>
-          <Button variant="default" size="default">
-            Print Label
-          </Button>
         </div>
       </div>
 
