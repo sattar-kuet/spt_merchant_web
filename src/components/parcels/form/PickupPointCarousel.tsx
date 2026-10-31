@@ -16,7 +16,7 @@ const PickupPointCarousel: React.FC<{
     };
 
     return (
-        <div className="w-full sm:max-w-md">
+        <div className="w-full sm:w-72">
             <p className="text-sm font-medium text-slate-700">Pickup Point</p>
 
             {pickupPoints && pickupPoints.length > 0 ? (
@@ -32,7 +32,7 @@ const PickupPointCarousel: React.FC<{
 
                     <div
                         ref={trackRef}
-                        className="flex flex-1 gap-3 overflow-x-auto snap-x snap-mandatory scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                        className="flex flex-1 overflow-x-auto snap-x snap-mandatory scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
                     >
                         {pickupPoints.map((p) => {
                             const active = selected === String(p.id);
@@ -41,7 +41,7 @@ const PickupPointCarousel: React.FC<{
                                     key={p.id}
                                     type="button"
                                     onClick={() => onSelect(String(p.id))}
-                                    className={`snap-start shrink-0 basis-[calc((100%-1.5rem)/3)] rounded-md border px-3 py-2 text-sm text-center truncate cursor-pointer transition-colors ${active
+                                    className={`snap-start shrink-0 basis-full w-full rounded-md border px-3 py-2 text-sm text-center truncate cursor-pointer transition-colors ${active
                                         ? "border-primary bg-primary/10 text-primary font-medium"
                                         : "border-slate-200 hover:bg-slate-50"
                                         }`}
