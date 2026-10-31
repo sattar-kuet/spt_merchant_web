@@ -88,7 +88,7 @@ const RightSideHeader = () => {
                     size="default"
                     className="text-xs sm:text-sm"
                   >
-                    Add Bulk Parcel
+                    Create Bulk Parcel
                   </Button>
                 </Link>
               </div>
@@ -99,7 +99,7 @@ const RightSideHeader = () => {
                     size="default"
                     className="text-xs sm:text-sm"
                   >
-                    Add Single Parcel
+                    Create New Parcel
                   </Button>
                 </Link>
               </div>
@@ -207,7 +207,7 @@ const RightSideHeader = () => {
                     size="default"
                     className="w-full text-xs sm:text-sm"
                   >
-                    Add Bulk Parcel
+                    Create Bulk Parcel
                   </Button>
                 </Link>
                 <Link href="/parcels/add-parcel/single-parcel">
@@ -216,7 +216,7 @@ const RightSideHeader = () => {
                     size="default"
                     className="w-full text-xs sm:text-sm"
                   >
-                    Add Single Parcel
+                    Create New Parcel
                   </Button>
                 </Link>
                 <Button

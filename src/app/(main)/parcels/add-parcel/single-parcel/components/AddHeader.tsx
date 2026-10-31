@@ -3,7 +3,7 @@
 import React from "react";
 
 const AddHeader: React.FC<{ title?: string; subtitle?: string }> = ({
-  title = "Add Single Parcel",
+  title = "Create New Parcel",
   subtitle = "Create a parcel manually or import from CSV",
 }) => {
   return (

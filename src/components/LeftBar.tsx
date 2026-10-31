@@ -1,6 +1,6 @@
 // Navbar.tsx
 "use client";
-import { MdDashboard, MdBarChart } from "react-icons/md";
+import { MdDashboard } from "react-icons/md";
 import { BsBox2 } from "react-icons/bs";
 import { CiSettings } from "react-icons/ci";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa6";
@@ -18,7 +18,6 @@ import logo from "../../public/logo.png";
 const menuItems = [
   { name: "Dashboard", path: "/", icon: <MdDashboard size={20} /> },
   { name: "All Parcels", path: "/parcels", icon: <BsBox2 size={20} /> },
-  { name: "Invoices", path: "/reports", icon: <MdBarChart size={20} /> },
   // Settings handled separately as a collapsible menu
 ];
 
