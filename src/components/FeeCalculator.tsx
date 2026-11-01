@@ -11,6 +11,7 @@ interface CalcProps {
   cod_amount?: number | null;
   customer_city_id?: number | null;
   customer_district_id?: number | null;
+  pickup_point_id?: number | null;
   onChange?: (resp: any) => void;
 }
 
@@ -21,17 +22,13 @@ export default function FeeCalculator({
   cod_amount,
   customer_city_id,
   customer_district_id,
+  pickup_point_id,
   onChange,
 }: CalcProps) {
   const axiosSecure = useAxiosSecure();
 
-  const enabled = Boolean(
-    parcel_type_id &&
-      delivery_speed_id &&
-      total_weight != null &&
-      customer_city_id != null &&
-      customer_district_id != null
-  );
+  // City/district are optional: the backend falls back to rules that match without them.
+  const enabled = Boolean(parcel_type_id && delivery_speed_id);
 
   const params = {
     parcel_type_id,
@@ -40,6 +37,7 @@ export default function FeeCalculator({
     cod_amount: cod_amount || 0,
     customer_city_id,
     customer_district_id,
+    pickup_point_id,
   };
 
   const { data, isError } = useQuery({
@@ -84,7 +82,7 @@ export default function FeeCalculator({
 
       {!enabled && (
         <p className="text-sm text-slate-500 mt-2">
-          Initial values are shown. Provide parcel type, weight and location for accurate calculation.
+          Initial values are shown. Select parcel type and delivery speed to calculate. Select district and city for an exact charge.
         </p>
       )}
     </div>

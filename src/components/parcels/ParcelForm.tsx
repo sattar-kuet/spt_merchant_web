@@ -143,6 +143,7 @@ const ParcelForm: React.FC<ParcelFormProps> = ({
                         delivery_speed_id={deliverySpeed ? Number(deliverySpeed) : undefined}
                         total_weight={Number(weight) || undefined}
                         cod_amount={Number(codAmount) || 0}
+                        pickup_point_id={selectedPickupPoint ? Number(selectedPickupPoint) : undefined}
                         customer_city_id={selectedCity && selectedCity !== "-1" ? Number(selectedCity) : undefined}
                         customer_district_id={selectedDistrict && selectedDistrict !== "-1" ? Number(selectedDistrict) : undefined}
                         onChange={(resp: any) => setCalculatedFees(resp?.data ?? resp)}
