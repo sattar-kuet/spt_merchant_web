@@ -12,6 +12,7 @@ export const TEMPLATE_HEADERS = {
   parcelType: "Parcel Type",
   deliverySpeed: "Delivery Speed",
   codAmount: "COD Amount",
+  merchantReference: "Merchant Reference",
 };
 
 export interface BulkOrder {
@@ -26,6 +27,7 @@ export interface BulkOrder {
   cod_amount: number;
   pickup_point_id: number;
   order_type: string;
+  client_order_ref?: string;
 }
 
 export interface RowError {
@@ -81,7 +83,8 @@ export interface BuildOrdersResult {
 // Pickup Point) into the numeric ids the orders API expects
 export async function buildOrdersFromRows(
   rows: Record<string, any>[],
-  axios: AxiosInstance
+  axios: AxiosInstance,
+  firstRowNumber = 2
 ): Promise<BuildOrdersResult> {
   const [parcelTypesResp, districtsResp, pickupPointsResp, deliverySpeedsResp] = await Promise.all([
     axios.get("/parcel-types"),
@@ -125,8 +128,8 @@ export async function buildOrdersFromRows(
   const errors: RowError[] = [];
 
   dataRows.forEach((row, index) => {
-    // +2 = sheet rows are 1-indexed and row 1 is the header
-    const rowNumber = index + 2;
+    // default 2 = sheet rows are 1-indexed and row 1 is the header
+    const rowNumber = index + firstRowNumber;
     const problems: string[] = [];
 
     const customerName = cell(row, TEMPLATE_HEADERS.customerName);
@@ -139,6 +142,7 @@ export async function buildOrdersFromRows(
     const deliverySpeedName = cell(row, TEMPLATE_HEADERS.deliverySpeed);
     const weightText = cell(row, TEMPLATE_HEADERS.weight);
     const codText = cell(row, TEMPLATE_HEADERS.codAmount);
+    const merchantReference = cell(row, TEMPLATE_HEADERS.merchantReference);
 
     if (!customerName) problems.push("Customer Name is required");
     if (!customerPhone) problems.push("Customer Phone is required");
@@ -225,6 +229,7 @@ export async function buildOrdersFromRows(
       cod_amount: codAmount,
       pickup_point_id: Number(pickupPoint.id),
       order_type: "normal_delivery",
+      ...(merchantReference ? { client_order_ref: merchantReference } : {}),
     });
   });
 

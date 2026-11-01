@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { useGoogleSheets } from "@/hooks/useGoogleSheets";
 import { GoogleAuthButton } from "@/components/GoogleAuthButton";
 import { SheetToggleButton } from "@/components/SheetToggleButton";
+import ManualParcelTable from "@/components/bulk/ManualParcelTable";
 import { TutorialModal } from "@/components/TutorialModal";
 import { useSession } from "next-auth/react";
 import Swal from "sweetalert2";
@@ -22,6 +23,7 @@ const getErrorMessage = (error: unknown, fallback: string) =>
 
 export default function BulkParcelPage() {
   const { data: session } = useSession();
+  const [tab, setTab] = useState<"excel" | "manual">("excel");
   const [viewMode, setViewMode] = useState<"upload" | "editor">("upload");
   const {
     loading,
@@ -289,8 +291,30 @@ export default function BulkParcelPage() {
           </div>
         </div>
 
-        <div className="mt-6 sm:mt-8 bg-white rounded-lg p-4 sm:p-8 shadow-sm">
-          {viewMode === "upload" ? (
+        <div className="mt-6 flex gap-2 border-b border-slate-200">
+          {([
+            ["excel", "Excel Upload"],
+            ["manual", "Manual Entry"],
+          ] as const).map(([key, label]) => (
+            <button
+              key={key}
+              type="button"
+              onClick={() => setTab(key)}
+              className={`px-4 py-2 text-sm font-medium -mb-px border-b-2 cursor-pointer ${
+                tab === key
+                  ? "border-primary text-primary"
+                  : "border-transparent text-slate-500 hover:text-slate-700"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
+        <div className="mt-4 bg-white rounded-lg p-4 sm:p-8 shadow-sm">
+          {tab === "manual" ? (
+            <ManualParcelTable />
+          ) : viewMode === "upload" ? (
             // File upload interface
             <>
               <div
@@ -422,6 +446,7 @@ export default function BulkParcelPage() {
           )}
         </div>
 
+        {tab === "excel" && (
         <div className="mt-6 sm:mt-8 flex justify-end">
           <Button
             variant="default"
@@ -432,6 +457,7 @@ export default function BulkParcelPage() {
             {loading || bulkCreate.isPending ? "Adding Parcels..." : "Add Parcels"}
           </Button>
         </div>
+        )}
       </div>
 
       <TutorialModal
