@@ -8,6 +8,7 @@ import { GoogleAuthButton } from "@/components/GoogleAuthButton";
 import { SheetToggleButton } from "@/components/SheetToggleButton";
 import PickupPointCarousel from "@/components/parcels/form/PickupPointCarousel";
 import useParcelOptions from "@/hooks/useParcelOptions";
+import FilePreviewModal from "@/components/bulk/FilePreviewModal";
 import ManualParcelTable from "@/components/bulk/ManualParcelTable";
 import { TutorialModal } from "@/components/TutorialModal";
 import { useSession } from "next-auth/react";
@@ -40,6 +41,7 @@ export default function BulkParcelPage() {
   const [isTutorialOpen, setIsTutorialOpen] = useState(false);
   const [uploadedRows, setUploadedRows] = useState<Record<string, any>[]>([]);
   const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
   const axiosSecure = useAxiosSecure();
   const { pickupPoints } = useParcelOptions();
@@ -119,11 +121,7 @@ export default function BulkParcelPage() {
           setUploadedRows(jsonData);
           setUploadedFileName(file.name);
 
-          Swal.fire({
-            icon: "success",
-            title: "File Parsed",
-            text: `Found ${jsonData.length} parcel(s) in ${file.name}. Click "Add Parcels" to submit them.`,
-          });
+          setIsPreviewOpen(true);
         }
       } catch (error) {
         console.error("Error parsing Excel file:", error);
@@ -226,6 +224,7 @@ export default function BulkParcelPage() {
         await clearSheet();
       } else {
         setUploadedRows([]);
+        setIsPreviewOpen(false);
         setUploadedFileName(null);
         if (fileInputRef.current) fileInputRef.current.value = "";
       }
@@ -350,9 +349,16 @@ export default function BulkParcelPage() {
 
                 {uploadedFileName && (
                   <div className="mt-4 text-sm text-slate-600">
-                    <span className="font-medium">{uploadedFileName}</span>
+                    <button
+                      type="button"
+                      onClick={() => setIsPreviewOpen(true)}
+                      className="font-medium text-primary hover:underline cursor-pointer"
+                      title="Click to preview the file"
+                    >
+                      {uploadedFileName}
+                    </button>
                     {" — "}
-                    {uploadedRows.length} parcel(s) ready to submit
+                    {uploadedRows.length} parcel(s) ready to submit. Click the file name to preview.
                   </div>
                 )}
               </div>
@@ -452,6 +458,13 @@ export default function BulkParcelPage() {
         </div>
         )}
       </div>
+
+      <FilePreviewModal
+        isOpen={isPreviewOpen}
+        onClose={() => setIsPreviewOpen(false)}
+        fileName={uploadedFileName}
+        rows={uploadedRows}
+      />
 
       <TutorialModal
         isOpen={isTutorialOpen}
