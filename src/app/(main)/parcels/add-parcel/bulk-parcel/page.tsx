@@ -259,7 +259,7 @@ export default function BulkParcelPage() {
 
   return (
     <div className="p-4 sm:p-8">
-      <div className="max-w-5xl mx-auto">
+      <div className={`mx-auto ${tab === "manual" ? "max-w-[1600px]" : "max-w-5xl"}`}>
         <div className="flex justify-between items-start">
           <div>
             <h1 className="text-2xl sm:text-3xl font-semibold">
@@ -294,7 +294,7 @@ export default function BulkParcelPage() {
         <div className="mt-6 flex gap-2 border-b border-slate-200">
           {([
             ["excel", "Excel Upload"],
-            ["manual", "Manual Entry"],
+            ["manual", "Smart Form"],
           ] as const).map(([key, label]) => (
             <button
               key={key}

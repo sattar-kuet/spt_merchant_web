@@ -41,7 +41,7 @@ const emptyRow = (parcelTypeId = "", weight = ""): Row => ({
 });
 
 const inputClass =
-  "w-full min-w-[110px] rounded-md border border-slate-200 px-2 py-1.5 text-sm focus:outline-none focus:border-primary bg-white";
+  "w-full min-w-0 rounded-md border border-slate-200 px-2 py-1.5 text-sm focus:outline-none focus:border-primary bg-white";
 
 const nameOf = (list: Option[] | undefined, id: string) =>
   list?.find((o) => String(o.id) === id)?.name ?? "";
@@ -162,13 +162,18 @@ export default function ManualParcelTable() {
         onSelect={setPickupPointId}
       />
 
-      <div className="mt-4 overflow-x-auto">
-        <table className="w-full text-left">
+      <div className="mt-4">
+        <table className="w-full table-fixed text-left">
+          <colgroup>
+            {[3, 11, 10, 10, 10, 17, 9, 7, 8, 12, 3].map((w, i) => (
+              <col key={i} style={{ width: `${w}%` }} />
+            ))}
+          </colgroup>
           <thead>
             <tr className="text-xs text-slate-500 uppercase">
               {["#", "Name", "Phone", "District", "Area", "Address", "Parcel Type", "Weight (kg)", "Amount (COD)", "Merchant Reference", ""].map(
                 (h) => (
-                  <th key={h} className="px-1.5 py-2 font-medium whitespace-nowrap">
+                  <th key={h} className="px-1.5 py-2 font-medium">
                     {h}
                   </th>
                 )
@@ -218,7 +223,7 @@ export default function ManualParcelTable() {
                   </select>
                 </td>
                 <td className="px-1.5 py-1.5">
-                  <input className={`${inputClass} min-w-[180px]`} value={r.address} onChange={(e) => update(i, { address: e.target.value })} />
+                  <input className={`${inputClass}`} value={r.address} onChange={(e) => update(i, { address: e.target.value })} />
                 </td>
                 <td className="px-1.5 py-1.5">
                   <select className={inputClass} value={r.parcelTypeId} onChange={(e) => update(i, { parcelTypeId: e.target.value })}>
@@ -231,10 +236,10 @@ export default function ManualParcelTable() {
                   </select>
                 </td>
                 <td className="px-1.5 py-1.5">
-                  <input className={`${inputClass} min-w-[80px]`} type="number" min="0" step="0.1" value={r.weight} onChange={(e) => update(i, { weight: e.target.value })} />
+                  <input className={`${inputClass}`} type="number" min="0" step="0.1" value={r.weight} onChange={(e) => update(i, { weight: e.target.value })} />
                 </td>
                 <td className="px-1.5 py-1.5">
-                  <input className={`${inputClass} min-w-[90px]`} type="number" min="0" value={r.cod} onChange={(e) => update(i, { cod: e.target.value })} />
+                  <input className={`${inputClass}`} type="number" min="0" value={r.cod} onChange={(e) => update(i, { cod: e.target.value })} />
                 </td>
                 <td className="px-1.5 py-1.5">
                   <input className={inputClass} value={r.reference} onChange={(e) => update(i, { reference: e.target.value })} />
