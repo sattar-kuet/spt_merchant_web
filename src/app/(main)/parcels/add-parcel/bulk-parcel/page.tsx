@@ -11,6 +11,7 @@ import useParcelOptions from "@/hooks/useParcelOptions";
 import FilePreviewModal from "@/components/bulk/FilePreviewModal";
 import ManualParcelTable from "@/components/bulk/ManualParcelTable";
 import { TutorialModal } from "@/components/TutorialModal";
+import { FaEye } from "react-icons/fa";
 import { useSession } from "next-auth/react";
 import Swal from "sweetalert2";
 import * as XLSX from "xlsx";
@@ -348,17 +349,18 @@ export default function BulkParcelPage() {
                 </Button>
 
                 {uploadedFileName && (
-                  <div className="mt-4 text-sm text-slate-600">
+                  <div className="mt-4 text-sm text-slate-600 flex flex-wrap items-center justify-center gap-x-2 gap-y-1 px-4">
                     <button
                       type="button"
                       onClick={() => setIsPreviewOpen(true)}
-                      className="font-medium text-primary hover:underline cursor-pointer"
-                      title="Click to preview the file"
+                      className="inline-flex items-center gap-2 rounded-md border border-primary/30 bg-primary/5 px-3 py-1.5 font-medium text-primary hover:bg-primary/10 cursor-pointer"
+                      title="Preview the data in this file"
                     >
-                      {uploadedFileName}
+                      <FaEye size={14} aria-hidden="true" />
+                      <span>{uploadedFileName}</span>
+                      <span className="text-xs font-normal">Preview</span>
                     </button>
-                    {" — "}
-                    {uploadedRows.length} parcel(s) ready to submit. Click the file name to preview.
+                    <span>{uploadedRows.length} parcel(s) ready to submit</span>
                   </div>
                 )}
               </div>
