@@ -13,7 +13,7 @@ import Swal from "sweetalert2";
 import * as XLSX from "xlsx";
 import useAxiosSecure from "@/hooks/useAxiosSecure";
 import useBulkCreateParcels from "@/hooks/useBulkCreateParcels";
-import { buildOrdersFromRows, RowError, TEMPLATE_HEADERS } from "@/lib/bulkParcels";
+import { buildOrdersFromRows, RowError } from "@/lib/bulkParcels";
 
 const getGoogleSheetsEditorUrl = (spreadsheetId: string) =>
   `https://docs.google.com/spreadsheets/d/${spreadsheetId}/edit?rm=minimal`;
@@ -85,40 +85,14 @@ export default function BulkParcelPage() {
     fileInputRef.current?.click();
   }
 
-  function downloadGeneratedTemplate() {
-    const headerRow = Object.values(TEMPLATE_HEADERS);
-    const worksheet = XLSX.utils.aoa_to_sheet([headerRow]);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Parcels");
-    XLSX.writeFile(workbook, "bulk_parcel_template.xlsx");
-  }
-
-  async function handleDownloadTemplate() {
-    // Prefer the sample file the admin uploaded in Odoo (Bulk Parcel > Sample),
-    // falling back to a client-generated template if none has been uploaded yet.
-    try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/bulk-parcel-template`
-      );
-      if (!res.ok) throw new Error("No sample template uploaded");
-
-      const blob = await res.blob();
-      const disposition = res.headers.get("Content-Disposition") || "";
-      const filename =
-        disposition.match(/filename="?([^"]+)"?/)?.[1] ||
-        "bulk_parcel_template.xlsx";
-
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-    } catch {
-      downloadGeneratedTemplate();
-    }
+  // Always serve the same sample file (public/BulkImportSample.xlsx)
+  function handleDownloadTemplate() {
+    const a = document.createElement("a");
+    a.href = "/BulkImportSample.xlsx";
+    a.download = "BulkImportSample.xlsx";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
   }
 
   const parseFile = (file: File) => {
