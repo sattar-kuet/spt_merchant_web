@@ -78,7 +78,6 @@ const ParcelForm: React.FC<ParcelFormProps> = ({
     }, [deliverySpeed, deliverySpeeds]);
 
     const codNumber = parseFloat(codAmount) || 0;
-    const codChargeNum = Number(calculatedFees?.cod_charge ?? 0);
 
     const handleFormSubmit = () => {
         const payload = {
@@ -149,32 +148,18 @@ const ParcelForm: React.FC<ParcelFormProps> = ({
                         onChange={(resp: any) => setCalculatedFees(resp?.data ?? resp)}
                     />
 
-                    <div className="bg-white rounded-lg border border-slate-200 p-4 sm:p-6 mt-4">
-                        <h4 className="font-medium mb-2">Order Actions</h4>
-                        <div className="text-sm text-slate-600 mb-3">
-                            <div className="flex justify-between py-1">
-                                <span>COD Fee</span>
-                                <span>৳{codChargeNum.toFixed(2)}</span>
-                            </div>
-                            <div className="flex justify-between pt-3 border-t mt-2 font-semibold">
-                                <span>Total Amount to Collect</span>
-                                <span className="text-primary">৳{(codChargeNum + codNumber).toFixed(2)}</span>
-                            </div>
-                        </div>
-
-                        <div className="flex flex-col sm:flex-row justify-end gap-3">
-                            <Button variant="outline" className="w-full sm:w-auto" type="button" onClick={onCancel}>
-                                Cancel
-                            </Button>
-                            <Button
-                                variant="secondary"
-                                className="w-full sm:w-auto"
-                                disabled={isPending}
-                                onClick={handleFormSubmit}
-                            >
-                                {isPending ? "Processing..." : submitLabel}
-                            </Button>
-                        </div>
+                    <div className="flex flex-col sm:flex-row justify-end gap-3">
+                        <Button variant="outline" className="w-full sm:w-auto" type="button" onClick={onCancel}>
+                            Cancel
+                        </Button>
+                        <Button
+                            variant="secondary"
+                            className="w-full sm:w-auto"
+                            disabled={isPending}
+                            onClick={handleFormSubmit}
+                        >
+                            {isPending ? "Processing..." : submitLabel}
+                        </Button>
                     </div>
                 </div>
             </div>

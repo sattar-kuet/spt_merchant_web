@@ -57,6 +57,11 @@ export default function FeeCalculator({
     if (data) onChange && onChange(data);
   }, [data, onChange]);
 
+  const fees = data?.data ?? data;
+  const delivery = Number(fees?.delivery_charge ?? 0);
+  const cod = Number(fees?.cod_charge ?? 0);
+  const total = Number(fees?.total_charge ?? delivery + cod);
+
   return (
     <div className="bg-white rounded-lg p-3 border border-slate-200 mb-4">
       <h4 className="text-lg font-semibold mb-2">Fee Calculation</h4>
@@ -65,12 +70,16 @@ export default function FeeCalculator({
       )}
 
       <div className="flex justify-between mb-2">
+        <span>Delivery Charge</span>
+        <span className="font-semibold">{`৳${delivery}`}</span>
+      </div>
+      <div className="flex justify-between mb-2">
         <span>COD Charge</span>
-        <span className="font-semibold">{`৳${cod_amount || 0}`}</span>
+        <span className="font-semibold">{`৳${cod}`}</span>
       </div>
       <div className="flex justify-between mb-1 border-t border-t-gray-200 pt-2">
         <span className="text-xl font-semibold">Total Charge</span>
-        <span className="font-semibold text-xl">{`৳${cod_amount || 0}`}</span>
+        <span className="font-semibold text-xl">{`৳${total}`}</span>
       </div>
 
       {!enabled && (
