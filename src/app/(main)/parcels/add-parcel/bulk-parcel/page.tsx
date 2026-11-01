@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/Button";
 import { useGoogleSheets } from "@/hooks/useGoogleSheets";
 import { GoogleAuthButton } from "@/components/GoogleAuthButton";
 import { SheetToggleButton } from "@/components/SheetToggleButton";
+import PickupPointCarousel from "@/components/parcels/form/PickupPointCarousel";
+import useParcelOptions from "@/hooks/useParcelOptions";
 import ManualParcelTable from "@/components/bulk/ManualParcelTable";
 import { TutorialModal } from "@/components/TutorialModal";
 import { useSession } from "next-auth/react";
@@ -40,6 +42,13 @@ export default function BulkParcelPage() {
   const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
 
   const axiosSecure = useAxiosSecure();
+  const { pickupPoints } = useParcelOptions();
+  const [pickupPointId, setPickupPointId] = useState("");
+  useEffect(() => {
+    if (!pickupPointId && pickupPoints?.length) setPickupPointId(String(pickupPoints[0].id));
+  }, [pickupPoints, pickupPointId]);
+  const pickupPointName =
+    pickupPoints?.find((p: { id: number; name: string }) => String(p.id) === pickupPointId)?.name ?? "";
   const bulkCreate = useBulkCreateParcels();
 
   // Create a new sheet when the user navigates to the editor
@@ -188,7 +197,7 @@ export default function BulkParcelPage() {
         return;
       }
 
-      const { orders, errors } = await buildOrdersFromRows(rows, axiosSecure);
+      const { orders, errors } = await buildOrdersFromRows(rows, axiosSecure, 2, pickupPointName);
 
       if (errors.length > 0) {
         showRowErrors(errors);
@@ -291,6 +300,16 @@ export default function BulkParcelPage() {
           ) : viewMode === "upload" ? (
             // File upload interface
             <>
+              <div className="mb-4">
+                <PickupPointCarousel
+                  pickupPoints={pickupPoints}
+                  selected={pickupPointId}
+                  onSelect={setPickupPointId}
+                />
+                <p className="text-xs text-slate-400 mt-1">
+                  Used for every parcel unless your file has a Pickup Point column.
+                </p>
+              </div>
               <div
                 onDragOver={(e) => {
                   e.preventDefault();

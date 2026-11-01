@@ -57,15 +57,41 @@ const byName = (list: any[]) => {
 
 // Header lookup is case/space insensitive so both the Google Sheet and
 // hand-edited Excel files resolve to the same columns
-const cell = (row: Record<string, any>, header: string): string => {
-  const want = header.trim().toLowerCase();
-  for (const key of Object.keys(row)) {
-    if (key.trim().toLowerCase() === want) {
-      const value = row[key];
-      return value == null ? "" : String(value).trim();
+const cell = (row: Record<string, any>, header: string | string[]): string => {
+  const wants = (Array.isArray(header) ? header : [header]).map((h) => h.trim().toLowerCase());
+  for (const want of wants) {
+    for (const key of Object.keys(row)) {
+      if (key.trim().toLowerCase() === want) {
+        const value = row[key];
+        const text = value == null ? "" : String(value).trim();
+        if (text) return text;
+      }
     }
   }
   return "";
+};
+
+// Alternative column names used by the downloadable BulkImportSample.xlsx
+const ALIASES = {
+  customerPhone: [TEMPLATE_HEADERS.customerPhone, "Customer Mobile"],
+  district: [TEMPLATE_HEADERS.district, "Customer District"],
+  city: [TEMPLATE_HEADERS.city, "Customer Area"],
+  weight: [TEMPLATE_HEADERS.weight, "Product weight in kg"],
+  codAmount: [TEMPLATE_HEADERS.codAmount, "Cash Collection"],
+  deliveryHours: ["Delivery time in hour"],
+};
+
+const DEFAULT_WEIGHT = 0.5;
+
+// Same rule as the Odoo bulk wizard: exact max_delay_hours, else the
+// smallest speed that is slow enough, else Regular
+const speedByHours = (speeds: any[], hours: number) => {
+  if (!hours || Number.isNaN(hours)) return undefined;
+  const exact = speeds.find((s) => Number(s.max_delay_hours) === hours);
+  if (exact) return exact;
+  return speeds
+    .filter((s) => Number(s.max_delay_hours) >= hours)
+    .sort((a, b) => Number(a.max_delay_hours) - Number(b.max_delay_hours))[0];
 };
 
 // Excel stores "01711223344" as the number 1711223344; restore the leading zero
@@ -84,7 +110,9 @@ export interface BuildOrdersResult {
 export async function buildOrdersFromRows(
   rows: Record<string, any>[],
   axios: AxiosInstance,
-  firstRowNumber = 2
+  firstRowNumber = 2,
+  // Used when the sheet has no Pickup Point column (e.g. BulkImportSample.xlsx)
+  defaultPickupPointName = ""
 ): Promise<BuildOrdersResult> {
   const [parcelTypesResp, districtsResp, pickupPointsResp, deliverySpeedsResp] = await Promise.all([
     axios.get("/parcel-types"),
@@ -104,13 +132,17 @@ export async function buildOrdersFromRows(
     normalizeList(deliverySpeedsResp.data, "delivery_speeds", "deliverySpeeds")
   );
 
+  const speedList = normalizeList(deliverySpeedsResp.data, "delivery_speeds", "deliverySpeeds");
+  const regularSpeed = deliverySpeeds.get("regular") ?? speedList[0];
+  const defaultParcelType = parcelTypes.get("regular") ?? Array.from(parcelTypes.values())[0];
+
   const dataRows = rows.filter((row) => !isEmptyRow(row));
 
   // Cities depend on the district, so resolve districts first and fetch
   // cities once per distinct district
   const districtIds = new Set<number>();
   for (const row of dataRows) {
-    const district = districts.get(cell(row, TEMPLATE_HEADERS.district).toLowerCase());
+    const district = districts.get(cell(row, ALIASES.district).toLowerCase());
     if (district) districtIds.add(Number(district.id));
   }
 
@@ -133,15 +165,15 @@ export async function buildOrdersFromRows(
     const problems: string[] = [];
 
     const customerName = cell(row, TEMPLATE_HEADERS.customerName);
-    const customerPhone = asPhone(cell(row, TEMPLATE_HEADERS.customerPhone));
+    const customerPhone = asPhone(cell(row, ALIASES.customerPhone));
     const customerAddress = cell(row, TEMPLATE_HEADERS.customerAddress);
-    const districtName = cell(row, TEMPLATE_HEADERS.district);
-    const cityName = cell(row, TEMPLATE_HEADERS.city);
-    const pickupPointName = cell(row, TEMPLATE_HEADERS.pickupPoint);
+    const districtName = cell(row, ALIASES.district);
+    const cityName = cell(row, ALIASES.city);
+    const pickupPointName = cell(row, TEMPLATE_HEADERS.pickupPoint) || defaultPickupPointName;
     const parcelTypeName = cell(row, TEMPLATE_HEADERS.parcelType);
     const deliverySpeedName = cell(row, TEMPLATE_HEADERS.deliverySpeed);
-    const weightText = cell(row, TEMPLATE_HEADERS.weight);
-    const codText = cell(row, TEMPLATE_HEADERS.codAmount);
+    const weightText = cell(row, ALIASES.weight);
+    const codText = cell(row, ALIASES.codAmount);
     const merchantReference = cell(row, TEMPLATE_HEADERS.merchantReference);
 
     if (!customerName) problems.push("Customer Name is required");
@@ -182,7 +214,7 @@ export async function buildOrdersFromRows(
 
     const parcelType = parcelTypeName
       ? parcelTypes.get(parcelTypeName.toLowerCase())
-      : undefined;
+      : defaultParcelType;
     if (!parcelType) {
       problems.push(
         parcelTypeName
@@ -193,7 +225,7 @@ export async function buildOrdersFromRows(
 
     const deliverySpeed = deliverySpeedName
       ? deliverySpeeds.get(deliverySpeedName.toLowerCase())
-      : undefined;
+      : speedByHours(speedList, Number(cell(row, ALIASES.deliveryHours))) ?? regularSpeed;
     if (!deliverySpeed) {
       problems.push(
         deliverySpeedName
@@ -202,8 +234,8 @@ export async function buildOrdersFromRows(
       );
     }
 
-    const weight = Number(weightText);
-    if (!weightText || Number.isNaN(weight) || weight <= 0) {
+    const weight = weightText === "" ? DEFAULT_WEIGHT : Number(weightText);
+    if (Number.isNaN(weight) || weight <= 0) {
       problems.push("Parcel Weight (kg) must be a positive number");
     }
 
