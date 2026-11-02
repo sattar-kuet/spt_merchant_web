@@ -2,7 +2,7 @@
 
 import axios, { AxiosInstance, InternalAxiosRequestConfig } from "axios";
 import { useEffect, useMemo } from "react";
-import { getAuthToken } from "@/lib/auth";
+import { getAuthToken, isInvalidApiKeyResponse, SESSION_REPLACED_MESSAGE } from "@/lib/auth";
 import { useAuth } from "@/context/AuthContext";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001";
@@ -35,11 +35,18 @@ export default function useAxiosSecure(): AxiosInstance {
 
     // Response interceptor to handle 401 errors
     const resInterceptor = axiosInstance.interceptors.response.use(
-      (response) => response,
+      (response) => {
+        // Key was replaced (e.g. same account signed in on another device)
+        if (isInvalidApiKeyResponse(response.data)) {
+          logout(SESSION_REPLACED_MESSAGE);
+          return Promise.reject(new Error(SESSION_REPLACED_MESSAGE));
+        }
+        return response;
+      },
       (error) => {
-        if (error.response?.status === 401) {
+        if (error.response?.status === 401 || isInvalidApiKeyResponse(error.response?.data)) {
           // Token expired or invalid, log the user out
-          logout();
+          logout(SESSION_REPLACED_MESSAGE);
         }
         return Promise.reject(error);
       }

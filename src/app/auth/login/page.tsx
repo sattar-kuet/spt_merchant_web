@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
+import { consumeLogoutReason } from '@/lib/auth';
 import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
 import Swal from 'sweetalert2';
@@ -15,6 +16,15 @@ const LoginPage = () => {
 
   const router = useRouter();
   const { login } = useAuth();
+
+  // Explain a forced logout (e.g. account signed in on another device)
+  useEffect(() => {
+    const reason = consumeLogoutReason();
+    if (reason) {
+      setError(reason);
+      Swal.fire({ icon: 'warning', title: 'Signed out', text: reason });
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

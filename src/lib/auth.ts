@@ -65,3 +65,37 @@ export const removeAuthToken = () => {
 export const isAuthenticated = () => {
   return !!getAuthToken();
 };
+// The API answers a stale/replaced api_key with HTTP 200 and
+// {success: false, message: 'Missing or invalid (merchant) API key.'} instead
+// of a 401. Logging in on another device regenerates the key, so this is how
+// a session that was taken over elsewhere shows up.
+export const isInvalidApiKeyResponse = (data: unknown) => {
+  if (!data || typeof data !== 'object') return false;
+  const { success, message } = data as { success?: unknown; message?: unknown };
+  return success === false && typeof message === 'string' && /invalid.*api key/i.test(message);
+};
+
+export const SESSION_REPLACED_MESSAGE =
+  'Your session has ended because this account was signed in on another device. Please sign in again.';
+
+// Reason shown on the login page after a forced logout. sessionStorage so it
+// survives the full-page redirect but not a new tab.
+const LOGOUT_REASON_KEY = 'logout_reason';
+
+export const setLogoutReason = (reason: string) => {
+  try {
+    sessionStorage.setItem(LOGOUT_REASON_KEY, reason);
+  } catch (e) {
+    // ignore
+  }
+};
+
+export const consumeLogoutReason = () => {
+  try {
+    const reason = sessionStorage.getItem(LOGOUT_REASON_KEY);
+    sessionStorage.removeItem(LOGOUT_REASON_KEY);
+    return reason;
+  } catch (e) {
+    return null;
+  }
+};

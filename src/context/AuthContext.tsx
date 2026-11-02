@@ -3,7 +3,11 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import axios from 'axios';
 import { signOut } from "next-auth/react";
-import { removeAuthToken, setAuthToken, isAuthenticated, getAuthToken } from '@/lib/auth';
+import { removeAuthToken, setAuthToken, isAuthenticated, getAuthToken, setLogoutReason } from '@/lib/auth';
+
+// Module-level so it is shared by every caller; reset by the full-page
+// redirect to /auth/login.
+let loggingOut = false;
 
 // Updated to use your actual API endpoint
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3001';
@@ -22,7 +26,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   login: (identifier: string, password: string) => Promise<{ success: boolean; message?: string }>;
   register: (name: string, identifier: string, password: string) => Promise<{ success: boolean; message?: string }>;
-  logout: () => void;
+  logout: (reason?: string) => void;
   forgotPassword: (email: string) => Promise<{ success: boolean; message?: string }>;
   verifyResetCode: (email: string, code: string) => Promise<{ success: boolean; message?: string; reset_token?: string }>;
   resetPassword: (resetToken: string, newPassword: string) => Promise<{ success: boolean; message?: string }>;
@@ -213,7 +217,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
-  const logout = async () => {
+  const logout = async (reason?: string) => {
+    // Several in-flight requests can fail at once with an invalid key; only
+    // the first one should drive the logout/redirect.
+    if (loggingOut) return;
+    loggingOut = true;
+    if (reason) setLogoutReason(reason);
     setUser(null);
     // Remove token cookie and local user data
     try {
