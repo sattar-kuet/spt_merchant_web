@@ -171,13 +171,13 @@ export default function ManualParcelTable() {
       <div className="mt-4">
         <table className="w-full table-fixed text-left">
           <colgroup>
-            {[3, 9, 9, 8, 9, 13, 8, 6, 7, 9, 6, 10, 3].map((w, i) => (
+            {[3, 9, 9, 9, 8, 9, 13, 8, 6, 7, 6, 10, 3].map((w, i) => (
               <col key={i} style={{ width: `${w}%` }} />
             ))}
           </colgroup>
           <thead>
             <tr className="text-xs text-slate-500 uppercase">
-              {["#", "Name", "Phone", "District", "Area", "Address", "Parcel Type", "Weight (kg)", "Amount (COD)", "Merchant Reference", "Exchange", "Remarks", ""].map(
+              {["#", "Merchant Reference", "Name", "Phone", "District", "Area", "Address", "Parcel Type", "Weight (kg)", "Amount (COD)", "Exchange", "Remarks", ""].map(
                 (h) => (
                   <th key={h} className="px-1.5 py-2 font-medium">
                     {h}
@@ -190,6 +190,9 @@ export default function ManualParcelTable() {
             {rows.map((r, i) => (
               <tr key={i} className="align-top">
                 <td className="px-1.5 py-1.5 text-sm text-slate-500">{i + 1}</td>
+                <td className="px-1.5 py-1.5">
+                  <input className={inputClass} value={r.reference} onChange={(e) => update(i, { reference: e.target.value })} />
+                </td>
                 <td className="px-1.5 py-1.5">
                   <input className={inputClass} value={r.name} onChange={(e) => update(i, { name: e.target.value })} />
                 </td>
@@ -246,9 +249,6 @@ export default function ManualParcelTable() {
                 </td>
                 <td className="px-1.5 py-1.5">
                   <input className={`${inputClass}`} type="number" min="0" value={r.cod} onChange={(e) => update(i, { cod: e.target.value })} />
-                </td>
-                <td className="px-1.5 py-1.5">
-                  <input className={inputClass} value={r.reference} onChange={(e) => update(i, { reference: e.target.value })} />
                 </td>
                 <td className="px-1.5 py-1.5 text-center">
                   <input type="checkbox" className="h-4 w-4 mt-2 cursor-pointer" checked={r.exchange} onChange={(e) => update(i, { exchange: e.target.checked })} />
