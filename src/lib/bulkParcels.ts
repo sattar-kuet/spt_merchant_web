@@ -50,7 +50,7 @@ const normalizeList = (payload: any, ...extraKeys: string[]): any[] => {
 };
 
 // Punctuation/space-insensitive key so "Mirpur - 12" matches "Mirpur 12"
-const squash = (text: string) => text.toLowerCase().replace(/[^\p{L}\p{N}]/gu, "");
+const squash = (text: string) => text.toLowerCase().replace(/[^a-z0-9\u0980-\u09ff]/g, "");
 
 const byName = (list: any[]) => {
   const map = new Map<string, any>();
