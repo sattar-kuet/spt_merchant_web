@@ -4,6 +4,7 @@ import React from "react";
 import { Button } from "@/components/ui/Button";
 import { useParams, useRouter } from "next/navigation";
 import { useOrderData } from "@/hooks/useOrderData";
+import useDeleteParcel from "@/hooks/useDeleteParcel";
 
 // Helper function to format currency
 const formatCurrency = (amount: number): string => {
@@ -45,6 +46,16 @@ export default function OrderDetail() {
   const id = params.id as string;
 
   const { data, isLoading, isError, error } = useOrderData(id);
+  const deleteParcel = useDeleteParcel(id);
+
+  const handleDelete = () => {
+    if (!window.confirm("Are you sure you want to delete this order? This cannot be undone.")) return;
+    deleteParcel.mutate(undefined, {
+      onSuccess: () => router.push("/parcels"),
+      onError: (e) =>
+        window.alert(e instanceof Error ? e.message : "Failed to delete order"),
+    });
+  };
 
   if (isLoading) {
     return (
@@ -104,6 +115,15 @@ export default function OrderDetail() {
             onClick={() => router.push(`/parcels/${id}/edit`)}
           >
             Edit Order
+          </Button>
+          <Button
+            variant="outline"
+            size="default"
+            className="text-red-600 border-red-300 hover:bg-red-50"
+            onClick={handleDelete}
+            disabled={deleteParcel.isPending}
+          >
+            {deleteParcel.isPending ? "Deleting..." : "Delete Order"}
           </Button>
         </div>
       </div>
