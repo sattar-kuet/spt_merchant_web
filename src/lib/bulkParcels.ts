@@ -13,6 +13,8 @@ export const TEMPLATE_HEADERS = {
   deliverySpeed: "Delivery Speed",
   codAmount: "COD Amount",
   merchantReference: "Merchant Reference",
+  exchange: "Exchange",
+  remarks: "Remarks",
 };
 
 export interface BulkOrder {
@@ -28,6 +30,8 @@ export interface BulkOrder {
   pickup_point_id: number;
   order_type: string;
   client_order_ref?: string;
+  is_exchange?: boolean;
+  remarks?: string;
 }
 
 export interface RowError {
@@ -45,15 +49,24 @@ const normalizeList = (payload: any, ...extraKeys: string[]): any[] => {
   return [];
 };
 
+// Punctuation/space-insensitive key so "Mirpur - 12" matches "Mirpur 12"
+const squash = (text: string) => text.toLowerCase().replace(/[^\p{L}\p{N}]/gu, "");
+
 const byName = (list: any[]) => {
   const map = new Map<string, any>();
   for (const item of list) {
     if (item?.name != null) {
-      map.set(String(item.name).trim().toLowerCase(), item);
+      const name = String(item.name).trim().toLowerCase();
+      map.set(name, item);
+      const squashed = squash(name);
+      if (squashed && !map.has("~" + squashed)) map.set("~" + squashed, item);
     }
   }
   return map;
 };
+
+const lookup = (map: Map<string, any> | undefined, name: string) =>
+  map?.get(name.trim().toLowerCase()) ?? map?.get("~" + squash(name));
 
 // Header lookup is case/space insensitive so both the Google Sheet and
 // hand-edited Excel files resolve to the same columns
@@ -79,6 +92,8 @@ const ALIASES = {
   weight: [TEMPLATE_HEADERS.weight, "Product weight in kg"],
   codAmount: [TEMPLATE_HEADERS.codAmount, "Cash Collection"],
   deliveryHours: ["Delivery time in hour"],
+  exchange: ["Exchange", "Is Exchange"],
+  remarks: ["Remarks", "Remark", "Note"],
 };
 
 const DEFAULT_WEIGHT = 0.5;
@@ -142,7 +157,7 @@ export async function buildOrdersFromRows(
   // cities once per distinct district
   const districtIds = new Set<number>();
   for (const row of dataRows) {
-    const district = districts.get(cell(row, ALIASES.district).toLowerCase());
+    const district = lookup(districts, cell(row, ALIASES.district));
     if (district) districtIds.add(Number(district.id));
   }
 
@@ -175,12 +190,14 @@ export async function buildOrdersFromRows(
     const weightText = cell(row, ALIASES.weight);
     const codText = cell(row, ALIASES.codAmount);
     const merchantReference = cell(row, TEMPLATE_HEADERS.merchantReference);
+    const isExchange = /^(1|true|yes|y|exchange)$/i.test(cell(row, ALIASES.exchange));
+    const remarks = cell(row, ALIASES.remarks);
 
     if (!customerName) problems.push("Customer Name is required");
     if (!customerPhone) problems.push("Customer Phone is required");
     if (!customerAddress) problems.push("Customer Address is required");
 
-    const district = districtName ? districts.get(districtName.toLowerCase()) : undefined;
+    const district = districtName ? lookup(districts, districtName) : undefined;
     if (!district) {
       problems.push(
         districtName ? `Unknown district "${districtName}"` : "District is required"
@@ -190,7 +207,7 @@ export async function buildOrdersFromRows(
     let city: any;
     if (district) {
       city = cityName
-        ? cityMaps.get(Number(district.id))?.get(cityName.toLowerCase())
+        ? lookup(cityMaps.get(Number(district.id)), cityName)
         : undefined;
       if (!city) {
         problems.push(
@@ -202,7 +219,7 @@ export async function buildOrdersFromRows(
     }
 
     const pickupPoint = pickupPointName
-      ? pickupPoints.get(pickupPointName.toLowerCase())
+      ? lookup(pickupPoints, pickupPointName)
       : undefined;
     if (!pickupPoint) {
       problems.push(
@@ -213,7 +230,7 @@ export async function buildOrdersFromRows(
     }
 
     const parcelType = parcelTypeName
-      ? parcelTypes.get(parcelTypeName.toLowerCase())
+      ? lookup(parcelTypes, parcelTypeName)
       : defaultParcelType;
     if (!parcelType) {
       problems.push(
@@ -224,7 +241,7 @@ export async function buildOrdersFromRows(
     }
 
     const deliverySpeed = deliverySpeedName
-      ? deliverySpeeds.get(deliverySpeedName.toLowerCase())
+      ? lookup(deliverySpeeds, deliverySpeedName)
       : speedByHours(speedList, Number(cell(row, ALIASES.deliveryHours))) ?? regularSpeed;
     if (!deliverySpeed) {
       problems.push(
@@ -262,6 +279,8 @@ export async function buildOrdersFromRows(
       pickup_point_id: Number(pickupPoint.id),
       order_type: "normal_delivery",
       ...(merchantReference ? { client_order_ref: merchantReference } : {}),
+      ...(isExchange ? { is_exchange: true } : {}),
+      ...(remarks ? { remarks } : {}),
     });
   });
 
