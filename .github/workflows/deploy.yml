@@ -14,4 +14,8 @@ jobs:
           host: 38.242.158.202
           username: root
           key: ${{ secrets.SPT_MERCHANT_WEB_DEPLOY_KEY }}
+          # npm install (~3m) + next build (~6m+) on the VPS exceeds the
+          # action's default 10m limit, which killed the build mid-way
+          command_timeout: 45m
+          timeout: 60s
           script: bash /opt/node_spt_merchant_web/deploy.sh
