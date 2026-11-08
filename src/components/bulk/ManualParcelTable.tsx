@@ -177,7 +177,7 @@ export default function ManualParcelTable() {
           </colgroup>
           <thead>
             <tr className="text-xs text-slate-500 uppercase">
-              {["#", "Merchant Reference", "Name", "Phone", "District", "Area", "Address", "Parcel Type", "Weight (kg)", "Amount (COD)", "Exchange", "Remarks (optional)", ""].map(
+              {["#", "Merchant Reference", "Name", "Phone", "District", "Area", "Address", "Parcel Type", "Weight (kg)", "Amount (COD)", "Exchange", "Remarks", ""].map(
                 (h) => (
                   <th key={h} className="px-1.5 py-2 font-medium">
                     {h}
@@ -254,7 +254,7 @@ export default function ManualParcelTable() {
                   <input type="checkbox" aria-label="Exchange" className="h-4 w-4 mt-2 cursor-pointer" checked={r.exchange} onChange={(e) => update(i, { exchange: e.target.checked })} />
                 </td>
                 <td className="px-1.5 py-1.5">
-                  <input className={inputClass} placeholder="Optional" value={r.remarks} onChange={(e) => update(i, { remarks: e.target.value })} />
+                  <input className={inputClass} value={r.remarks} onChange={(e) => update(i, { remarks: e.target.value })} />
                 </td>
                 <td className="px-1.5 py-1.5">
                   <button
