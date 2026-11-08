@@ -116,6 +116,7 @@ export default function OrderDetail() {
           >
             Edit Order
           </Button>
+          {data.delivery_state === "created" && (
           <Button
             variant="outline"
             size="default"
@@ -125,6 +126,7 @@ export default function OrderDetail() {
           >
             {deleteParcel.isPending ? "Deleting..." : "Delete Order"}
           </Button>
+          )}
         </div>
       </div>
 

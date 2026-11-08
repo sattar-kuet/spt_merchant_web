@@ -9,7 +9,7 @@ export default function useUpdateParcel(orderId: string) {
 
     const mutation = useMutation({
         mutationFn: async (payload: any) => {
-            const resp = await axiosSecure.patch(`/orders/${orderId}`, payload);
+            const resp = await axiosSecure.post(`/orders/${orderId}/update`, payload);
             const data = resp.data;
             if (data && typeof data === "object" && data.success === false) {
                 throw new Error(data.message || "Failed to update parcel");

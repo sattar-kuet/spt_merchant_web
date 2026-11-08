@@ -9,7 +9,7 @@ export default function useDeleteParcel(orderId: string) {
 
     return useMutation({
         mutationFn: async () => {
-            const resp = await axiosSecure.delete(`/orders/${orderId}`);
+            const resp = await axiosSecure.post(`/orders/${orderId}/delete`, {});
             const data = resp.data;
             if (data && typeof data === "object" && data.success === false) {
                 throw new Error(data.message || "Failed to delete parcel");
