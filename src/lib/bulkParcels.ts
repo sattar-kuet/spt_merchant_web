@@ -13,6 +13,8 @@ export const TEMPLATE_HEADERS = {
   deliverySpeed: "Delivery Speed",
   codAmount: "COD Amount",
   merchantReference: "Merchant Reference",
+  exchange: "Exchange",
+  remarks: "Remarks",
 };
 
 export interface BulkOrder {
@@ -28,6 +30,8 @@ export interface BulkOrder {
   pickup_point_id: number;
   order_type: string;
   client_order_ref?: string;
+  is_exchange?: boolean;
+  remarks?: string;
 }
 
 export interface RowError {
@@ -79,6 +83,8 @@ const ALIASES = {
   weight: [TEMPLATE_HEADERS.weight, "Product weight in kg"],
   codAmount: [TEMPLATE_HEADERS.codAmount, "Cash Collection"],
   deliveryHours: ["Delivery time in hour"],
+  exchange: ["Exchange", "Is Exchange"],
+  remarks: ["Remarks", "Remark", "Note"],
 };
 
 const DEFAULT_WEIGHT = 0.5;
@@ -175,6 +181,8 @@ export async function buildOrdersFromRows(
     const weightText = cell(row, ALIASES.weight);
     const codText = cell(row, ALIASES.codAmount);
     const merchantReference = cell(row, TEMPLATE_HEADERS.merchantReference);
+    const isExchange = /^(1|true|yes|y|exchange)$/i.test(cell(row, ALIASES.exchange));
+    const remarks = cell(row, ALIASES.remarks); // optional
 
     if (!customerName) problems.push("Customer Name is required");
     if (!customerPhone) problems.push("Customer Phone is required");
@@ -262,6 +270,8 @@ export async function buildOrdersFromRows(
       pickup_point_id: Number(pickupPoint.id),
       order_type: "normal_delivery",
       ...(merchantReference ? { client_order_ref: merchantReference } : {}),
+      ...(isExchange ? { is_exchange: true } : {}),
+      ...(remarks ? { remarks } : {}),
     });
   });
 
