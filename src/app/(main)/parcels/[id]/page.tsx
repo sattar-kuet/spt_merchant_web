@@ -109,6 +109,7 @@ export default function OrderDetail() {
           </div>
         </div>
         <div className="flex gap-3">
+          {data.delivery_state === "created" && (
           <Button
             variant="outline"
             size="default"
@@ -116,6 +117,7 @@ export default function OrderDetail() {
           >
             Edit Order
           </Button>
+          )}
           {data.delivery_state === "created" && (
           <Button
             variant="outline"
