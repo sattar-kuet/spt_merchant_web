@@ -45,7 +45,7 @@ const emptyRow = (parcelTypeId = "", weight = ""): Row => ({
 });
 
 const inputClass =
-  "w-full min-w-0 rounded-md border border-slate-200 px-2 py-1.5 text-sm focus:outline-none focus:border-primary bg-white";
+  "w-full min-w-0 rounded-md border border-slate-300 px-3 py-2.5 text-base focus:outline-none focus:border-primary bg-white";
 
 const nameOf = (list: Option[] | undefined, id: string) =>
   list?.find((o) => String(o.id) === id)?.name ?? "";
@@ -168,18 +168,18 @@ export default function ManualParcelTable() {
         onSelect={setPickupPointId}
       />
 
-      <div className="mt-4">
-        <table className="w-full table-fixed text-left">
+      <div className="mt-4 overflow-auto max-h-[65vh] rounded-md border border-slate-200">
+        <table className="table-fixed text-left" style={{ minWidth: 1900, width: "100%" }}>
           <colgroup>
-            {[3, 9, 9, 9, 8, 9, 13, 8, 6, 7, 6, 10, 3].map((w, i) => (
-              <col key={i} style={{ width: `${w}%` }} />
+            {[50, 180, 180, 160, 170, 170, 260, 150, 110, 130, 90, 220, 50].map((w, i) => (
+              <col key={i} style={{ width: w }} />
             ))}
           </colgroup>
           <thead>
-            <tr className="text-xs text-slate-500 uppercase">
+            <tr className="text-xs text-slate-500 uppercase [&>th]:sticky [&>th]:top-0 [&>th]:z-10 [&>th]:bg-slate-50">
               {["#", "Merchant Reference", "Name", "Phone", "District", "Area", "Address", "Parcel Type", "Weight (kg)", "Amount (COD)", "Exchange", "Remarks", ""].map(
                 (h) => (
-                  <th key={h} className="px-1.5 py-2 font-medium">
+                  <th key={h} className="px-2 py-3 font-medium">
                     {h}
                   </th>
                 )
@@ -189,17 +189,17 @@ export default function ManualParcelTable() {
           <tbody>
             {rows.map((r, i) => (
               <tr key={i} className="align-top">
-                <td className="px-1.5 py-1.5 text-sm text-slate-500">{i + 1}</td>
-                <td className="px-1.5 py-1.5">
+                <td className="px-2 py-2 text-sm text-slate-500">{i + 1}</td>
+                <td className="px-2 py-2">
                   <input className={inputClass} value={r.reference} onChange={(e) => update(i, { reference: e.target.value })} />
                 </td>
-                <td className="px-1.5 py-1.5">
+                <td className="px-2 py-2">
                   <input className={inputClass} value={r.name} onChange={(e) => update(i, { name: e.target.value })} />
                 </td>
-                <td className="px-1.5 py-1.5">
+                <td className="px-2 py-2">
                   <input className={inputClass} value={r.phone} onChange={(e) => update(i, { phone: e.target.value })} />
                 </td>
-                <td className="px-1.5 py-1.5">
+                <td className="px-2 py-2">
                   <select
                     className={inputClass}
                     value={r.districtId}
@@ -216,7 +216,7 @@ export default function ManualParcelTable() {
                     ))}
                   </select>
                 </td>
-                <td className="px-1.5 py-1.5">
+                <td className="px-2 py-2">
                   <select
                     className={inputClass}
                     value={r.cityId}
@@ -231,10 +231,10 @@ export default function ManualParcelTable() {
                     ))}
                   </select>
                 </td>
-                <td className="px-1.5 py-1.5">
+                <td className="px-2 py-2">
                   <input className={`${inputClass}`} value={r.address} onChange={(e) => update(i, { address: e.target.value })} />
                 </td>
-                <td className="px-1.5 py-1.5">
+                <td className="px-2 py-2">
                   <select className={inputClass} value={r.parcelTypeId} onChange={(e) => update(i, { parcelTypeId: e.target.value })}>
                     <option value="">Select</option>
                     {parcelTypes?.map((t: Option) => (
@@ -244,19 +244,19 @@ export default function ManualParcelTable() {
                     ))}
                   </select>
                 </td>
-                <td className="px-1.5 py-1.5">
+                <td className="px-2 py-2">
                   <input className={`${inputClass}`} type="number" min="0" step="0.1" value={r.weight} onChange={(e) => update(i, { weight: e.target.value })} />
                 </td>
-                <td className="px-1.5 py-1.5">
+                <td className="px-2 py-2">
                   <input className={`${inputClass}`} type="number" min="0" value={r.cod} onChange={(e) => update(i, { cod: e.target.value })} />
                 </td>
-                <td className="px-1.5 py-1.5 text-center">
-                  <input type="checkbox" aria-label="Exchange" className="h-4 w-4 mt-2 cursor-pointer" checked={r.exchange} onChange={(e) => update(i, { exchange: e.target.checked })} />
+                <td className="px-2 py-2 text-center">
+                  <input type="checkbox" aria-label="Exchange" className="h-5 w-5 mt-3 cursor-pointer" checked={r.exchange} onChange={(e) => update(i, { exchange: e.target.checked })} />
                 </td>
-                <td className="px-1.5 py-1.5">
+                <td className="px-2 py-2">
                   <input className={inputClass} value={r.remarks} onChange={(e) => update(i, { remarks: e.target.value })} />
                 </td>
-                <td className="px-1.5 py-1.5">
+                <td className="px-2 py-2">
                   <button
                     type="button"
                     aria-label="Remove row"

@@ -8,10 +8,9 @@ import { GoogleAuthButton } from "@/components/GoogleAuthButton";
 import { SheetToggleButton } from "@/components/SheetToggleButton";
 import PickupPointCarousel from "@/components/parcels/form/PickupPointCarousel";
 import useParcelOptions from "@/hooks/useParcelOptions";
-import FilePreviewModal from "@/components/bulk/FilePreviewModal";
+import FilePreviewPanel from "@/components/bulk/FilePreviewPanel";
 import ManualParcelTable from "@/components/bulk/ManualParcelTable";
 import { TutorialModal } from "@/components/TutorialModal";
-import { FaEye } from "react-icons/fa";
 import { useSession } from "next-auth/react";
 import Swal from "sweetalert2";
 import * as XLSX from "xlsx";
@@ -27,7 +26,7 @@ const getErrorMessage = (error: unknown, fallback: string) =>
 
 export default function BulkParcelPage() {
   const { data: session } = useSession();
-  const [tab, setTab] = useState<"excel" | "manual">("excel");
+  const [tab, setTab] = useState<"excel" | "manual">("manual");
   const [viewMode, setViewMode] = useState<"upload" | "editor">("upload");
   const {
     loading,
@@ -42,7 +41,6 @@ export default function BulkParcelPage() {
   const [isTutorialOpen, setIsTutorialOpen] = useState(false);
   const [uploadedRows, setUploadedRows] = useState<Record<string, any>[]>([]);
   const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
-  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
   const axiosSecure = useAxiosSecure();
   const { pickupPoints } = useParcelOptions();
@@ -121,8 +119,6 @@ export default function BulkParcelPage() {
 
           setUploadedRows(jsonData);
           setUploadedFileName(file.name);
-
-          setIsPreviewOpen(true);
         }
       } catch (error) {
         console.error("Error parsing Excel file:", error);
@@ -225,7 +221,6 @@ export default function BulkParcelPage() {
         await clearSheet();
       } else {
         setUploadedRows([]);
-        setIsPreviewOpen(false);
         setUploadedFileName(null);
         if (fileInputRef.current) fileInputRef.current.value = "";
       }
@@ -276,8 +271,8 @@ export default function BulkParcelPage() {
 
         <div className="mt-6 flex gap-2 border-b border-slate-200">
           {([
-            ["excel", "Excel Upload"],
             ["manual", "Smart Form"],
+            ["excel", "Excel Upload"],
           ] as const).map(([key, label]) => (
             <button
               key={key}
@@ -310,6 +305,20 @@ export default function BulkParcelPage() {
                   Used for every parcel unless your file has a Pickup Point column.
                 </p>
               </div>
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileChange}
+                className="hidden"
+                accept=".xlsx,.xls,.csv"
+              />
+              {uploadedRows.length > 0 ? (
+                <FilePreviewPanel
+                  fileName={uploadedFileName}
+                  rows={uploadedRows}
+                  onChangeFile={onBrowse}
+                />
+              ) : (
               <div
                 onDragOver={(e) => {
                   e.preventDefault();
@@ -331,13 +340,6 @@ export default function BulkParcelPage() {
                   Accepted formats: .xlsx, .xls, .csv
                 </div>
 
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  onChange={handleFileChange}
-                  className="hidden"
-                  accept=".xlsx,.xls,.csv"
-                />
                 <Button
                   variant="outline"
                   size="default"
@@ -348,22 +350,8 @@ export default function BulkParcelPage() {
                   Browse files
                 </Button>
 
-                {uploadedFileName && (
-                  <div className="mt-4 text-sm text-slate-600 flex flex-wrap items-center justify-center gap-x-2 gap-y-1 px-4">
-                    <button
-                      type="button"
-                      onClick={() => setIsPreviewOpen(true)}
-                      className="inline-flex items-center gap-2 rounded-md border border-primary/30 bg-primary/5 px-3 py-1.5 font-medium text-primary hover:bg-primary/10 cursor-pointer"
-                      title="Preview the data in this file"
-                    >
-                      <FaEye size={14} aria-hidden="true" />
-                      <span>{uploadedFileName}</span>
-                      <span className="text-xs font-normal">Preview</span>
-                    </button>
-                    <span>{uploadedRows.length} parcel(s) ready to submit</span>
-                  </div>
-                )}
               </div>
+              )}
 
               <div className="mt-4 text-center">
                 <button
@@ -460,13 +448,6 @@ export default function BulkParcelPage() {
         </div>
         )}
       </div>
-
-      <FilePreviewModal
-        isOpen={isPreviewOpen}
-        onClose={() => setIsPreviewOpen(false)}
-        fileName={uploadedFileName}
-        rows={uploadedRows}
-      />
 
       <TutorialModal
         isOpen={isTutorialOpen}
