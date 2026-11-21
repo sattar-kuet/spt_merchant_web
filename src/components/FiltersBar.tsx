@@ -44,7 +44,7 @@ const STATUS_OPTIONS = [
 ];
 
 const SEARCH_BY_OPTIONS = [
-  { value: "all", label: "All", placeholder: "Search by Tracking ID, Name, Phone or Merchant Ref" },
+  { value: "all", label: "All", placeholder: "Search by all types" },
   { value: "tracking_id", label: "Tracking ID", placeholder: "Search by Tracking ID" },
   { value: "customer_name", label: "Customer Name", placeholder: "Search by Customer Name" },
   { value: "customer_phone", label: "Customer Phone", placeholder: "Search by Customer Phone" },
@@ -90,19 +90,19 @@ const FiltersBar: React.FC<FiltersBarProps> = ({ onFilterChange }) => {
   return (
     <div className="bg-white border border-slate-200 rounded-lg p-4 my-4">
       <div className="flex flex-col md:flex-row gap-3 items-stretch md:items-center">
-        <div className="w-full md:w-[38rem] flex items-center rounded-md border border-input focus-within:ring-1 focus-within:ring-ring">
+        <div className="w-full md:w-[46rem] flex items-center rounded-md border border-input focus-within:ring-1 focus-within:ring-ring">
           <Input
             type="text"
             placeholder={searchPlaceholder}
             value={searchFilter}
             onChange={handleSearchChange}
-            className="flex-1 min-w-0 border-0 shadow-none focus-visible:ring-0"
+            className="h-12 flex-1 min-w-0 border-0 text-base shadow-none focus-visible:ring-0"
           />
           <Select value={searchBy} onValueChange={setSearchBy}>
             <SelectTrigger
               aria-label="Search by"
               title="Search by"
-              className="w-44 shrink-0 gap-2 rounded-l-none border-0 border-l bg-slate-50 px-3 font-medium shadow-none"
+              className="h-12 w-48 shrink-0 gap-2 text-base rounded-l-none border-0 border-l bg-slate-50 px-3 font-medium shadow-none"
             >
               <SelectValue />
             </SelectTrigger>
