@@ -16,7 +16,8 @@ import Swal from "sweetalert2";
 import * as XLSX from "xlsx";
 import useAxiosSecure from "@/hooks/useAxiosSecure";
 import useBulkCreateParcels from "@/hooks/useBulkCreateParcels";
-import { buildOrdersFromRows, RowError } from "@/lib/bulkParcels";
+import { buildOrdersFromRows, dropEmptyRows, RowError } from "@/lib/bulkParcels";
+import { FaCloudUploadAlt, FaFileExcel, FaMagic, FaDownload } from "react-icons/fa";
 
 const getGoogleSheetsEditorUrl = (spreadsheetId: string) =>
   `https://docs.google.com/spreadsheets/d/${spreadsheetId}/edit?rm=minimal`;
@@ -40,6 +41,7 @@ export default function BulkParcelPage() {
   const [isLoadingSheet, setIsLoadingSheet] = useState(false);
   const [isTutorialOpen, setIsTutorialOpen] = useState(false);
   const [uploadedRows, setUploadedRows] = useState<Record<string, any>[]>([]);
+  const [rowProblems, setRowProblems] = useState<string[][] | null>(null);
   const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
 
   const axiosSecure = useAxiosSecure();
@@ -51,6 +53,28 @@ export default function BulkParcelPage() {
   const pickupPointName =
     pickupPoints?.find((p: { id: number; name: string }) => String(p.id) === pickupPointId)?.name ?? "";
   const bulkCreate = useBulkCreateParcels();
+
+  // Check the uploaded rows against the live lists so the preview can show
+  // which rows are ready and which need fixing (re-runs if the pickup point changes)
+  useEffect(() => {
+    if (uploadedRows.length === 0) {
+      setRowProblems(null);
+      return;
+    }
+    let cancelled = false;
+    setRowProblems(null);
+    buildOrdersFromRows(uploadedRows, axiosSecure, 1, pickupPointName)
+      .then((res) => {
+        if (!cancelled) setRowProblems(res.rowProblems);
+      })
+      .catch(() => {
+        if (!cancelled) setRowProblems(uploadedRows.map(() => []));
+      });
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [uploadedRows, pickupPointName]);
 
   // Create a new sheet when the user navigates to the editor
   useEffect(() => {
@@ -117,7 +141,7 @@ export default function BulkParcelPage() {
           const worksheet = workbook.Sheets[sheetName];
           const jsonData = XLSX.utils.sheet_to_json<Record<string, any>>(worksheet);
 
-          setUploadedRows(jsonData);
+          setUploadedRows(dropEmptyRows(jsonData));
           setUploadedFileName(file.name);
         }
       } catch (error) {
@@ -194,7 +218,9 @@ export default function BulkParcelPage() {
 
       const { orders, errors } = await buildOrdersFromRows(rows, axiosSecure, 2, pickupPointName);
 
-      if (errors.length > 0) {
+      // Excel upload imports the ready rows and skips the ones that need fixing;
+      // the Google Sheet flow stays all-or-nothing
+      if (errors.length > 0 && (viewMode === "editor" || orders.length === 0)) {
         showRowErrors(errors);
         return;
       }
@@ -213,7 +239,9 @@ export default function BulkParcelPage() {
       Swal.fire({
         icon: "success",
         title: "Parcels Added",
-        text: `${orders.length} parcel(s) have been added successfully.`,
+        text:
+          `${orders.length} parcel(s) have been added successfully.` +
+          (errors.length > 0 ? ` ${errors.length} row(s) with errors were skipped.` : ""),
       });
 
       if (viewMode === "editor") {
@@ -269,27 +297,27 @@ export default function BulkParcelPage() {
           </div>
         </div>
 
-        <div className="mt-6 flex gap-2 border-b border-slate-200">
+        <div className="mt-6 inline-flex gap-1 rounded-xl bg-slate-200/70 p-1">
           {([
-            ["manual", "Smart Form"],
-            ["excel", "Excel Upload"],
-          ] as const).map(([key, label]) => (
+            ["manual", "Smart Form", FaMagic],
+            ["excel", "Excel Upload", FaFileExcel],
+          ] as const).map(([key, label, Icon]) => (
             <button
               key={key}
               type="button"
               onClick={() => setTab(key)}
-              className={`px-4 py-2 text-sm font-medium -mb-px border-b-2 cursor-pointer ${
+              className={`inline-flex items-center gap-2 rounded-lg px-5 py-2 text-sm font-semibold transition-all cursor-pointer ${
                 tab === key
-                  ? "border-primary text-primary"
-                  : "border-transparent text-slate-500 hover:text-slate-700"
+                  ? "bg-white text-primary shadow-md"
+                  : "text-slate-500 hover:text-slate-800"
               }`}
             >
-              {label}
+              <Icon size={13} /> {label}
             </button>
           ))}
         </div>
 
-        <div className="mt-4 bg-white rounded-lg p-4 sm:p-8 shadow-sm">
+        <div className="mt-4 bg-white rounded-2xl p-4 sm:p-8 shadow-[0_1px_3px_rgba(31,41,55,0.06),0_8px_24px_rgba(31,41,55,0.04)] spt-rise">
           {tab === "manual" ? (
             <ManualParcelTable />
           ) : viewMode === "upload" ? (
@@ -316,41 +344,43 @@ export default function BulkParcelPage() {
                 <FilePreviewPanel
                   fileName={uploadedFileName}
                   rows={uploadedRows}
+                  problems={rowProblems}
+                  submitting={bulkCreate.isPending}
                   onChangeFile={onBrowse}
+                  onStartOver={() => {
+                    setUploadedRows([]);
+                    setUploadedFileName(null);
+                    if (fileInputRef.current) fileInputRef.current.value = "";
+                  }}
+                  onRemoveRow={(i) => setUploadedRows((prev) => prev.filter((_, idx) => idx !== i))}
+                  onConfirm={handleAddParcels}
                 />
               ) : (
-              <div
-                onDragOver={(e) => {
-                  e.preventDefault();
-                  setIsDragging(true);
-                }}
-                onDragLeave={() => setIsDragging(false)}
-                onDrop={handleDrop}
-                className={`border-2 border-dashed rounded-md py-12 sm:py-20 flex flex-col items-center justify-center ${
-                  isDragging ? "border-primary bg-slate-50" : "border-slate-300"
-                }`}
-              >
-                <div className="text-3xl sm:text-4xl mb-3 sm:mb-4 text-slate-300">
-                  📁
-                </div>
-                <div className="text-base sm:text-lg font-medium text-center px-4">
-                  Drag &amp; drop your Excel file here
-                </div>
-                <div className="text-xs text-slate-400 mt-2 text-center px-4">
-                  Accepted formats: .xlsx, .xls, .csv
-                </div>
-
-                <Button
-                  variant="outline"
-                  size="default"
-                  type="button"
+                <div
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    setIsDragging(true);
+                  }}
+                  onDragLeave={() => setIsDragging(false)}
+                  onDrop={handleDrop}
                   onClick={onBrowse}
-                  className="mt-4 sm:mt-6"
+                  className={`cursor-pointer border-2 border-dashed rounded-2xl py-14 sm:py-20 flex flex-col items-center justify-center transition-all ${
+                    isDragging
+                      ? "border-primary bg-indigo-50 scale-[1.01]"
+                      : "border-slate-300 bg-slate-50/60 hover:border-primary hover:bg-indigo-50/50"
+                  }`}
                 >
-                  Browse files
-                </Button>
-
-              </div>
+                  <FaCloudUploadAlt
+                    className={`mb-3 text-primary ${isDragging ? "scale-125" : "spt-float"} transition-transform`}
+                    size={56}
+                  />
+                  <div className="text-lg font-semibold text-center px-4">
+                    Drag &amp; drop your Excel file here
+                  </div>
+                  <div className="text-sm text-slate-500 mt-1.5 text-center px-4">
+                    or <span className="text-primary font-semibold underline">browse your computer</span> · .xlsx, .xls, .csv
+                  </div>
+                </div>
               )}
 
               <div className="mt-4 text-center">
@@ -359,6 +389,7 @@ export default function BulkParcelPage() {
                   onClick={handleDownloadTemplate}
                   className="text-sm text-primary hover:underline"
                 >
+                  <FaDownload className="inline mr-1.5" size={12} />
                   Don&apos;t have a template? Download our template to get
                   started.
                 </button>
@@ -435,7 +466,7 @@ export default function BulkParcelPage() {
           )}
         </div>
 
-        {tab === "excel" && (
+        {tab === "excel" && viewMode === "editor" && (
         <div className="mt-6 sm:mt-8 flex justify-end">
           <Button
             variant="default"

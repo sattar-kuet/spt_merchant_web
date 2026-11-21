@@ -109,7 +109,11 @@ const isEmptyRow = (row: Record<string, any>) =>
 export interface BuildOrdersResult {
   orders: BulkOrder[];
   errors: RowError[];
+  // One entry per non-empty input row (same order): problems found, [] = ready
+  rowProblems: string[][];
 }
+
+export const dropEmptyRows = (rows: Record<string, any>[]) => rows.filter((row) => !isEmptyRow(row));
 
 // Resolves the human-readable sheet columns (District, City, Parcel Type,
 // Pickup Point) into the numeric ids the orders API expects
@@ -164,6 +168,7 @@ export async function buildOrdersFromRows(
 
   const orders: BulkOrder[] = [];
   const errors: RowError[] = [];
+  const rowProblems: string[][] = [];
 
   dataRows.forEach((row, index) => {
     // default 2 = sheet rows are 1-indexed and row 1 is the header
@@ -252,6 +257,7 @@ export async function buildOrdersFromRows(
       problems.push("COD Amount must be a non-negative number");
     }
 
+    rowProblems.push(problems);
     if (problems.length > 0) {
       errors.push({ row: rowNumber, message: problems.join("; ") });
       return;
@@ -275,5 +281,5 @@ export async function buildOrdersFromRows(
     });
   });
 
-  return { orders, errors };
+  return { orders, errors, rowProblems };
 }

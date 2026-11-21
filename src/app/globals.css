@@ -115,3 +115,20 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Bulk parcel screens */
+@keyframes spt-rise {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes spt-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+@keyframes spt-pop {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+.spt-rise { animation: spt-rise 0.3s ease both; }
+.spt-pop { animation: spt-pop 0.25s ease both; }
+.spt-float { animation: spt-float 2.4s ease-in-out infinite; }

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Swal from "sweetalert2";
-import { FaPlus, FaTrash } from "react-icons/fa";
+import { FaPlus, FaTrash, FaListUl, FaCheckCircle, FaMoneyBillWave, FaWeightHanging, FaCheck } from "react-icons/fa";
 import { Button } from "@/components/ui/Button";
 import PickupPointCarousel from "@/components/parcels/form/PickupPointCarousel";
 import useAxiosSecure from "@/hooks/useAxiosSecure";
@@ -160,6 +160,25 @@ export default function ManualParcelTable() {
     }
   };
 
+  const isComplete = (r: Row) =>
+    !!(r.name.trim() && r.phone.trim() && r.districtId && r.cityId && r.address.trim());
+  const completeCount = rows.filter(isComplete).length;
+  const totalCod = rows.reduce((sum, r) => sum + (Number(r.cod) || 0), 0);
+  const totalWeight = rows.reduce((sum, r) => sum + (Number(r.weight) || 0), 0);
+  const fmt = (n: number) => n.toLocaleString("en-US", { maximumFractionDigits: 2 });
+
+  const tile = (icon: React.ReactNode, value: React.ReactNode, label: string, tone: string) => (
+    <div className="flex items-center gap-3 rounded-xl bg-white p-4 shadow-sm border border-slate-100">
+      <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-lg ${tone}`}>
+        {icon}
+      </span>
+      <span>
+        <b className="block text-2xl leading-tight">{value}</b>
+        <span className="text-xs text-slate-500">{label}</span>
+      </span>
+    </div>
+  );
+
   return (
     <div className="w-full">
       <PickupPointCarousel
@@ -168,7 +187,14 @@ export default function ManualParcelTable() {
         onSelect={setPickupPointId}
       />
 
-      <div className="mt-4 overflow-auto max-h-[65vh] rounded-md border border-slate-200">
+      <div className="mt-4 grid grid-cols-2 lg:grid-cols-4 gap-3">
+        {tile(<FaListUl />, rows.length, "Parcels", "bg-indigo-50 text-indigo-600")}
+        {tile(<FaCheckCircle />, completeCount, "Ready to save", "bg-green-50 text-green-600")}
+        {tile(<FaWeightHanging />, <>{fmt(totalWeight)} kg</>, "Total weight", "bg-amber-50 text-amber-600")}
+        {tile(<FaMoneyBillWave />, <>৳ {fmt(totalCod)}</>, "COD to collect", "bg-cyan-50 text-cyan-600")}
+      </div>
+
+      <div className="mt-4 overflow-auto max-h-[65vh] rounded-xl border border-slate-200">
         <table className="table-fixed text-left" style={{ minWidth: 1900, width: "100%" }}>
           <colgroup>
             {[50, 180, 180, 160, 170, 170, 260, 150, 110, 130, 90, 220, 50].map((w, i) => (
@@ -272,13 +298,19 @@ export default function ManualParcelTable() {
         </table>
       </div>
 
-      <div className="mt-4 flex items-center justify-between">
+      <div className="sticky bottom-3 z-10 mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl bg-white/95 px-5 py-3 shadow-xl backdrop-blur">
         <Button variant="outline" type="button" onClick={addRow}>
           <FaPlus size={11} className="mr-2" /> Add Row
         </Button>
-        <Button variant="default" type="button" onClick={handleSave} disabled={bulkCreate.isPending}>
-          {bulkCreate.isPending ? "Saving..." : `Save ${rows.length} Parcel${rows.length > 1 ? "s" : ""}`}
-        </Button>
+        <div className="flex items-center gap-4">
+          <span className="text-sm text-slate-600">
+            <b>{completeCount}</b> of {rows.length} row(s) complete
+          </span>
+          <Button variant="default" type="button" onClick={handleSave} disabled={bulkCreate.isPending}>
+            <FaCheck size={12} className="mr-2" />
+            {bulkCreate.isPending ? "Saving..." : `Save ${rows.length} Parcel${rows.length > 1 ? "s" : ""}`}
+          </Button>
+        </div>
       </div>
     </div>
   );
