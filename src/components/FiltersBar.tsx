@@ -90,7 +90,7 @@ const FiltersBar: React.FC<FiltersBarProps> = ({ onFilterChange }) => {
   return (
     <div className="bg-white border border-slate-200 rounded-lg p-4 my-4">
       <div className="flex flex-col md:flex-row gap-3 items-stretch md:items-center">
-        <div className="w-full md:w-96 flex items-center rounded-md border border-input focus-within:ring-1 focus-within:ring-ring">
+        <div className="w-full md:w-[38rem] flex items-center rounded-md border border-input focus-within:ring-1 focus-within:ring-ring">
           <Input
             type="text"
             placeholder={searchPlaceholder}
@@ -102,8 +102,10 @@ const FiltersBar: React.FC<FiltersBarProps> = ({ onFilterChange }) => {
             <SelectTrigger
               aria-label="Search by"
               title="Search by"
-              className="w-10 shrink-0 justify-center rounded-l-none border-0 border-l px-0 shadow-none"
-            />
+              className="w-44 shrink-0 gap-2 rounded-l-none border-0 border-l bg-slate-50 px-3 font-medium shadow-none"
+            >
+              <SelectValue />
+            </SelectTrigger>
             <SelectContent align="end">
               {SEARCH_BY_OPTIONS.map((o) => (
                 <SelectItem key={o.value} value={o.value}>
