@@ -8,7 +8,8 @@ import PickupPointCarousel from "@/components/parcels/form/PickupPointCarousel";
 import useAxiosSecure from "@/hooks/useAxiosSecure";
 import useParcelOptions from "@/hooks/useParcelOptions";
 import useParcelDefaults from "@/hooks/useParcelDefaults";
-import useBulkCreateParcels from "@/hooks/useBulkCreateParcels";
+import useBulkImportJob from "@/hooks/useBulkImportJob";
+import ImportOverlay from "@/components/bulk/ImportOverlay";
 import { buildOrdersFromRows, RowError, TEMPLATE_HEADERS } from "@/lib/bulkParcels";
 
 interface Row {
@@ -52,7 +53,7 @@ const nameOf = (list: Option[] | undefined, id: string) =>
 
 export default function ManualParcelTable() {
   const axiosSecure = useAxiosSecure();
-  const bulkCreate = useBulkCreateParcels();
+  const importJob = useBulkImportJob();
   const { defaults } = useParcelDefaults();
   const { parcelTypes, districts, pickupPoints, deliverySpeeds } = useParcelOptions();
 
@@ -143,13 +144,10 @@ export default function ManualParcelTable() {
         return;
       }
 
-      await bulkCreate.mutateAsync({ orders });
-      Swal.fire({
-        icon: "success",
-        title: "Parcels Added",
-        text: `${orders.length} parcel(s) have been added successfully.`,
-      });
-      setRows([emptyRow(defaults?.parcel_type_id, defaults?.weight)]);
+      const result = await importJob.start(orders);
+      if (result.created > 0 && result.failed.length === 0) {
+        setRows([emptyRow(defaults?.parcel_type_id, defaults?.weight)]);
+      }
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Failed to add parcels.";
       Swal.fire({
@@ -306,12 +304,13 @@ export default function ManualParcelTable() {
           <span className="text-sm text-slate-600">
             <b>{completeCount}</b> of {rows.length} row(s) complete
           </span>
-          <Button variant="default" type="button" onClick={handleSave} disabled={bulkCreate.isPending}>
+          <Button variant="default" type="button" onClick={handleSave} disabled={(importJob.job?.running ?? false)}>
             <FaCheck size={12} className="mr-2" />
-            {bulkCreate.isPending ? "Saving..." : `Save ${rows.length} Parcel${rows.length > 1 ? "s" : ""}`}
+            {(importJob.job?.running ?? false) ? "Saving..." : `Save ${rows.length} Parcel${rows.length > 1 ? "s" : ""}`}
           </Button>
         </div>
       </div>
+      <ImportOverlay job={importJob.job} onClose={importJob.close} />
     </div>
   );
 }

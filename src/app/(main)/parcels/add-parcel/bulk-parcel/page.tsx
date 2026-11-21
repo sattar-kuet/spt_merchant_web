@@ -15,7 +15,8 @@ import { useSession } from "next-auth/react";
 import Swal from "sweetalert2";
 import * as XLSX from "xlsx";
 import useAxiosSecure from "@/hooks/useAxiosSecure";
-import useBulkCreateParcels from "@/hooks/useBulkCreateParcels";
+import useBulkImportJob from "@/hooks/useBulkImportJob";
+import ImportOverlay from "@/components/bulk/ImportOverlay";
 import { buildOrdersFromRows, dropEmptyRows, RowError } from "@/lib/bulkParcels";
 import { FaCloudUploadAlt, FaFileExcel, FaMagic, FaDownload } from "react-icons/fa";
 
@@ -52,7 +53,7 @@ export default function BulkParcelPage() {
   }, [pickupPoints, pickupPointId]);
   const pickupPointName =
     pickupPoints?.find((p: { id: number; name: string }) => String(p.id) === pickupPointId)?.name ?? "";
-  const bulkCreate = useBulkCreateParcels();
+  const importJob = useBulkImportJob();
 
   // Check the uploaded rows against the live lists so the preview can show
   // which rows are ready and which need fixing (re-runs if the pickup point changes)
@@ -234,23 +235,17 @@ export default function BulkParcelPage() {
         return;
       }
 
-      await bulkCreate.mutateAsync({ orders });
+      const result = await importJob.start(orders, errors.length);
 
-      Swal.fire({
-        icon: "success",
-        title: "Parcels Added",
-        text:
-          `${orders.length} parcel(s) have been added successfully.` +
-          (errors.length > 0 ? ` ${errors.length} row(s) with errors were skipped.` : ""),
-      });
-
-      if (viewMode === "editor") {
-        // Clear the sheet (except headers) only after a successful submission
-        await clearSheet();
-      } else {
-        setUploadedRows([]);
-        setUploadedFileName(null);
-        if (fileInputRef.current) fileInputRef.current.value = "";
+      if (result.created > 0) {
+        if (viewMode === "editor") {
+          // Clear the sheet (except headers) only after a successful submission
+          await clearSheet();
+        } else {
+          setUploadedRows([]);
+          setUploadedFileName(null);
+          if (fileInputRef.current) fileInputRef.current.value = "";
+        }
       }
     } catch (err: unknown) {
       console.error("Error adding parcels:", err);
@@ -345,7 +340,7 @@ export default function BulkParcelPage() {
                   fileName={uploadedFileName}
                   rows={uploadedRows}
                   problems={rowProblems}
-                  submitting={bulkCreate.isPending}
+                  submitting={(importJob.job?.running ?? false)}
                   onChangeFile={onBrowse}
                   onStartOver={() => {
                     setUploadedRows([]);
@@ -472,13 +467,15 @@ export default function BulkParcelPage() {
             variant="default"
             size="default"
             onClick={handleAddParcels}
-            disabled={loading || isLoadingSheet || bulkCreate.isPending}
+            disabled={loading || isLoadingSheet || (importJob.job?.running ?? false)}
           >
-            {loading || bulkCreate.isPending ? "Adding Parcels..." : "Add Parcels"}
+            {loading || (importJob.job?.running ?? false) ? "Adding Parcels..." : "Add Parcels"}
           </Button>
         </div>
         )}
       </div>
+
+      <ImportOverlay job={importJob.job} onClose={importJob.close} />
 
       <TutorialModal
         isOpen={isTutorialOpen}

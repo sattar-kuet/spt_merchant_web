@@ -132,3 +132,14 @@
 .spt-rise { animation: spt-rise 0.3s ease both; }
 .spt-pop { animation: spt-pop 0.25s ease both; }
 .spt-float { animation: spt-float 2.4s ease-in-out infinite; }
+@keyframes spt-steam {
+  0% { opacity: 0; transform: translateY(8px); }
+  35% { opacity: 0.9; }
+  100% { opacity: 0; transform: translateY(-14px); }
+}
+@keyframes spt-shine {
+  from { background-position: 0% 0; }
+  to { background-position: 200% 0; }
+}
+.spt-steam { opacity: 0; animation: spt-steam 2.4s ease-in-out infinite; }
+.spt-shine { background-size: 200% 100%; animation: spt-shine 1.6s linear infinite; }
