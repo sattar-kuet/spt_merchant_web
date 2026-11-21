@@ -12,7 +12,8 @@ const OrdersPage = () => {
   const [filters, setFilters] = useState<{
     status: string | null;
     search: string | null;
-  }>({ status: null, search: null });
+    searchBy: string | null;
+  }>({ status: null, search: null, searchBy: null });
   console.log("Current filters:", filters); // Debug log
   const { orders, loading, error, pagination } = useOrdersData(
     currentPage,
@@ -28,6 +29,7 @@ const OrdersPage = () => {
   const handleFilterChange = (newFilters: {
     status: string | null;
     search: string | null;
+    searchBy: string | null;
   }) => {
     console.log("Filters changed to:", newFilters); // Debug log
     setFilters(newFilters);

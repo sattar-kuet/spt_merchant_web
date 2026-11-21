@@ -41,6 +41,7 @@ const DEFAULT_PAGINATION = {
 interface FilterParams {
   status?: string | null;
   search?: string | null;
+  searchBy?: string | null;
 }
 
 export const useOrdersData = (
@@ -65,6 +66,7 @@ export const useOrdersData = (
 
     if (filters.search) {
       params.search = filters.search;
+      if (filters.searchBy) params.search_by = filters.searchBy;
     }
 
     const url = "/orders";

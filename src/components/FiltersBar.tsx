@@ -15,6 +15,7 @@ interface FiltersBarProps {
   onFilterChange: (filters: {
     status: string | null;
     search: string | null;
+    searchBy: string | null;
   }) => void;
 }
 
@@ -42,25 +43,37 @@ const STATUS_OPTIONS = [
   { value: "returned_to_merchant", label: "Returned to Merchant" },
 ];
 
+const SEARCH_BY_OPTIONS = [
+  { value: "all", label: "All", placeholder: "Search by Tracking ID, Name, Phone or Merchant Ref" },
+  { value: "tracking_id", label: "Tracking ID", placeholder: "Search by Tracking ID" },
+  { value: "customer_name", label: "Customer Name", placeholder: "Search by Customer Name" },
+  { value: "customer_phone", label: "Customer Phone", placeholder: "Search by Customer Phone" },
+  { value: "merchant_ref", label: "Merchant Ref", placeholder: "Search by Merchant Ref" },
+];
+
 const FiltersBar: React.FC<FiltersBarProps> = ({ onFilterChange }) => {
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
   const [searchFilter, setSearchFilter] = useState<string>("");
+  const [searchBy, setSearchBy] = useState<string>("all");
+  const searchByParam = searchBy === "all" ? null : searchBy;
+  const searchPlaceholder =
+    SEARCH_BY_OPTIONS.find((o) => o.value === searchBy)?.placeholder ?? "Search";
 
   // Debounce the search box so it doesn't fire a request on every keystroke;
   // status applies immediately since it's a discrete selection, not typing
   useEffect(() => {
     const id = setTimeout(() => {
-      onFilterChange({ status: statusFilter, search: searchFilter || null });
+      onFilterChange({ status: statusFilter, search: searchFilter || null, searchBy: searchByParam });
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, 400);
     return () => clearTimeout(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchFilter]);
+  }, [searchFilter, searchBy]);
 
   const handleStatusChange = (value: string) => {
     const nextStatus = value === "all" ? null : value;
     setStatusFilter(nextStatus);
-    onFilterChange({ status: nextStatus, search: searchFilter || null });
+    onFilterChange({ status: nextStatus, search: searchFilter || null, searchBy: searchByParam });
   };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -70,20 +83,35 @@ const FiltersBar: React.FC<FiltersBarProps> = ({ onFilterChange }) => {
   const handleClearFilters = () => {
     setStatusFilter(null);
     setSearchFilter("");
-    onFilterChange({ status: null, search: null });
+    setSearchBy("all");
+    onFilterChange({ status: null, search: null, searchBy: null });
   };
 
   return (
     <div className="bg-white border border-slate-200 rounded-lg p-4 my-4">
       <div className="flex flex-col md:flex-row gap-3 items-stretch md:items-center">
-        <div className="w-full md:w-64">
+        <div className="w-full md:w-96 flex items-center rounded-md border border-input focus-within:ring-1 focus-within:ring-ring">
           <Input
             type="text"
-            placeholder="Search by Order ID"
+            placeholder={searchPlaceholder}
             value={searchFilter}
             onChange={handleSearchChange}
-            className="w-full"
+            className="flex-1 min-w-0 border-0 shadow-none focus-visible:ring-0"
           />
+          <Select value={searchBy} onValueChange={setSearchBy}>
+            <SelectTrigger
+              aria-label="Search by"
+              title="Search by"
+              className="w-10 shrink-0 justify-center rounded-l-none border-0 border-l px-0 shadow-none"
+            />
+            <SelectContent align="end">
+              {SEARCH_BY_OPTIONS.map((o) => (
+                <SelectItem key={o.value} value={o.value}>
+                  {o.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:flex lg:gap-3 lg:items-center w-full">
