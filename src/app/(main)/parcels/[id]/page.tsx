@@ -208,6 +208,12 @@ export default function OrderDetail() {
                   {formatDeliveryState(data.delivery_state)}
                 </span>
               </div>
+              {data.client_order_ref ? (
+                <div className="flex justify-between">
+                  <span>Merchant Ref</span>
+                  <span className="font-medium text-slate-700">{data.client_order_ref}</span>
+                </div>
+              ) : null}
               <div className="flex justify-between">
                 <span>Total Weight</span>
                 <span>{data.total_weight} kg</span>

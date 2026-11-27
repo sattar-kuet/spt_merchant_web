@@ -15,6 +15,7 @@ interface Order {
   cod_amount: number;
   total_weight: number;
   parcel_type: string | null;
+  client_order_ref?: string | null;
   date: string | null;
   status: string;
 }

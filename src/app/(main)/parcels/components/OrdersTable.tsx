@@ -15,6 +15,7 @@ interface Order {
   cod_amount: number;
   total_weight: number;
   parcel_type: string | null;
+  client_order_ref?: string | null;
   date: string | null;
   status: string;
 }
@@ -152,6 +153,11 @@ const OrdersTable: React.FC<OrdersTableProps> = ({
                       </div>
                       <div>
                         <div className="font-medium text-slate-800">{order.name}</div>
+                        {order.client_order_ref && (
+                          <div className="text-xs text-slate-500" title="Merchant reference">
+                            Ref: <span className="font-medium text-slate-600">{order.client_order_ref}</span>
+                          </div>
+                        )}
                         <div className="text-xs text-slate-400">
                           {order.date ?? "-"}
                           {order.parcel_type ? ` · ${order.parcel_type}` : ""}

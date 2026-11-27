@@ -19,10 +19,27 @@ const ParcelDetails: React.FC<{
     deliverySpeed: string;
     setDeliverySpeed: (v: string) => void;
     deliverySpeeds?: { id: number; name: string }[];
-}> = ({ weight, setWeight, parcelType, setParcelType, parcelTypes, deliverySpeed, setDeliverySpeed, deliverySpeeds }) => {
+    merchantRef?: string;
+    setMerchantRef?: (v: string) => void;
+}> = ({ weight, setWeight, parcelType, setParcelType, parcelTypes, deliverySpeed, setDeliverySpeed, deliverySpeeds, merchantRef, setMerchantRef }) => {
     return (
         <div className="mt-4 bg-white rounded-lg border border-slate-200 p-6">
             <h3 className="text-lg font-medium">Parcel Details</h3>
+
+            {setMerchantRef && (
+                <div className="mt-4">
+                    <label htmlFor="merchant-ref" className="text-sm">
+                        Merchant Reference / Tracking No. <span className="text-slate-400">(optional)</span>
+                    </label>
+                    <Input
+                        id="merchant-ref"
+                        value={merchantRef ?? ""}
+                        onChange={(e) => setMerchantRef(e.target.value)}
+                        placeholder="Your own invoice or tracking code, e.g. INV-1024"
+                        maxLength={64}
+                    />
+                </div>
+            )}
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
                 <div>

@@ -34,6 +34,7 @@ const ParcelForm: React.FC<ParcelFormProps> = ({
     const [weight, setWeight] = useState(initialData?.total_weight?.toString() || "");
     const [parcelType, setParcelType] = useState(initialData?.parcel_type_id?.toString() || "");
     const [codAmount, setCodAmount] = useState(initialData?.cod_amount?.toString() || "");
+    const [merchantRef, setMerchantRef] = useState(initialData?.client_order_ref || "");
 
     const [selectedDistrict, setSelectedDistrict] = useState(initialData?.customer_district_id?.toString() || "");
     const [selectedCity, setSelectedCity] = useState(initialData?.customer_city_id?.toString() || "");
@@ -58,6 +59,7 @@ const ParcelForm: React.FC<ParcelFormProps> = ({
             setWeight(initialData.total_weight?.toString() || "");
             setParcelType(initialData.parcel_type_id?.toString() || "");
             setCodAmount(initialData.cod_amount?.toString() || "");
+            setMerchantRef(initialData.client_order_ref || "");
             setSelectedDistrict(initialData.customer_district_id?.toString() || "");
             setSelectedCity(initialData.customer_city_id?.toString() || "");
             setSelectedPickupPoint(initialData.pickup_point_id?.toString() || "");
@@ -97,6 +99,7 @@ const ParcelForm: React.FC<ParcelFormProps> = ({
             pickup_point_id: selectedPickupPoint && selectedPickupPoint !== "-1" ? Number(selectedPickupPoint) : undefined,
             total_weight: weight ? Number(weight) : undefined,
             cod_amount: codNumber,
+            client_order_ref: merchantRef.trim(),
         };
         onSubmit(payload);
     };
@@ -137,6 +140,8 @@ const ParcelForm: React.FC<ParcelFormProps> = ({
                         deliverySpeed={deliverySpeed}
                         setDeliverySpeed={setDeliverySpeed}
                         deliverySpeeds={deliverySpeeds}
+                        merchantRef={merchantRef}
+                        setMerchantRef={setMerchantRef}
                     />
 
                     <FinancialInfo codAmount={codAmount} setCodAmount={setCodAmount} />

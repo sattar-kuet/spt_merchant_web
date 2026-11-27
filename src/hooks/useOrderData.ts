@@ -35,6 +35,7 @@ export interface Order {
   delivery_state: string;
   parcel_type_id: number;
   parcel_type: string;
+  client_order_ref?: string;
   order_type: string;
   order_lines: OrderLine[];
   delivery_state_log: any[]; // You might want to define a more specific type
