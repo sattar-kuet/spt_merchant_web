@@ -44,6 +44,11 @@ const ParcelForm: React.FC<ParcelFormProps> = ({
     const { defaults: savedDefaults } = useParcelDefaults();
     const { parcelTypes, districts, cities, pickupPoints, deliverySpeeds } = useParcelOptions(selectedDistrict);
 
+    // The courier serves one district: select it so only the area has to be picked.
+    useEffect(() => {
+        if (!selectedDistrict && districts?.length === 1) setSelectedDistrict(String(districts[0].id));
+    }, [districts, selectedDistrict]);
+
     // Sync state if initialData changes (important for edit mode after fetch)
     useEffect(() => {
         if (initialData) {

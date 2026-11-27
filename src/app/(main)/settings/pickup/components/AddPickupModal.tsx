@@ -25,6 +25,13 @@ export default function AddPickupModal({ open, onClose }: Props) {
   // fetch districts and cities (cities depend on selected district)
   const { districts = [], cities = [] } = useParcelOptions(form.district_id as any);
 
+  // The courier serves one district: select it so only the area has to be picked.
+  useEffect(() => {
+    if (!form.district_id && districts.length === 1) {
+      setForm((s) => ({ ...s, district_id: String((districts[0] as { id: number }).id) }));
+    }
+  }, [districts, form.district_id]);
+
   function onChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
     const { name, value } = e.target;
     if (name === "district_id") {

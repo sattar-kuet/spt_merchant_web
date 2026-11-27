@@ -84,6 +84,14 @@ export default function ManualParcelTable() {
     setCitiesByDistrict((prev) => ({ ...prev, [districtId]: list }));
   };
 
+  // The courier serves one district: select it so only the area has to be picked.
+  useEffect(() => {
+    if (districts?.length !== 1 || rows.every((r) => r.districtId)) return;
+    const id = String(districts[0].id);
+    setRows((prev) => prev.map((r) => (r.districtId ? r : { ...r, districtId: id })));
+    loadCities(id);
+  }, [districts, rows]);
+
   const update = (index: number, patch: Partial<Row>) =>
     setRows((prev) => prev.map((r, i) => (i === index ? { ...r, ...patch } : r)));
 
